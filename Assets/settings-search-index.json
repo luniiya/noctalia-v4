@@ -608,6 +608,14 @@
     "subTab": null
   },
   {
+    "labelKey": "panels.bubbles.background-color-label",
+    "descriptionKey": "panels.bubbles.background-color-description",
+    "widget": "NColorChoice",
+    "tab": 4,
+    "tabLabel": "panels.bubbles.title",
+    "subTab": null
+  },
+  {
     "labelKey": "panels.bubbles.opacity-label",
     "descriptionKey": "panels.bubbles.opacity-description",
     "widget": "NValueSlider",

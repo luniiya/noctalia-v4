@@ -249,6 +249,7 @@ Singleton {
         property int padding: 4
         property int spacing: 8
         property int radius: 16
+        property string backgroundColorKey: "none"
         property real opacity: 0.93
         property bool autoCycle: true
         property int cycleInterval: 5

@@ -62,19 +62,13 @@ PanelWindow {
   }
 
   function measure() {
-    var width = configuration.height;
-    var height = configuration.height;
-    for (var i = 0; i < widgetRepeater.count; i++) {
-      var widget = widgetRepeater.itemAt(i)?.widget;
-      if (!widget)
-        continue;
-      width = Math.max(width, widget.implicitWidth);
-      height = Math.max(height, widget.implicitHeight);
-    }
-    measuredWidth = Math.ceil(width + (vertical ? 0 : configuration.padding * 2 + flare * 2));
-    measuredHeight = Math.ceil(height + (vertical ? configuration.padding * 2 + flare * 2 : 0));
+    var size = BubbleLogic.contentSize(widgetRepeater.itemAt(currentIndex)?.widget, configuration);
+    measuredWidth = size.width;
+    measuredHeight = size.height;
     BubbleService.measure(screen?.name, bubbleId, measuredWidth, measuredHeight);
   }
+
+  onCurrentIndexChanged: Qt.callLater(measure)
 
   function cycle(step) {
     if (widgets.length < 2 || transition.running || panelOpen)
@@ -116,7 +110,7 @@ PanelWindow {
     preferredRendererType: Shape.CurveRenderer
 
     ShapePath {
-      fillColor: Qt.alpha(Color.mSurface, root.configuration.opacity)
+      fillColor: Qt.alpha(root.configuration.backgroundColorKey === "none" ? Color.mSurface : Color.resolveColorKey(root.configuration.backgroundColorKey), root.configuration.opacity)
       strokeColor: "transparent"
       strokeWidth: 0
       PathSvg {

@@ -14,6 +14,7 @@ TestCase {
                                      height: 34,
                                      padding: 4,
                                      radius: 16,
+                                     backgroundColorKey: "none",
                                      opacity: 0.93,
                                      autoCycle: true,
                                      cycleInterval: 5,
@@ -342,6 +343,135 @@ TestCase {
     compare(Bubbles.reorder(widgets, -1, 2), widgets);
   }
 
+  function test_backgroundColor_data() {
+    return [
+          {
+            tag: "legacy config",
+            key: undefined,
+            expected: "none"
+          },
+          {
+            tag: "surface",
+            key: "none",
+            expected: "none"
+          },
+          {
+            tag: "primary",
+            key: "primary",
+            expected: "primary"
+          },
+          {
+            tag: "secondary",
+            key: "secondary",
+            expected: "secondary"
+          },
+          {
+            tag: "tertiary",
+            key: "tertiary",
+            expected: "tertiary"
+          },
+          {
+            tag: "error",
+            key: "error",
+            expected: "error"
+          },
+          {
+            tag: "outline",
+            key: "outline",
+            expected: "outline"
+          },
+          {
+            tag: "unknown key",
+            key: "invalid",
+            expected: "none"
+          },
+          {
+            tag: "null key",
+            key: null,
+            expected: "none"
+          }
+        ];
+  }
+
+  function test_backgroundColor(data) {
+    var config = data.key === undefined ? {} : {
+      backgroundColorKey: data.key
+    };
+    compare(Bubbles.effective(config, defaults).backgroundColorKey, data.expected);
+  }
+
+  function test_moveBubblePreservesOtherMonitorsAndWidgetSettings() {
+    var configs = [bubble("a", "DP-1"), bubble("other", "DP-2"), bubble("b", "DP-1", {
+                                                                          backgroundColorKey: "primary"
+                                                                        })];
+    var moved = Bubbles.moveBubble(configs, "DP-1", "b", -1);
+    compare(moved.map(function (b) {
+      return b.id;
+    }), ["b", "other", "a"]);
+    compare(moved[0].backgroundColorKey, "primary");
+    compare(moved[0].widgets, configs[2].widgets);
+    compare(moved[1], configs[1]);
+    compare(configs[0].id, "a");
+    compare(Bubbles.moveBubble(moved, "DP-1", "b", 1), configs);
+    compare(Bubbles.moveBubble(configs, "DP-1", "a", -1), configs);
+    compare(Bubbles.moveBubble(configs, "DP-1", "b", 1), configs);
+    compare(Bubbles.moveBubble(configs, "DP-2", "b", -1), configs);
+    compare(Bubbles.moveBubble(null, "DP-1", "a", 1), []);
+    compare(Bubbles.moveBubble(savedBubbles, "DP-2", "saved", -1).length, 1);
+  }
+
+  function test_searchRevealsOnlyMatchingBubbleSettings() {
+    var widgets = {
+      label: "Widgets",
+      children: []
+    };
+    var firstSettings = {
+      expanded: false,
+      children: [
+        {
+          label: "Background color"
+        }
+      ]
+    };
+    var secondSettings = {
+      expanded: false,
+      children: [
+        {
+          label: "Background color"
+        }
+      ]
+    };
+    var tab = {
+      children: [widgets, firstSettings, secondSettings]
+    };
+    verify(!Bubbles.revealSetting(tab, "Widgets"));
+    verify(!firstSettings.expanded);
+    verify(Bubbles.revealSetting(tab, "Background color"));
+    verify(firstSettings.expanded);
+    verify(!secondSettings.expanded);
+    verify(!Bubbles.revealSetting(tab, "Background color"));
+    verify(!Bubbles.revealSetting(tab, "missing"));
+    verify(!Bubbles.revealSetting(null, "Background color"));
+  }
+
+  function test_searchRevealsNestedCollapsedSections() {
+    var inner = {
+      expanded: false,
+      children: [
+        {
+          label: "Position"
+        }
+      ]
+    };
+    var outer = {
+      expanded: false,
+      children: [inner]
+    };
+    verify(Bubbles.revealSetting(outer, "Position"));
+    verify(outer.expanded);
+    verify(inner.expanded);
+  }
+
   function test_layoutEdges_data() {
     return [
           {
@@ -567,7 +697,7 @@ TestCase {
                            }, "DP-1", "a", 1000, 700).x, 892);
   }
 
-  function test_inactiveWidgetsKeepCarouselSizeWhileHiddenBarWidgetsCollapse() {
+  function test_inactiveWidgetsKeepMeasurementsWhileHiddenBarWidgetsCollapse() {
     var clock = {
       visible: true,
       implicitWidth: 90,
@@ -578,15 +708,147 @@ TestCase {
       implicitWidth: 40,
       implicitHeight: 30
     };
-    function carouselWidth() {
-      return Math.max(Bubbles.widgetExtent(clock, "implicitWidth", true), Bubbles.widgetExtent(volume, "implicitWidth", true));
-    }
-    compare(carouselWidth(), 90);
+    compare(Bubbles.widgetExtent(clock, "implicitWidth", true), 90);
+    compare(Bubbles.widgetExtent(volume, "implicitWidth", true), 40);
     clock.visible = false;
     volume.visible = true;
-    compare(carouselWidth(), 90);
+    compare(Bubbles.widgetExtent(clock, "implicitWidth", true), 90);
+    compare(Bubbles.widgetExtent(volume, "implicitWidth", true), 40);
     compare(Bubbles.widgetExtent(clock, "implicitWidth", false), 0);
     compare(Bubbles.widgetExtent(null, "implicitWidth", true), 0);
+  }
+
+  function test_contentSizeStylesAndOrientation_data() {
+    return [
+          {
+            tag: "floating top",
+            position: "top",
+            style: "floating",
+            width: 208,
+            height: 60
+          },
+          {
+            tag: "attached bottom",
+            position: "bottom",
+            style: "attached",
+            width: 208,
+            height: 60
+          },
+          {
+            tag: "notched top",
+            position: "top",
+            style: "notch",
+            width: 240,
+            height: 60
+          },
+          {
+            tag: "floating left",
+            position: "left",
+            style: "floating",
+            width: 200,
+            height: 68
+          },
+          {
+            tag: "attached right",
+            position: "right",
+            style: "attached",
+            width: 200,
+            height: 68
+          },
+          {
+            tag: "notched right",
+            position: "right",
+            style: "notch",
+            width: 200,
+            height: 100
+          }
+        ];
+  }
+
+  function test_contentSizeStylesAndOrientation(data) {
+    var config = Bubbles.effective({
+                                     position: data.position,
+                                     style: data.style
+                                   }, defaults);
+    compare(Bubbles.contentSize({
+                                  implicitWidth: 200,
+                                  implicitHeight: 60
+                                }, config), {
+              width: data.width,
+              height: data.height
+            });
+  }
+
+  function test_contentSizeShrinksAndGrowsWithCurrentWidget() {
+    var config = Bubbles.effective({
+                                     height: 30
+                                   }, defaults);
+    var icon = {
+      visible: true,
+      implicitWidth: 30,
+      implicitHeight: 30
+    };
+    var visualizer = {
+      visible: false,
+      implicitWidth: 200,
+      implicitHeight: 30
+    };
+    compare(Bubbles.contentSize(icon, config), {
+              width: 38,
+              height: 30
+            });
+    icon.visible = false;
+    visualizer.visible = true;
+    compare(Bubbles.contentSize(visualizer, config), {
+              width: 208,
+              height: 30
+            });
+    icon.visible = true;
+    visualizer.visible = false;
+    compare(Bubbles.contentSize(icon, config), {
+              width: 38,
+              height: 30
+            });
+    icon.implicitWidth = 85;
+    compare(Bubbles.contentSize(icon, config), {
+              width: 93,
+              height: 30
+            });
+    icon.implicitWidth = 30;
+    compare(Bubbles.contentSize(icon, config), {
+              width: 38,
+              height: 30
+            });
+    compare(Bubbles.contentSize(null, config), {
+              width: 38,
+              height: 30
+            });
+    compare(config.height, 30);
+  }
+
+  function test_resizingCurrentWidgetReflowsAdjacentBubbles() {
+    var configs = [bubble("a", "DP-1"), bubble("b", "DP-1")];
+    var sizes = {
+      "DP-1|a": {
+        width: 208,
+        height: 34
+      },
+      "DP-1|b": {
+        width: 90,
+        height: 34
+      }
+    };
+    var before = Bubbles.layout(configs, defaults, sizes, "DP-1", "a", 1000, 700);
+    sizes["DP-1|a"] = {
+      width: 38,
+      height: 34
+    };
+    var after = Bubbles.layout(configs, defaults, sizes, "DP-1", "a", 1000, 700);
+    var next = Bubbles.layout(configs, defaults, sizes, "DP-1", "b", 1000, 700);
+    compare(after.x - before.x, 170);
+    compare(after.width, 38);
+    compare(next.x - after.x - after.width, defaults.spacing);
+    compare(next.x + next.width, 1000 - defaults.margin);
   }
 
   function test_backgroundStylesAndEdges() {

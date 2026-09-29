@@ -1969,7 +1969,14 @@
       "hide-fullscreen-description": "Hide only on the monitor with a fullscreen application. Disable to keep this bubble visible.",
       "widgets": "Widgets",
       "widgets-description": "Shows one widget at a time. With multiple widgets, scrolling switches widgets; with one, its normal scroll action works.",
-      "empty": "Add a bubble to any monitor, then choose its widgets and appearance."
+      "empty": "Add a bubble to any monitor, then choose its widgets and appearance.",
+      "settings-label": "Bubble settings",
+      "settings-description": "Position, appearance, and cycling",
+      "background-color-label": "Background color",
+      "background-color-description": "Choose a theme color for this bubble. None uses the standard surface color.",
+      "move-earlier": "Move bubble earlier",
+      "move-later": "Move bubble later",
+      "widget-order-description": "Drag widget cards to change their cycling order. Use the arrows in the bubble header to change the order of bubbles on this monitor."
     }
   },
   "placeholders": {

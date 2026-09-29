@@ -361,6 +361,10 @@ Item {
     property string targetKey: ""
     onTriggered: {
       if (root.activeTabContent && targetKey) {
+        if (typeof root.activeTabContent.revealSetting === "function" && root.activeTabContent.revealSetting(targetKey)) {
+          restart();
+          return;
+        }
         const widget = root.findAndHighlightWidget(root.activeTabContent, targetKey);
         if (widget && root.activeScrollView) {
           // Scroll widget into view using the Flickable directly

@@ -10,6 +10,10 @@ ColumnLayout {
   id: root
   spacing: Style.marginL
 
+  function revealSetting(labelKey) {
+    return BubbleLogic.revealSetting(root, I18n.tr(labelKey));
+  }
+
   NToggle {
     Layout.fillWidth: true
     label: I18n.tr("panels.bubbles.enabled-label")

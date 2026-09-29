@@ -55,6 +55,8 @@ function effective(bubble, defaults) {
     result.style = "floating";
   if (["up", "down", "left", "right", "fade", "none"].indexOf(result.transition) < 0)
     result.transition = "up";
+  if (["none", "primary", "secondary", "tertiary", "error", "outline"].indexOf(result.backgroundColorKey) < 0)
+    result.backgroundColorKey = "none";
   result.height = bounded(result.height, 34, 20, 100);
   result.padding = bounded(result.padding, 4, 0, 40);
   result.margin = bounded(result.margin, 8, 0, 200);
@@ -148,12 +150,69 @@ function reorder(widgets, from, to) {
   return result;
 }
 
+function moveBubble(configurations, monitor, id, step) {
+  var result = (configurations || []).slice();
+  var positions = [];
+  var current = -1;
+  result.forEach(function (bubble, index) {
+    if (bubble.monitor !== monitor)
+      return;
+    if (bubble.id === id)
+      current = positions.length;
+    positions.push(index);
+  });
+  var target = current + step;
+  if (current < 0 || target < 0 || target >= positions.length)
+    return result;
+  // Reorder this monitor's bubbles while preserving other monitors' entries.
+  var bubbles = positions.map(function (index) { return result[index]; });
+  bubbles = reorder(bubbles, current, target);
+  positions.forEach(function (index, offset) { result[index] = bubbles[offset]; });
+  return result;
+}
+
+function settingPath(item, label) {
+  if (!item)
+    return null;
+  if (item.label === label)
+    return [item];
+  var children = item.children || [];
+  for (var i = 0; i < children.length; i++) {
+    var path = settingPath(children[i], label);
+    if (path)
+      return [item].concat(path);
+  }
+  return null;
+}
+
+function revealSetting(item, label) {
+  var path = settingPath(item, label) || [];
+  var changed = false;
+  path.forEach(function (ancestor) {
+    if (ancestor.expanded === false) {
+      ancestor.expanded = true;
+      changed = true;
+    }
+  });
+  return changed;
+}
+
 function isVertical(position) {
   return position === "left" || position === "right";
 }
 
 function widgetExtent(item, property, preserveHidden) {
   return item && (item.visible || preserveHidden) ? Math.round(item[property]) : 0;
+}
+
+function contentSize(widget, configuration) {
+  var vertical = isVertical(configuration.position);
+  var flare = configuration.style === "notch" ? Math.min(configuration.radius, configuration.height / 2) : 0;
+  var inset = configuration.padding * 2 + flare * 2;
+  return {
+    width: Math.ceil(Math.max(configuration.height, widgetExtent(widget, "implicitWidth", true)) + (vertical ? 0 : inset)),
+    height: Math.ceil(Math.max(configuration.height, widgetExtent(widget, "implicitHeight", true)) + (vertical ? inset : 0))
+  };
 }
 
 function cornerAttachment(placement, position, screenWidth, screenHeight) {

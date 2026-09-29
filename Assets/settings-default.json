@@ -539,7 +539,8 @@
       "cycleInterval": 5,
       "transition": "up",
       "transitionDuration": 220,
-      "hideOnFullscreen": true
+      "hideOnFullscreen": true,
+      "backgroundColorKey": "none"
     }
   }
 }
