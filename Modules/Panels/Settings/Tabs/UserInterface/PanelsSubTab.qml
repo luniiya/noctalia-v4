@@ -65,44 +65,6 @@ ColumnLayout {
     label: I18n.tr("panels.user-interface.settings-panel-header")
   }
 
-  NComboBox {
-    label: I18n.tr("panels.user-interface.settings-panel-mode-label")
-    description: I18n.tr("panels.user-interface.settings-panel-mode-description")
-    Layout.fillWidth: true
-    minimumWidth: 220 * Style.uiScaleRatio
-    model: [
-      {
-        "key": "attached",
-        "name": I18n.tr("options.settings-panel-mode.attached")
-      },
-      {
-        "key": "centered",
-        "name": I18n.tr("options.settings-panel-mode.centered")
-      },
-      {
-        "key": "window",
-        "name": I18n.tr("options.settings-panel-mode.window")
-      }
-    ]
-    currentKey: Settings.data.ui.settingsPanelMode
-    defaultValue: Settings.getDefaultValue("ui.settingsPanelMode")
-    onSelected: key => {
-                  // Defer setup to next update so close can do its work properly
-                  Qt.callLater(() => {
-                                 Settings.data.ui.settingsPanelMode = key;
-                               });
-                  if (Settings.data.ui.settingsPanelMode === "window" || key === "window") {
-                    // Just switched from/to window, need to close panel
-                    var screen = PanelService.openedPanel?.screen || SettingsPanelService.settingsWindow?.screen || PanelService.findScreenForPanels();
-                    SettingsPanelService.close(screen);
-
-                    Qt.callLater(() => {
-                                   SettingsPanelService.openToTab(SettingsPanel.Tab.UserInterface, 1, screen);
-                                 });
-                  }
-                }
-  }
-
   NToggle {
     label: I18n.tr("panels.user-interface.settings-panel-sidebar-card-style-label")
     description: I18n.tr("panels.user-interface.settings-panel-sidebar-card-style-description")

@@ -115,7 +115,7 @@ ColumnLayout {
     checked: Settings.data.bar.middleClickFollowMouse
     defaultValue: Settings.getDefaultValue("bar.middleClickFollowMouse")
     onToggled: checked => Settings.data.bar.middleClickFollowMouse = checked
-    visible: Settings.data.bar.middleClickAction !== "none" && Settings.data.bar.middleClickAction !== "command" && !(Settings.data.bar.middleClickAction === "settings" && Settings.data.ui.settingsPanelMode === "window")
+    visible: Settings.data.bar.middleClickAction !== "none" && Settings.data.bar.middleClickAction !== "command" && Settings.data.bar.middleClickAction !== "settings"
   }
 
   NComboBox {
@@ -167,6 +167,6 @@ ColumnLayout {
     checked: Settings.data.bar.rightClickFollowMouse
     defaultValue: Settings.getDefaultValue("bar.rightClickFollowMouse")
     onToggled: checked => Settings.data.bar.rightClickFollowMouse = checked
-    visible: Settings.data.bar.rightClickAction !== "none" && Settings.data.bar.rightClickAction !== "command" && !(Settings.data.bar.rightClickAction === "settings" && Settings.data.ui.settingsPanelMode === "window")
+    visible: Settings.data.bar.rightClickAction !== "none" && Settings.data.bar.rightClickAction !== "command" && Settings.data.bar.rightClickAction !== "settings"
   }
 }

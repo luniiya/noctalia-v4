@@ -718,11 +718,6 @@
       "grid": "Grid",
       "single-row": "Single row"
     },
-    "settings-panel-mode": {
-      "attached": "Panel attached to bar",
-      "centered": "Centered panel",
-      "window": "Separate window"
-    },
     "visualizer-types": {
       "linear": "Linear",
       "mirrored": "Mirrored",
@@ -1748,8 +1743,6 @@
       "scrollbar-always-visible-description": "Keep scrollbars visible whenever content is scrollable, instead of only showing them on hover.",
       "scrollbar-always-visible-label": "Always show scrollbars",
       "settings-panel-header": "Settings panel",
-      "settings-panel-mode-description": "Choose settings layout (may require reopening).",
-      "settings-panel-mode-label": "Settings panel mode",
       "settings-panel-sidebar-card-style-description": "Wraps the settings sidebar in a filled background with rounded corners.",
       "settings-panel-sidebar-card-style-label": "Sidebar card style",
       "shadows-description": "Enables drop shadows under bars and panels.",

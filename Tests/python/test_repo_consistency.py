@@ -128,5 +128,25 @@ class IpcTests(unittest.TestCase):
                 self.assertRegex(block, rf"function {name}\(\)")
 
 
+class SettingsWindowTests(unittest.TestCase):
+    """Settings always open in their own compositor window, never inside the bar."""
+
+    def test_panel_mode_setting_is_gone(self):
+        # A leftover read of the removed setting silently evaluates to undefined
+        for path in list(qml_files()) + list((ROOT / "Helpers").glob("*.js")):
+            if path.name == "Migration27.qml":
+                continue
+            with self.subTest(path=str(path.relative_to(ROOT))):
+                self.assertNotIn("settingsPanelMode", path.read_text(encoding="utf-8"))
+        defaults = json.loads((ROOT / "Assets" / "settings-default.json").read_text(encoding="utf-8"))
+        self.assertNotIn("settingsPanelMode", defaults["ui"])
+
+    def test_settings_panel_has_no_in_bar_content(self):
+        source = (ROOT / "Modules" / "Panels" / "Settings" / "SettingsPanel.qml").read_text(encoding="utf-8")
+        self.assertNotIn("panelContent", source)
+        self.assertNotIn("SettingsContent", source)
+        self.assertIn("openInWindow()", source)
+
+
 if __name__ == "__main__":
     unittest.main()

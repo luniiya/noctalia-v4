@@ -1,7 +1,7 @@
 .pragma library
 
 // Decides what the standalone settings window should show when a caller
-// opens settings through SettingsPanel while settingsPanelMode is "window".
+// opens settings through SettingsPanel (settings always open in a window).
 // Kept free of QML dependencies so it can be unit tested
 // (see Tests/tst_settingswindowrequest.qml).
 //

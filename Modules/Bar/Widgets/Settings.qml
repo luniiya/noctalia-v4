@@ -35,7 +35,7 @@ NIconButton {
 
   icon: "settings"
   tooltipText: {
-    if (PanelService.getPanel("settingsPanel", screen)?.isPanelOpen) {
+    if (SettingsPanelService.isWindowOpen) {
       return "";
     } else {
       return I18n.tr("tooltips.open-settings");
@@ -74,11 +74,7 @@ NIconButton {
   }
 
   onClicked: {
-    if (Settings.data.ui.settingsPanelMode === "attached") {
-      PanelService.getPanel("settingsPanel", screen)?.toggle(this);
-    } else {
-      PanelService.getPanel("settingsPanel", screen)?.toggle();
-    }
+    PanelService.getPanel("settingsPanel", screen)?.toggle();
   }
   onRightClicked: {
     PanelService.showContextMenu(contextMenu, root, screen);

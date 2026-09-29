@@ -26,65 +26,34 @@ Singleton {
   signal windowOpened
   signal windowClosed
 
+  // Settings always open in their own window. The screen parameters are kept
+  // for API compatibility with callers and plugins and are ignored.
   function openToEntry(entry, screen) {
-    if (Settings.data.ui.settingsPanelMode === "window") {
-      requestedEntry = entry;
-      if (settingsWindow) {
-        settingsWindow.visible = true;
-        isWindowOpen = true;
-        windowOpened();
-        settingsWindow.navigateToEntry(entry);
-      }
-    } else {
-      if (!screen) {
-        Logger.w("SettingsPanelService", "Screen parameter required for panel mode");
-        return;
-      }
-      var settingsPanel = PanelService.getPanel("settingsPanel", screen);
-      if (settingsPanel) {
-        settingsPanel.requestedEntry = entry;
-        settingsPanel.open();
-      }
-    }
-  }
-
-  // Unified function to open settings to a specific tab and subtab
-  // Respects user's settingsPanelMode setting (window vs panel)
-  // For panel mode, screen parameter is required
-  function openToTab(tab, subTab, screen) {
-    const tabId = tab !== undefined ? tab : 0;
-    const subTabId = subTab !== undefined ? subTab : -1;
-
-    if (Settings.data.ui.settingsPanelMode === "window") {
-      requestedTab = tabId;
-      requestedSubTab = subTabId;
-      if (settingsWindow) {
-        settingsWindow.visible = true;
-        isWindowOpen = true;
-        windowOpened();
-        settingsWindow.navigateTo(tabId, subTabId);
-      }
-    } else {
-      if (!screen) {
-        Logger.w("SettingsPanelService", "Screen parameter required for panel mode");
-        return;
-      }
-      var settingsPanel = PanelService.getPanel("settingsPanel", screen);
-      if (settingsPanel) {
-        settingsPanel.openToTab(tabId, subTabId);
-      }
-    }
-  }
-
-  function openWindow(tab) {
-    requestedTab = tab !== undefined ? tab : 0;
-    requestedSubTab = -1;
+    requestedEntry = entry;
     if (settingsWindow) {
       settingsWindow.visible = true;
       isWindowOpen = true;
       windowOpened();
-      settingsWindow.navigateTo(requestedTab, -1);
+      settingsWindow.navigateToEntry(entry);
     }
+  }
+
+  // Open settings to a specific tab and subtab
+  function openToTab(tab, subTab, screen) {
+    const tabId = tab !== undefined ? tab : 0;
+    const subTabId = subTab !== undefined ? subTab : -1;
+    requestedTab = tabId;
+    requestedSubTab = subTabId;
+    if (settingsWindow) {
+      settingsWindow.visible = true;
+      isWindowOpen = true;
+      windowOpened();
+      settingsWindow.navigateTo(tabId, subTabId);
+    }
+  }
+
+  function openWindow(tab) {
+    openToTab(tab, -1);
   }
 
   function closeWindow() {
@@ -103,41 +72,16 @@ Singleton {
     }
   }
 
-  // Unified toggle: opens to tab/subtab if closed, closes if open
-  // Respects settingsPanelMode setting
+  // Opens to tab/subtab if closed, closes if open
   function toggle(tab, subTab, screen) {
-    const tabId = tab !== undefined ? tab : 0;
-    const subTabId = subTab !== undefined ? subTab : -1;
-
-    if (Settings.data.ui.settingsPanelMode === "window") {
-      if (isWindowOpen) {
-        closeWindow();
-      } else {
-        openToTab(tabId, subTabId);
-      }
+    if (isWindowOpen) {
+      closeWindow();
     } else {
-      if (!screen) {
-        Logger.w("SettingsPanelService", "Screen parameter required for panel mode");
-        return;
-      }
-      var settingsPanel = PanelService.getPanel("settingsPanel", screen);
-      if (settingsPanel?.isPanelOpen) {
-        settingsPanel.close();
-      } else {
-        settingsPanel?.openToTab(tabId, subTabId);
-      }
+      openToTab(tab, subTab);
     }
   }
 
-  // Unified close for both modes
   function close(screen) {
-    if (Settings.data.ui.settingsPanelMode === "window") {
-      closeWindow();
-    } else {
-      if (!screen)
-        return;
-      var settingsPanel = PanelService.getPanel("settingsPanel", screen);
-      settingsPanel?.close();
-    }
+    closeWindow();
   }
 }
