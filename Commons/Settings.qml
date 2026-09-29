@@ -29,7 +29,7 @@ Singleton {
   - Settings: ~/.config/noctalia/settings/<hostname>.json (NOCTALIA_SETTINGS_FILE overrides)
   */
   readonly property alias data: adapter  // Used to access via Settings.data.xxx.yyy
-  readonly property int settingsVersion: 59
+  readonly property int settingsVersion: 60
   property bool isDebug: Quickshell.env("NOCTALIA_DEBUG") === "1"
   readonly property string shellName: "noctalia"
   readonly property string configDir: ensureTrailingSlash(Quickshell.env("NOCTALIA_CONFIG_DIR") || (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/" + shellName + "/")
@@ -604,6 +604,19 @@ Singleton {
       property string warningColor: ""
       property string criticalColor: ""
       property string externalMonitor: "resources || missioncenter || jdsystemmonitor || corestats || system-monitoring-center || gnome-system-monitor || plasma-systemmonitor || mate-system-monitor || ukui-system-monitor || deepin-system-monitor || pantheon-system-monitor"
+    }
+
+    // AI model usage (bar widget and panel)
+    property JsonObject modelUsage: JsonObject {
+      property int refreshIntervalSec: 30
+      property bool claudeEnabled: false
+      property bool codexEnabled: false
+      property bool copilotEnabled: false
+      property bool geminiEnabled: false
+      property bool openrouterEnabled: false
+      property bool zenEnabled: false
+      property string openrouterApiKey: ""
+      property string zenApiKey: ""
     }
 
     // performance

@@ -207,6 +207,19 @@
       "visualizer-type-description": "Choose the style of audio visualizer to display.",
       "visualizer-type-label": "Visualizer type"
     },
+    "model-usage": {
+      "cycle-interval-description": "Seconds before switching to the next provider.",
+      "cycle-interval-label": "Cycle interval",
+      "display-mode-active": "First enabled provider",
+      "display-mode-cycle": "Cycle providers",
+      "display-mode-description": "Show the first enabled provider, or cycle through all of them.",
+      "display-mode-label": "Providers",
+      "metric-description": "Number shown in the bar for the current provider.",
+      "metric-label": "Metric",
+      "metric-prompts": "Prompts today",
+      "metric-tokens": "Tokens today",
+      "metric-usage": "Rate limit usage"
+    },
     "notification-history": {
       "hide-widget-when-zero-description": "Hide the notification icon when there are no notifications.",
       "hide-widget-when-zero-label": "Hide icon when no notifications",
@@ -655,6 +668,63 @@
     "password": "Enter your password...",
     "restart": "Restart",
     "shut-down": "Shut down"
+  },
+  "model-usage": {
+    "all-time": "All time",
+    "cache-read": "Cache read",
+    "cache-write": "Cache write",
+    "help": {
+      "claude": "Run `claude auth login` to restore usage limits.",
+      "codex": "Run `codex` to authenticate.",
+      "copilot": "Run `gh auth login` to authenticate.",
+      "gemini": "Gemini CLI usage from ~/.gemini/tmp.",
+      "openrouter": "Check your OpenRouter API key.",
+      "rate-limited": "Anthropic limits how often usage can be checked. The last known values are kept.",
+      "zen": "Check your Zen API key."
+    },
+    "input": "Input",
+    "last-7-days": "Last 7 days",
+    "limits": {
+      "budget": "Budget (${used} / ${limit})",
+      "chat": "Chat ({percent}%)",
+      "chat-count": "Chat ({used}/{total})",
+      "completions-count": "Completions ({used}/{total})",
+      "no-limit": "No spending limit",
+      "premium": "Premium ({percent}%)",
+      "secondary": "Secondary limit",
+      "session": "Session (5-hour)",
+      "spending": "Spending (${used} / ${limit})",
+      "unavailable": "Usage API unavailable",
+      "weekly": "Weekly (7-day)",
+      "window": "{hours}h window"
+    },
+    "messages": "messages",
+    "no-providers": "No AI providers enabled. Enable them in Settings → System → AI usage.",
+    "output": "Output",
+    "prompts": "prompts",
+    "rate-limits": "Rate limits",
+    "resets-in": "Resets in {time}",
+    "resets-now": "Resets now",
+    "sessions": "sessions",
+    "status": {
+      "api-key-required": "API key required",
+      "not-authenticated": "Not authenticated",
+      "rate-limited": "Rate limited, retrying in {time}",
+      "token-expired": "Token expired",
+      "token-invalid": "Invalid token or API key",
+      "waiting-auth": "Waiting for auth"
+    },
+    "tier": {
+      "free": "Free",
+      "key-valid": "API key valid",
+      "paid": "Paid"
+    },
+    "title": "AI usage",
+    "today": "Today",
+    "token-count": "{count} tokens",
+    "tokens": "tokens",
+    "tooltip": "{provider} — today: {prompts} prompts, {sessions} sessions, {tokens} tokens",
+    "waiting": "Waiting for data…"
   },
   "notifications": {
     "panel": {
@@ -1681,6 +1751,27 @@
       "show-keybinds-label": "Show keybinds"
     },
     "system": {
+      "ai-usage-claude-description": "Reads ~/.claude and the Claude usage API with your Claude Code login.",
+      "ai-usage-claude-label": "Claude Code",
+      "ai-usage-codex-description": "Reads the Codex CLI files in ~/.codex.",
+      "ai-usage-codex-label": "Codex",
+      "ai-usage-copilot-description": "Uses the GitHub Copilot API with the `gh` CLI login.",
+      "ai-usage-copilot-label": "Copilot",
+      "ai-usage-gemini-description": "Reads the Gemini CLI sessions in ~/.gemini/tmp.",
+      "ai-usage-gemini-label": "Gemini",
+      "ai-usage-intro": "Usage of AI coding assistants for the AI usage bar widget and panel. Add the widget from the Bar settings.",
+      "ai-usage-key-from-env": "Set by an environment variable",
+      "ai-usage-openrouter-description": "Uses the OpenRouter API with your API key.",
+      "ai-usage-openrouter-key-description": "The OPENROUTER_API_KEY environment variable takes precedence. Keys are stored in plain text in your settings file.",
+      "ai-usage-openrouter-key-label": "OpenRouter API key",
+      "ai-usage-openrouter-label": "OpenRouter",
+      "ai-usage-refresh-description": "How often usage is polled when file watching misses a change.",
+      "ai-usage-refresh-label": "Refresh interval",
+      "ai-usage-title": "AI usage",
+      "ai-usage-zen-description": "Checks your OpenCode Zen API key. Zen does not report usage.",
+      "ai-usage-zen-key-description": "OPENCODE_ZEN_API_KEY, OPENCODE_API_KEY or ZEN_API_KEY take precedence. Keys are stored in plain text in your settings file.",
+      "ai-usage-zen-key-label": "Zen API key",
+      "ai-usage-zen-label": "Zen (opencode.ai)",
       "noctalia-performance-disable-desktop-widgets-description": "Keep desktop widgets visible while Noctalia performance mode is enabled.",
       "noctalia-performance-disable-desktop-widgets-label": "Enable desktop widgets in performance mode",
       "noctalia-performance-disable-wallpaper-description": "Keep desktop, overview, and lock screen wallpapers visible while Noctalia performance mode is enabled.",

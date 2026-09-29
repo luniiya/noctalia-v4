@@ -879,6 +879,20 @@ Singleton {
   }
 
   IpcHandler {
+    target: "modelUsage"
+    function toggle() {
+      root.screenDetector.withCurrentScreen(screen => {
+                                              var panel = PanelService.getPanel("modelUsagePanel", screen);
+                                              panel?.toggle(null, "ModelUsage");
+                                            });
+    }
+
+    function refresh() {
+      ModelUsageService.refresh();
+    }
+  }
+
+  IpcHandler {
     target: "plugin"
     function openSettings(key: string) {
       var manifest = PluginRegistry.getPluginManifest(key);

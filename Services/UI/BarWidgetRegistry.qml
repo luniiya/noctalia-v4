@@ -27,6 +27,7 @@ Singleton {
                            "Launcher": launcherComponent,
                            "MediaMini": mediaMiniComponent,
                            "Microphone": microphoneComponent,
+                           "ModelUsage": modelUsageComponent,
                            "Network": networkComponent,
                            "NightLight": nightLightComponent,
                            "NoctaliaPerformance": noctaliaPerformanceComponent,
@@ -60,6 +61,7 @@ Singleton {
                                      "LockKeys": "WidgetSettings/LockKeysSettings.qml",
                                      "MediaMini": "WidgetSettings/MediaMiniSettings.qml",
                                      "Microphone": "WidgetSettings/MicrophoneSettings.qml",
+                                     "ModelUsage": "WidgetSettings/ModelUsageSettings.qml",
                                      "Network": "WidgetSettings/NetworkSettings.qml",
                                      "NightLight": "WidgetSettings/NightLightSettings.qml",
                                      "NoctaliaPerformance": "WidgetSettings/NoctaliaPerformanceSettings.qml",
@@ -221,6 +223,11 @@ Singleton {
                                     "hideWhenZeroUnread": false,
                                     "unreadBadgeColor": "primary",
                                     "iconColor": "none"
+                                  },
+                                  "ModelUsage": {
+                                    "displayMode": "active",
+                                    "cycleIntervalSec": 5,
+                                    "metric": "prompts"
                                   },
                                   "SessionMenu": {
                                     "iconColor": "error"
@@ -392,6 +399,9 @@ Singleton {
   }
   property Component systemMonitorComponent: Component {
     SystemMonitor {}
+  }
+  property Component modelUsageComponent: Component {
+    ModelUsage {}
   }
   property Component trayComponent: Component {
     Tray {}

@@ -347,6 +347,17 @@
     "criticalColor": "",
     "externalMonitor": "resources || missioncenter || jdsystemmonitor || corestats || system-monitoring-center || gnome-system-monitor || plasma-systemmonitor || mate-system-monitor || ukui-system-monitor || deepin-system-monitor || pantheon-system-monitor"
   },
+  "modelUsage": {
+    "refreshIntervalSec": 30,
+    "claudeEnabled": false,
+    "codexEnabled": false,
+    "copilotEnabled": false,
+    "geminiEnabled": false,
+    "openrouterEnabled": false,
+    "zenEnabled": false,
+    "openrouterApiKey": "",
+    "zenApiKey": ""
+  },
   "noctaliaPerformance": {
     "disableWallpaper": true,
     "disableDesktopWidgets": true

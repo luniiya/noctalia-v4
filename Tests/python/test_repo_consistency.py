@@ -121,11 +121,41 @@ class IpcTests(unittest.TestCase):
         self.assertIsNotNone(body, "colorScheme.refresh() missing")
         self.assertIn("AppThemeService.generate()", body.group(1))
 
+    def test_model_usage_handlers_exist(self):
+        block = ipc_handlers()["modelUsage"]
+        self.assertIn('getPanel("modelUsagePanel"', block)
+        self.assertRegex(block, r"function refresh\(\)")
+
     def test_dark_mode_handlers_still_exist(self):
         block = ipc_handlers()["darkMode"]
         for name in ("toggle", "setDark", "setLight"):
             with self.subTest(name=name):
                 self.assertRegex(block, rf"function {name}\(\)")
+
+
+class BarWidgetRegistryTests(unittest.TestCase):
+    REGISTRY = ROOT / "Services" / "UI" / "BarWidgetRegistry.qml"
+
+    def block(self, name):
+        source = self.REGISTRY.read_text(encoding="utf-8")
+        match = re.search(rf"property var {name}: \(\{{(.*?)\n\s*\}}\)", source, re.S)
+        self.assertIsNotNone(match, f"{name} not found")
+        return match.group(1)
+
+    def test_every_widget_has_a_file(self):
+        for widget_id in re.findall(r'"(\w+)":\s*\w+Component', self.block("widgets")):
+            with self.subTest(widget=widget_id):
+                self.assertTrue((ROOT / "Modules" / "Bar" / "Widgets" / f"{widget_id}.qml").exists())
+
+    def test_widget_settings_files_exist(self):
+        base = ROOT / "Modules" / "Panels" / "Settings" / "Bar"
+        for widget_id, rel in re.findall(r'"(\w+)":\s*"([^"]+)"', self.block("widgetSettingsMap")):
+            with self.subTest(widget=widget_id):
+                self.assertTrue((base / rel).exists(), rel)
+
+    def test_model_usage_panel_is_registered(self):
+        main_screen = (ROOT / "Modules" / "MainScreen" / "MainScreen.qml").read_text(encoding="utf-8")
+        self.assertIn('objectName: "modelUsagePanel-"', main_screen)
 
 
 class SettingsWindowTests(unittest.TestCase):

@@ -2313,6 +2313,93 @@
     "subTabLabel": "common.general"
   },
   {
+    "labelKey": "panels.system.ai-usage-claude-label",
+    "descriptionKey": "panels.system.ai-usage-claude-description",
+    "widget": "NToggle",
+    "tab": 18,
+    "tabLabel": "panels.system.title",
+    "subTab": 3,
+    "subTabLabel": "panels.system.ai-usage-title"
+  },
+  {
+    "labelKey": "panels.system.ai-usage-codex-label",
+    "descriptionKey": "panels.system.ai-usage-codex-description",
+    "widget": "NToggle",
+    "tab": 18,
+    "tabLabel": "panels.system.title",
+    "subTab": 3,
+    "subTabLabel": "panels.system.ai-usage-title"
+  },
+  {
+    "labelKey": "panels.system.ai-usage-copilot-label",
+    "descriptionKey": "panels.system.ai-usage-copilot-description",
+    "widget": "NToggle",
+    "tab": 18,
+    "tabLabel": "panels.system.title",
+    "subTab": 3,
+    "subTabLabel": "panels.system.ai-usage-title"
+  },
+  {
+    "labelKey": "panels.system.ai-usage-gemini-label",
+    "descriptionKey": "panels.system.ai-usage-gemini-description",
+    "widget": "NToggle",
+    "tab": 18,
+    "tabLabel": "panels.system.title",
+    "subTab": 3,
+    "subTabLabel": "panels.system.ai-usage-title"
+  },
+  {
+    "labelKey": "panels.system.ai-usage-openrouter-label",
+    "descriptionKey": "panels.system.ai-usage-openrouter-description",
+    "widget": "NToggle",
+    "tab": 18,
+    "tabLabel": "panels.system.title",
+    "subTab": 3,
+    "subTabLabel": "panels.system.ai-usage-title"
+  },
+  {
+    "labelKey": "panels.system.ai-usage-openrouter-key-label",
+    "descriptionKey": "panels.system.ai-usage-openrouter-key-description",
+    "widget": "NTextInput",
+    "tab": 18,
+    "tabLabel": "panels.system.title",
+    "subTab": 3,
+    "subTabLabel": "panels.system.ai-usage-title",
+    "visibleWhen": [
+      "Settings.data.modelUsage.openrouterEnabled"
+    ]
+  },
+  {
+    "labelKey": "panels.system.ai-usage-zen-label",
+    "descriptionKey": "panels.system.ai-usage-zen-description",
+    "widget": "NToggle",
+    "tab": 18,
+    "tabLabel": "panels.system.title",
+    "subTab": 3,
+    "subTabLabel": "panels.system.ai-usage-title"
+  },
+  {
+    "labelKey": "panels.system.ai-usage-zen-key-label",
+    "descriptionKey": "panels.system.ai-usage-zen-key-description",
+    "widget": "NTextInput",
+    "tab": 18,
+    "tabLabel": "panels.system.title",
+    "subTab": 3,
+    "subTabLabel": "panels.system.ai-usage-title",
+    "visibleWhen": [
+      "Settings.data.modelUsage.zenEnabled"
+    ]
+  },
+  {
+    "labelKey": "panels.system.ai-usage-refresh-label",
+    "descriptionKey": "panels.system.ai-usage-refresh-description",
+    "widget": "NSpinBox",
+    "tab": 18,
+    "tabLabel": "panels.system.title",
+    "subTab": 3,
+    "subTabLabel": "panels.system.ai-usage-title"
+  },
+  {
     "labelKey": "panels.system-monitor.enable-dgpu-monitoring-label",
     "descriptionKey": "panels.system-monitor.enable-dgpu-monitoring-description",
     "widget": "NToggle",

@@ -21,6 +21,7 @@ import qs.Modules.Panels.ControlCenter
 import qs.Modules.Panels.Dock
 import qs.Modules.Panels.Launcher
 import qs.Modules.Panels.Media
+import qs.Modules.Panels.ModelUsage
 import qs.Modules.Panels.Network
 import qs.Modules.Panels.NotificationHistory
 import qs.Modules.Panels.Plugins
@@ -356,6 +357,12 @@ PanelWindow {
     NotificationHistoryPanel {
       id: notificationHistoryPanel
       objectName: "notificationHistoryPanel-" + (root.screen?.name || "unknown")
+      screen: root.screen
+    }
+
+    ModelUsagePanel {
+      id: modelUsagePanel
+      objectName: "modelUsagePanel-" + (root.screen?.name || "unknown")
       screen: root.screen
     }
 
