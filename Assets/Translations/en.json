@@ -349,6 +349,9 @@
       "show-labels-only-when-occupied-label": "Show labels only when occupied",
       "unfocused-icons-opacity-description": "Set the opacity level for unfocused app icons.",
       "unfocused-icons-opacity-label": "Unfocused icons opacity"
+    },
+    "weather": {
+      "display-mode-description": "Show the temperature always, on hover, or only as a weather icon."
     }
   },
   "battery": {
@@ -2314,7 +2317,8 @@
     "partly-cloudy": "Partly cloudy",
     "rain-showers": "Rain showers",
     "snow": "Snow",
-    "thunderstorm": "Thunderstorm"
+    "thunderstorm": "Thunderstorm",
+    "unknown": "Unknown weather"
   },
   "widgets": {
     "color-picker": {

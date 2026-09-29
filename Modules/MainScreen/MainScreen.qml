@@ -3,8 +3,8 @@ import QtQuick.Controls
 import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
-import "Backgrounds" as Backgrounds
 import "../../Helpers/NotchGeometry.js" as NotchGeometry
+import "Backgrounds" as Backgrounds
 
 import qs.Commons
 
@@ -30,6 +30,7 @@ import qs.Modules.Panels.Settings
 import qs.Modules.Panels.SetupWizard
 import qs.Modules.Panels.SystemStats
 import qs.Modules.Panels.Tray
+import qs.Modules.Panels.Weather
 import qs.Services.Compositor
 import qs.Services.Power
 import qs.Services.UI
@@ -289,10 +290,10 @@ PanelWindow {
       enabled: root.isAnyPanelOpen
       acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
       onClicked: mouse => {
-                   if (PanelService.openedPanel) {
-                     PanelService.openedPanel.close();
-                   }
-                 }
+        if (PanelService.openedPanel) {
+          PanelService.openedPanel.close();
+        }
+      }
       z: 0 // Behind panels and bar
     }
 
@@ -344,6 +345,12 @@ PanelWindow {
     ClockPanel {
       id: clockPanel
       objectName: "clockPanel-" + (root.screen?.name || "unknown")
+      screen: root.screen
+    }
+
+    WeatherPanel {
+      id: weatherPanel
+      objectName: "weatherPanel-" + (root.screen?.name || "unknown")
       screen: root.screen
     }
 

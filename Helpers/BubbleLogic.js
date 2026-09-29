@@ -205,13 +205,28 @@ function widgetExtent(item, property, preserveHidden) {
   return item && (item.visible || preserveHidden) ? Math.round(item[property]) : 0;
 }
 
+function notchFlare(configuration) {
+  return configuration.style === "notch" ? Math.min(configuration.radius, configuration.height / 2) : 0;
+}
+
 function contentSize(widget, configuration) {
   var vertical = isVertical(configuration.position);
-  var flare = configuration.style === "notch" ? Math.min(configuration.radius, configuration.height / 2) : 0;
+  var flare = notchFlare(configuration);
   var inset = configuration.padding * 2 + flare * 2;
   return {
     width: Math.ceil(Math.max(configuration.height, widgetExtent(widget, "implicitWidth", true)) + (vertical ? 0 : inset)),
     height: Math.ceil(Math.max(configuration.height, widgetExtent(widget, "implicitHeight", true)) + (vertical ? inset : 0))
+  };
+}
+
+function bodyRect(configuration, width, height) {
+  var vertical = isVertical(configuration.position);
+  var inset = Math.min(notchFlare(configuration), (vertical ? height : width) / 4, (vertical ? width : height) / 2);
+  return {
+    x: vertical ? 0 : inset,
+    y: vertical ? inset : 0,
+    width: width - (vertical ? 0 : inset * 2),
+    height: height - (vertical ? inset * 2 : 0)
   };
 }
 
@@ -226,7 +241,8 @@ function cornerAttachment(placement, position, screenWidth, screenHeight) {
 }
 
 // Bubbles sharing an edge and alignment form a row (or a column on side edges).
-// The measured sizes include notch flares, so adjacent notches cannot collide.
+// Align widget centers and measure mixed-style spacing between their bodies.
+// Adjacent notches retain room for both flares at the screen edge.
 function layout(configurations, defaults, sizes, monitor, id, screenWidth, screenHeight) {
   var bubble = effective(find(configurations, monitor, id), defaults);
   var vertical = isVertical(bubble.position);
@@ -236,27 +252,60 @@ function layout(configurations, defaults, sizes, monitor, id, screenWidth, scree
   }).filter(function (entry) {
     return entry.position === bubble.position && entry.alignment === bubble.alignment && entry.widgets.length > 0;
   });
+  var measurements = group.map(function (entry) {
+    var size = sizes[monitor + "|" + entry.id] || { width: entry.height, height: entry.height };
+    return {
+      width: Math.min(Math.max(1, size.width), Math.max(1, screenWidth)),
+      height: Math.min(Math.max(1, size.height), Math.max(1, screenHeight))
+    };
+  });
+  var center = 0;
+  group.forEach(function (entry, index) {
+    var cross = vertical ? measurements[index].width : measurements[index].height;
+    center = Math.max(center, cross / 2 + (entry.style === "floating" ? entry.margin : 0));
+  });
+  group.forEach(function (entry, index) {
+    if (entry.style !== "floating") {
+      if (vertical)
+        measurements[index].width = Math.min(center * 2, Math.max(1, screenWidth));
+      else
+        measurements[index].height = Math.min(center * 2, Math.max(1, screenHeight));
+    }
+  });
   var total = 0;
   var before = 0;
   var found = false;
   group.forEach(function (entry, index) {
-    var size = sizes[monitor + "|" + entry.id] || { width: entry.height, height: entry.height };
+    var size = measurements[index];
     if (entry.id === id) {
       before = total;
       found = true;
     }
     total += vertical ? size.height : size.width;
-    if (index < group.length - 1)
-      total += entry.spacing;
+    if (index < group.length - 1) {
+      var next = group[index + 1];
+      var nextSize = measurements[index + 1];
+      var compensation = 0;
+      if (entry.style === "notch" && next.style === "floating") {
+        var body = bodyRect(entry, size.width, size.height);
+        compensation = vertical ? body.y : body.x;
+      } else if (entry.style === "floating" && next.style === "notch") {
+        var nextBody = bodyRect(next, nextSize.width, nextSize.height);
+        compensation = vertical ? nextBody.y : nextBody.x;
+      }
+      total += entry.spacing - compensation;
+    }
   });
-  var measured = sizes[monitor + "|" + id] || { width: bubble.height, height: bubble.height };
+  var index = group.findIndex(function (entry) { return entry.id === id; });
+  var measured = index >= 0 ? measurements[index] : sizes[monitor + "|" + id] || { width: bubble.height, height: bubble.height };
   var width = Math.min(Math.max(1, measured.width), Math.max(1, screenWidth));
   var height = Math.min(Math.max(1, measured.height), Math.max(1, screenHeight));
   var axisSize = vertical ? height : width;
-  var endMargin = bubble.style === "attached" ? 0 : bubble.margin;
+  var endBubble = group.length > 0 ? group[bubble.alignment === "end" ? group.length - 1 : 0] : bubble;
+  var endMargin = endBubble.style === "attached" ? 0 : endBubble.margin;
   var origin = bubble.alignment === "start" ? endMargin : bubble.alignment === "end" ? edgeLength - endMargin - total : (edgeLength - total) / 2;
   var along = bounded(origin + (found ? before : 0) + bubble.offset, 0, 0, Math.max(0, edgeLength - axisSize));
-  var gap = bubble.style === "floating" ? bubble.margin : 0;
+  var gap = bubble.style === "floating" ? (found ? center - (vertical ? width : height) / 2 : bubble.margin) : 0;
   var x = vertical ? (bubble.position === "left" ? gap : screenWidth - gap - width) : along;
   var y = vertical ? along : (bubble.position === "top" ? gap : screenHeight - gap - height);
   return { x: bounded(x, 0, 0, Math.max(0, screenWidth - width)), y: bounded(y, 0, 0, Math.max(0, screenHeight - height)), width: width, height: height };

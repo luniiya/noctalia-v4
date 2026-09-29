@@ -15,7 +15,7 @@ PanelWindow {
   readonly property var configuration: Settings.getBubble(screen?.name, section) || BubbleLogic.effective(null, BubbleService.defaults)
   readonly property var widgets: configuration.widgets
   readonly property bool vertical: BubbleLogic.isVertical(configuration.position)
-  readonly property real flare: configuration.style === "notch" ? Math.min(configuration.radius, configuration.height / 2) : 0
+  readonly property real flare: BubbleLogic.notchFlare(configuration)
   property int currentIndex: 0
   property int previousIndex: -1
   property real progress: 1
@@ -32,6 +32,7 @@ PanelWindow {
   readonly property bool hovered: hover.hovered
   readonly property bool panelOpen: PanelService.openedPanel?.screen === screen || BarService.popupOpen
   readonly property var placement: BubbleLogic.layout(Settings.data.bubbles.configurations, BubbleService.defaults, BubbleService.sizes, screen?.name, bubbleId, screen?.width || 1, screen?.height || 1)
+  readonly property var body: BubbleLogic.bodyRect(configuration, width, height)
 
   readonly property bool shouldShow: BubbleLogic.shouldShow(Settings.data.bubbles.enabled, widgets.length, configuration.hideOnFullscreen, fullscreen, PanelService.lockScreen?.active || false)
   // Surface creation can synchronously re-evaluate child bindings. Defer it
@@ -54,7 +55,11 @@ PanelWindow {
   WlrLayershell.namespace: "noctaliaa-bubble-" + (screen?.name || "unknown") + "-" + bubbleId
 
   mask: Region {
-    item: background
+    // Flare bounds can overlap a neighbor; keep its widget's input accessible.
+    x: root.body.x
+    y: root.body.y
+    width: root.body.width
+    height: root.body.height
   }
 
   function syncVisibility() {
@@ -114,7 +119,7 @@ PanelWindow {
       strokeColor: "transparent"
       strokeWidth: 0
       PathSvg {
-        path: BubbleLogic.backgroundPath(background.width, background.height, root.configuration.radius, root.configuration.style, root.configuration.position, BubbleLogic.cornerAttachment(root.placement, root.configuration.position, root.screen?.width || 1, root.screen?.height || 1))
+        path: BubbleLogic.backgroundPath(background.width, background.height, root.configuration.style === "notch" ? root.flare : root.configuration.radius, root.configuration.style, root.configuration.position, BubbleLogic.cornerAttachment(root.placement, root.configuration.position, root.screen?.width || 1, root.screen?.height || 1))
       }
     }
   }

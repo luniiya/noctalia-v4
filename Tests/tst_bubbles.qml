@@ -564,6 +564,182 @@ TestCase {
     compare(Bubbles.layout(configs, defaults, sizes, "DP-1", "b", 1000, 700).x, 792);
   }
 
+  function test_mixedStylesHaveSymmetricBodySpacing_data() {
+    var rows = [];
+    ["top", "bottom", "left", "right"].forEach(function (position) {
+      ["start", "center", "end"].forEach(function (alignment) {
+        [false, true].forEach(function (reverse) {
+          rows.push({
+                      tag: position + " " + alignment + " " + reverse,
+                      position: position,
+                      alignment: alignment,
+                      reverse: reverse
+                    });
+        });
+      });
+    });
+    return rows;
+  }
+
+  function test_mixedStylesHaveSymmetricBodySpacing(data) {
+    var notch = bubble("notch", "DP-1", {
+                         position: data.position,
+                         alignment: data.alignment,
+                         style: "notch"
+                       });
+    var floating = bubble("floating", "DP-1", {
+                            position: data.position,
+                            alignment: data.alignment,
+                            height: 30
+                          });
+    var configs = data.reverse ? [floating, notch] : [notch, floating];
+    var vertical = Bubbles.isVertical(data.position);
+    var sizes = {
+      "DP-1|notch": vertical ? {
+                                 width: 34,
+                                 height: 105
+                               } : {
+        width: 105,
+        height: 34
+      },
+      "DP-1|floating": vertical ? {
+                                    width: 30,
+                                    height: 38
+                                  } : {
+        width: 38,
+        height: 30
+      }
+    };
+    var first = Bubbles.layout(configs, defaults, sizes, "DP-1", configs[0].id, 1000, 700);
+    var second = Bubbles.layout(configs, defaults, sizes, "DP-1", configs[1].id, 1000, 700);
+    var firstBody = Bubbles.bodyRect(Bubbles.effective(configs[0], defaults), first.width, first.height);
+    var secondBody = Bubbles.bodyRect(Bubbles.effective(configs[1], defaults), second.width, second.height);
+    if (vertical) {
+      compare(first.x + first.width / 2, second.x + second.width / 2);
+      compare(second.y + secondBody.y - first.y - firstBody.y - firstBody.height, 8);
+    } else {
+      compare(first.y + first.height / 2, second.y + second.height / 2);
+      compare(second.x + secondBody.x - first.x - firstBody.x - firstBody.width, 8);
+    }
+    var floatPlacement = data.reverse ? first : second;
+    var notchPlacement = data.reverse ? second : first;
+    compare(vertical ? notchPlacement.width : notchPlacement.height, 46);
+    switch (data.position) {
+    case "top":
+      compare(floatPlacement.y, 8);
+      compare(notchPlacement.y, 0);
+      break;
+    case "bottom":
+      compare(floatPlacement.y + floatPlacement.height, 692);
+      compare(notchPlacement.y + notchPlacement.height, 700);
+      break;
+    case "left":
+      compare(floatPlacement.x, 8);
+      compare(notchPlacement.x, 0);
+      break;
+    case "right":
+      compare(floatPlacement.x + floatPlacement.width, 992);
+      compare(notchPlacement.x + notchPlacement.width, 1000);
+      break;
+    }
+    compare(sizes["DP-1|notch"], vertical ? {
+                                              width: 34,
+                                              height: 105
+                                            } : {
+              width: 105,
+              height: 34
+            });
+  }
+
+  function test_adjacentNotchesKeepFlareSpacing() {
+    var configs = [bubble("a", "DP-1", {
+                            style: "notch"
+                          }), bubble("b", "DP-1", {
+                                       style: "notch"
+                                     })];
+    var sizes = {
+      "DP-1|a": {
+        width: 100,
+        height: 34
+      },
+      "DP-1|b": {
+        width: 100,
+        height: 34
+      }
+    };
+    var first = Bubbles.layout(configs, defaults, sizes, "DP-1", "a", 1000, 700);
+    var second = Bubbles.layout(configs, defaults, sizes, "DP-1", "b", 1000, 700);
+    compare(second.x - first.x - first.width, 8);
+    compare(first.height, 34);
+    compare(second.height, 34);
+  }
+
+  function test_attachedAndFloatingUseSharedGroupOrigin() {
+    var configs = [bubble("a", "DP-1", {
+                            style: "attached",
+                            alignment: "start"
+                          }), bubble("b", "DP-1", {
+                                       alignment: "start"
+                                     })];
+    var sizes = {
+      "DP-1|a": {
+        width: 100,
+        height: 34
+      },
+      "DP-1|b": {
+        width: 50,
+        height: 34
+      }
+    };
+    var first = Bubbles.layout(configs, defaults, sizes, "DP-1", "a", 1000, 700);
+    var second = Bubbles.layout(configs, defaults, sizes, "DP-1", "b", 1000, 700);
+    compare(first.x, 0);
+    compare(second.x - first.x - first.width, 8);
+    compare(first.y + first.height / 2, second.y + second.height / 2);
+    configs.reverse();
+    configs.forEach(function (config) {
+      config.alignment = "end";
+    });
+    first = Bubbles.layout(configs, defaults, sizes, "DP-1", "b", 1000, 700);
+    second = Bubbles.layout(configs, defaults, sizes, "DP-1", "a", 1000, 700);
+    compare(second.x + second.width, 1000);
+    compare(second.x - first.x - first.width, 8);
+  }
+
+  function test_notchInputBodyExcludesOverlappingFlareBounds() {
+    var notch = Bubbles.effective({
+                                    style: "notch",
+                                    radius: 50
+                                  }, defaults);
+    compare(Bubbles.notchFlare(notch), 17);
+    compare(Bubbles.bodyRect(notch, 120, 50), {
+              x: 17,
+              y: 0,
+              width: 86,
+              height: 50
+            });
+    notch.position = "right";
+    compare(Bubbles.bodyRect(notch, 50, 120), {
+              x: 0,
+              y: 17,
+              width: 50,
+              height: 86
+            });
+    compare(Bubbles.bodyRect(notch, 1, 1), {
+              x: 0,
+              y: 0.25,
+              width: 1,
+              height: 0.5
+            });
+    notch.style = "floating";
+    compare(Bubbles.bodyRect(notch, 50, 120), {
+              x: 0,
+              y: 0,
+              width: 50,
+              height: 120
+            });
+  }
+
   function test_attachedCorners_data() {
     return [
           {

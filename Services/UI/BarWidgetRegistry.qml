@@ -41,6 +41,7 @@ Singleton {
                            "Tray": trayComponent,
                            "Volume": volumeComponent,
                            "VPN": vpnComponent,
+                           "Weather": weatherComponent,
                            "Workspace": workspaceComponent
                          })
 
@@ -74,6 +75,7 @@ Singleton {
                                      "Tray": "WidgetSettings/TraySettings.qml",
                                      "Volume": "WidgetSettings/VolumeSettings.qml",
                                      "VPN": "WidgetSettings/VPNSettings.qml",
+                                     "Weather": "WidgetSettings/WeatherSettings.qml",
                                      "Workspace": "WidgetSettings/WorkspaceSettings.qml"
                                    })
 
@@ -322,6 +324,11 @@ Singleton {
                                     "middleClickCommand": "pwvucontrol || pavucontrol",
                                     "iconColor": "none",
                                     "textColor": "none"
+                                  },
+                                  "Weather": {
+                                    "displayMode": "alwaysShow",
+                                    "iconColor": "none",
+                                    "textColor": "none"
                                   }
                                 })
 
@@ -406,6 +413,9 @@ Singleton {
   }
   property Component vpnComponent: Component {
     VPN {}
+  }
+  property Component weatherComponent: Component {
+    Weather {}
   }
   property Component networkComponent: Component {
     Network {}
