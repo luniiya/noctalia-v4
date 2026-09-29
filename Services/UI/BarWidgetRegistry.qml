@@ -267,6 +267,7 @@ Singleton {
                                   "Tray": {
                                     "blacklist": [],
                                     "colorizeIcons": false,
+                                    "colorizeStyle": "monochrome",
                                     "chevronColor": "none",
                                     "pinned": [],
                                     "drawerEnabled": true,

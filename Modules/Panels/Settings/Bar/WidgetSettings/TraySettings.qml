@@ -17,6 +17,7 @@ ColumnLayout {
   // Local state
   property var localBlacklist: widgetData.blacklist || []
   property bool valueColorizeIcons: widgetData.colorizeIcons !== undefined ? widgetData.colorizeIcons : widgetMetadata.colorizeIcons
+  property string valueColorizeStyle: widgetData.colorizeStyle !== undefined ? widgetData.colorizeStyle : widgetMetadata.colorizeStyle
   property string valueChevronColor: widgetData.chevronColor !== undefined ? widgetData.chevronColor : widgetMetadata.chevronColor
   property bool valueDrawerEnabled: widgetData.drawerEnabled !== undefined ? widgetData.drawerEnabled : widgetMetadata.drawerEnabled
   property bool valueHidePassive: widgetData.hidePassive !== undefined ? widgetData.hidePassive : widgetMetadata.hidePassive
@@ -73,6 +74,29 @@ ColumnLayout {
                  saveSettings();
                }
     defaultValue: widgetMetadata.colorizeIcons
+  }
+
+  NComboBox {
+    Layout.fillWidth: true
+    label: I18n.tr("bar.tray.colorize-style-label")
+    description: I18n.tr("bar.tray.colorize-style-description")
+    model: [
+      {
+        "key": "monochrome",
+        "name": I18n.tr("bar.tray.colorize-style-monochrome")
+      },
+      {
+        "key": "duotone",
+        "name": I18n.tr("bar.tray.colorize-style-duotone")
+      }
+    ]
+    currentKey: root.valueColorizeStyle
+    onSelected: key => {
+                  root.valueColorizeStyle = key;
+                  saveSettings();
+                }
+    visible: root.valueColorizeIcons
+    defaultValue: widgetMetadata.colorizeStyle
   }
 
   NToggle {
@@ -191,6 +215,7 @@ ColumnLayout {
     var settings = Object.assign({}, widgetData || {});
     settings.blacklist = newBlacklist;
     settings.colorizeIcons = root.valueColorizeIcons;
+    settings.colorizeStyle = root.valueColorizeStyle;
     settings.chevronColor = root.valueChevronColor;
     settings.drawerEnabled = root.valueDrawerEnabled;
     settings.hidePassive = root.valueHidePassive;

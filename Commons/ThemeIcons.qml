@@ -269,6 +269,12 @@ Singleton {
     return path && path.length > 0 && !path.includes("image-missing");
   }
 
+  // Loadable source for a theme icon name, "" when the theme lacks it
+  // (Quickshell would otherwise render its "missing" checkerboard)
+  function themeIconSource(iconName) {
+    return iconExists(iconName) ? Quickshell.iconPath(iconName, true) : "";
+  }
+
   function getFromReverseDomain(str) {
     if (!str)
       return "";

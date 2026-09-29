@@ -92,6 +92,17 @@ class SettingsSchemaTests(unittest.TestCase):
         self.assertRegex(settings, r"property int notchGap: \d+")
 
 
+class TrayWidgetDefaultsTests(unittest.TestCase):
+    def test_colorize_style_default_matches_registry(self):
+        registry = (ROOT / "Services" / "UI" / "BarWidgetRegistry.qml").read_text(encoding="utf-8")
+        tray = re.search(r'"Tray": \{(.*?)\}', registry, re.S).group(1)
+        registry_default = re.search(r'"colorizeStyle": "(\w+)"', tray).group(1)
+        defaults = json.loads((ROOT / "Assets" / "settings-widgets-default.json").read_text(encoding="utf-8"))
+        self.assertEqual(defaults["bar"]["Tray"]["colorizeStyle"], registry_default)
+        helper = (ROOT / "Helpers" / "TrayIcon.js").read_text(encoding="utf-8")
+        self.assertIn(f'"{registry_default}"', re.search(r"var colorizeStyles = \[(.*?)\]", helper).group(1))
+
+
 def ipc_handlers():
     """Map each IpcHandler target in IPCService.qml to its source block."""
     source = (ROOT / "Services" / "Control" / "IPCService.qml").read_text(encoding="utf-8")

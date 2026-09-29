@@ -7,6 +7,7 @@ import qs.Commons
 import qs.Modules.MainScreen
 import qs.Services.UI
 import qs.Widgets
+import "../../../Helpers/TrayIcon.js" as TrayIcon
 
 // A compact grid panel listing all tray items, opened from the Tray widget
 SmartPanel {
@@ -74,6 +75,7 @@ SmartPanel {
 
     readonly property var pinnedList: widgetSettings.pinned || []
     readonly property bool hidePassive: widgetSettings.hidePassive !== undefined ? widgetSettings.hidePassive : true
+    readonly property string colorizeStyle: widgetSettings.colorizeStyle !== undefined ? widgetSettings.colorizeStyle : BarWidgetRegistry.widgetMetadata["Tray"].colorizeStyle
 
     // Filter tray items - this runs in panelContent context where isPinned is available
     function updateFilteredItems() {
@@ -189,25 +191,25 @@ SmartPanel {
             anchors.fill: parent
             asynchronous: true
             backer.fillMode: Image.PreserveAspectFit
-            source: {
-              let icon = modelData?.icon || "";
-              if (!icon)
-                return "";
-              if (icon.includes("?path=")) {
-                const chunks = icon.split("?path=");
-                const name = chunks[0];
-                const path = chunks[1];
-                const fileName = name.substring(name.lastIndexOf("/") + 1);
-                return `file://${path}/${fileName}`;
-              }
-              return icon;
-            }
+            source: TrayIcon.resolve(modelData?.icon || "", modelData?.id, modelData?.title, ThemeIcons.themeIconSource)
 
             layer.enabled: panelContent.widgetSettings.colorizeIcons !== false
             layer.effect: ShaderEffect {
-              property color targetColor: Settings.data.colorSchemes.darkMode ? Color.mOnSurface : Color.mSurfaceVariant
-              property real colorizeMode: 1.0
+              readonly property var params: TrayIcon.colorizeParams(panelContent.colorizeStyle, Settings.data.colorSchemes.darkMode)
+              property color targetColor: Color[params.highRole]
+              property color lowColor: Color[params.lowRole]
+              property real colorizeMode: params.mode
               fragmentShader: Qt.resolvedUrl(Quickshell.shellDir + "/Shaders/qsb/appicon_colorize.frag.qsb")
+            }
+
+            // Shown when no icon could be resolved or loaded
+            NIcon {
+              anchors.centerIn: parent
+              visible: trayIcon.source == "" || trayIcon.status === Image.Error
+              icon: "apps"
+              pointSize: root.cellSize * 0.5
+              applyUiScale: false
+              color: Color.mOnSurface
             }
 
             MouseArea {
