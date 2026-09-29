@@ -52,7 +52,7 @@ Item {
   readonly property int pillMaxWidth: Math.max(1, Math.round(textItem.implicitWidth + pillPaddingHorizontal * 2 + pillOverlap))
 
   // Always prioritize hover color, then the custom one and finally the fallback color
-  readonly property color bgColor: hovered ? Color.mHover : (customBackgroundColor.a > 0) ? customBackgroundColor : Style.capsuleColor
+  readonly property color bgColor: Style.widgetBackground(section, hovered ? Color.mHover : (customBackgroundColor.a > 0) ? customBackgroundColor : Style.capsuleColor)
   readonly property color fgColor: hovered ? Color.mOnHover : (customTextIconColor.a > 0) ? customTextIconColor : Color.mOnSurface
   readonly property color iconFgColor: hovered ? Color.mOnHover : (customIconColor.a > 0) ? customIconColor : (customTextIconColor.a > 0) ? customTextIconColor : Color.mOnSurface
   readonly property color textFgColor: hovered ? Color.mOnHover : (customTextColor.a > 0) ? customTextColor : (customTextIconColor.a > 0) ? customTextIconColor : Color.mOnSurface
@@ -92,7 +92,7 @@ Item {
     radius: Style.radiusM
     color: root.bgColor
     anchors.verticalCenter: parent.verticalCenter
-    border.color: Style.capsuleBorderColor
+    border.color: Style.widgetBorder(root.section, Style.capsuleBorderColor)
     border.width: Style.capsuleBorderWidth
 
     Behavior on color {

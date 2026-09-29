@@ -250,6 +250,7 @@ Singleton {
         property int spacing: 8
         property int radius: 16
         property string backgroundColorKey: "none"
+        property bool oledMode: false
         property real opacity: 0.93
         property bool autoCycle: true
         property int cycleInterval: 5

@@ -311,8 +311,8 @@ Item {
     x: Style.pixelAlignCenter(parent.width, width)
     y: Style.pixelAlignCenter(parent.height, height)
     radius: Style.radiusM
-    color: Style.capsuleColor
-    border.color: Style.capsuleBorderColor
+    color: Style.widgetBackground(root.section, Style.capsuleColor)
+    border.color: Style.widgetBorder(root.section, Style.capsuleBorderColor)
     border.width: Style.capsuleBorderWidth
   }
 
@@ -362,6 +362,7 @@ Item {
       baseSize: capsuleHeight
       applyUiScale: false
       customRadius: Style.radiusL
+      colorBgHover: Style.widgetBackground(root.section, Color.mHover)
       colorBg: "transparent"
       colorFg: root.chevronColor
       colorBorder: "transparent"
@@ -555,6 +556,7 @@ Item {
       baseSize: capsuleHeight
       applyUiScale: false
       customRadius: Style.radiusL
+      colorBgHover: Style.widgetBackground(root.section, Color.mHover)
       colorBg: "transparent"
       colorFg: root.chevronColor
       colorBorder: "transparent"

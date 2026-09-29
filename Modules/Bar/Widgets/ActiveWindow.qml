@@ -203,8 +203,8 @@ Item {
     width: isVerticalBar ? ((!hasFocusedWindow) && hideMode === "hidden" ? 0 : verticalSize) : ((!hasFocusedWindow) && (hideMode === "hidden") ? 0 : dynamicWidth)
     height: isVerticalBar ? ((!hasFocusedWindow) && hideMode === "hidden" ? 0 : verticalSize) : capsuleHeight
     radius: Style.radiusM
-    color: Style.capsuleColor
-    border.color: Style.capsuleBorderColor
+    color: Style.widgetBackground(root.section, Style.capsuleColor)
+    border.color: Style.widgetBorder(root.section, Style.capsuleBorderColor)
     border.width: Style.capsuleBorderWidth
 
     // Smooth width transition

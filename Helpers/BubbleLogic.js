@@ -4,6 +4,18 @@ function isBubbleSection(section) {
   return typeof section === "string" && section.indexOf("bubble:") === 0;
 }
 
+function widgetBackground(section, color) {
+  return isBubbleSection(section) ? "transparent" : color;
+}
+
+function backgroundColor(configuration, themedColor) {
+  return configuration.oledMode ? "#000000" : themedColor;
+}
+
+function backgroundOpacity(configuration) {
+  return configuration.oledMode ? 1 : configuration.opacity;
+}
+
 function sectionId(id) {
   return "bubble:" + id;
 }
@@ -14,6 +26,11 @@ function itemContext(item) {
       return current.bubbleContext;
   }
   return null;
+}
+
+function isOledItem(item) {
+  var context = itemContext(item);
+  return context !== null && context.oledMode === true;
 }
 
 function panelPosition(button, position, width, height, screenWidth, screenHeight, margin) {
@@ -47,6 +64,7 @@ function bounded(value, fallback, minimum, maximum) {
 
 function effective(bubble, defaults) {
   var result = Object.assign({}, defaults, bubble || {});
+  result.oledMode = result.oledMode === true;
   if (["top", "bottom", "left", "right"].indexOf(result.position) < 0)
     result.position = "top";
   if (["start", "center", "end"].indexOf(result.alignment) < 0)

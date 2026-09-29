@@ -115,7 +115,7 @@ PanelWindow {
     preferredRendererType: Shape.CurveRenderer
 
     ShapePath {
-      fillColor: Qt.alpha(root.configuration.backgroundColorKey === "none" ? Color.mSurface : Color.resolveColorKey(root.configuration.backgroundColorKey), root.configuration.opacity)
+      fillColor: Qt.alpha(BubbleLogic.backgroundColor(root.configuration, root.configuration.backgroundColorKey === "none" ? Color.mSurface : Color.resolveColorKey(root.configuration.backgroundColorKey)), BubbleLogic.backgroundOpacity(root.configuration))
       strokeColor: "transparent"
       strokeWidth: 0
       PathSvg {
@@ -128,6 +128,7 @@ PanelWindow {
     id: viewport
     readonly property var bubbleContext: ({
                                             section: root.section,
+                                            oledMode: root.configuration.oledMode,
                                             position: root.configuration.position,
                                             x: root.placement.x,
                                             y: root.placement.y

@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "../Helpers/BubbleLogic.js" as BubbleLogic
 import qs.Commons
 import qs.Widgets
 
@@ -26,6 +27,13 @@ Text {
   font.pointSize: Math.max(1, root.pointSize * fontScale)
   font.features: root.features
   color: Color.mOnSurface
+
+  Binding {
+    target: root
+    property: "color"
+    value: "white"
+    when: BubbleLogic.isOledItem(root)
+  }
   elide: Text.ElideRight
   wrapMode: Text.NoWrap
   verticalAlignment: Text.AlignVCenter

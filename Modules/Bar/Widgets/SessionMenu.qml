@@ -44,9 +44,11 @@ NIconButton {
       return I18n.tr("tooltips.session-menu");
   }
   tooltipDirection: BarService.getTooltipDirection(screenName, section)
-  colorBg: Style.capsuleColor
+  colorBgHover: Style.widgetBackground(root.section, Color.mHover)
+  colorBorderHover: Style.widgetBorder(root.section, Style.capsuleBorderColor)
+  colorBg: Style.widgetBackground(root.section, Style.capsuleColor)
   colorFg: Color.resolveColorKey(iconColorKey)
-  border.color: Style.capsuleBorderColor
+  border.color: Style.widgetBorder(root.section, Style.capsuleBorderColor)
   border.width: Style.capsuleBorderWidth
 
   NPopupContextMenu {

@@ -237,8 +237,8 @@ Item {
     width: Style.toOdd(isVertical ? (isHidden ? 0 : verticalSize) : (isHidden ? 0 : contentWidth))
     height: Style.toOdd(isVertical ? (isHidden ? 0 : verticalSize) : capsuleHeight)
     radius: Style.radiusM
-    color: Style.capsuleColor
-    border.color: Style.capsuleBorderColor
+    color: Style.widgetBackground(root.section, Style.capsuleColor)
+    border.color: Style.widgetBorder(root.section, Style.capsuleBorderColor)
     border.width: Style.capsuleBorderWidth
 
     Behavior on width {

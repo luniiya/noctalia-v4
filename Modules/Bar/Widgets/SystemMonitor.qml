@@ -194,8 +194,8 @@ Item {
     height: root.contentHeight
     anchors.centerIn: parent
     radius: Style.radiusM
-    color: Style.capsuleColor
-    border.color: Style.capsuleBorderColor
+    color: Style.widgetBackground(root.section, Style.capsuleColor)
+    border.color: Style.widgetBorder(root.section, Style.capsuleBorderColor)
     border.width: Style.capsuleBorderWidth
 
     // Mini gauge component for compact mode, vertical gauge that fills from bottom

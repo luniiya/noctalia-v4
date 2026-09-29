@@ -64,8 +64,8 @@ Item {
     anchors.centerIn: parent
 
     radius: Style.radiusL
-    color: Style.capsuleColor
-    border.color: Style.capsuleBorderColor
+    color: Style.widgetBackground(root.section, Style.capsuleColor)
+    border.color: Style.widgetBorder(root.section, Style.capsuleBorderColor)
     border.width: Style.capsuleBorderWidth
 
     Item {

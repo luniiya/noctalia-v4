@@ -534,6 +534,7 @@
       "padding": 4,
       "spacing": 8,
       "radius": 16,
+      "oledMode": false,
       "opacity": 0.93,
       "autoCycle": true,
       "cycleInterval": 5,

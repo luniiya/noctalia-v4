@@ -94,8 +94,8 @@ Item {
     height: root.contentHeight
     anchors.centerIn: parent
     radius: Style.radiusS
-    color: Style.capsuleColor
-    border.color: Style.capsuleBorderColor
+    color: Style.widgetBackground(root.section, Style.capsuleColor)
+    border.color: Style.widgetBorder(root.section, Style.capsuleBorderColor)
     border.width: Style.capsuleBorderWidth
 
     // When visualizer type or playback changes, shouldShow updates automatically

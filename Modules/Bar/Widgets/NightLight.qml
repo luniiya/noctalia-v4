@@ -37,9 +37,11 @@ NIconButton {
   baseSize: Style.getCapsuleHeightForScreen(screen?.name, section)
   applyUiScale: false
   customRadius: Style.radiusL
-  colorBg: Settings.data.nightLight.enabled ? Color.mPrimary : Style.capsuleColor
+  colorBgHover: Style.widgetBackground(root.section, Color.mHover)
+  colorBorderHover: Style.widgetBorder(root.section, Style.capsuleBorderColor)
+  colorBg: Style.widgetBackground(root.section, Settings.data.nightLight.enabled ? Color.mPrimary : Style.capsuleColor)
   colorFg: Settings.data.nightLight.enabled ? Color.mOnPrimary : Color.resolveColorKey(iconColorKey)
-  border.color: Style.capsuleBorderColor
+  border.color: Style.widgetBorder(root.section, Style.capsuleBorderColor)
   border.width: Style.capsuleBorderWidth
 
   icon: Settings.data.nightLight.enabled ? (Settings.data.nightLight.forced ? "nightlight-forced" : "nightlight-on") : "nightlight-off"

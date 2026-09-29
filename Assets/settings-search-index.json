@@ -624,6 +624,14 @@
     "subTab": null
   },
   {
+    "labelKey": "panels.bubbles.oled-mode-label",
+    "descriptionKey": "panels.bubbles.oled-mode-description",
+    "widget": "NToggle",
+    "tab": 4,
+    "tabLabel": "panels.bubbles.title",
+    "subTab": null
+  },
+  {
     "labelKey": "panels.bubbles.hide-fullscreen-label",
     "descriptionKey": "panels.bubbles.hide-fullscreen-description",
     "widget": "NToggle",

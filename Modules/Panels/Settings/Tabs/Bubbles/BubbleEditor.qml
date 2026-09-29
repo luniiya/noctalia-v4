@@ -293,6 +293,7 @@ NBox {
 
       NColorChoice {
         Layout.fillWidth: true
+        enabled: !root.bubble.oledMode
         label: I18n.tr("panels.bubbles.background-color-label")
         description: I18n.tr("panels.bubbles.background-color-description")
         noneColor: Color.mSurface
@@ -305,6 +306,7 @@ NBox {
       NValueSlider {
         label: I18n.tr("panels.bubbles.opacity-label")
         description: I18n.tr("panels.bubbles.opacity-description")
+        enabled: !root.bubble.oledMode
         from: 0
         to: 1
         stepSize: 0.01
@@ -312,6 +314,15 @@ NBox {
         text: Math.round(value * 100) + " %"
         defaultValue: Settings.getDefaultValue("bubbles.defaults.opacity")
         onMoved: value => root.change("opacity", value)
+      }
+
+      NToggle {
+        Layout.fillWidth: true
+        label: I18n.tr("panels.bubbles.oled-mode-label")
+        description: I18n.tr("panels.bubbles.oled-mode-description")
+        checked: root.bubble.oledMode
+        defaultValue: Settings.getDefaultValue("bubbles.defaults.oledMode")
+        onToggled: checked => root.change("oledMode", checked)
       }
 
       NToggle {

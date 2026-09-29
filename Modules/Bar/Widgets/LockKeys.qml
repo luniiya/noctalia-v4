@@ -84,11 +84,11 @@ Item {
   Rectangle {
     id: visualCapsule
     anchors.centerIn: parent
-    color: Style.capsuleColor
+    color: Style.widgetBackground(root.section, Style.capsuleColor)
     width: root.contentWidth
     height: root.contentHeight
     radius: Style.radiusM
-    border.color: Style.capsuleBorderColor
+    border.color: Style.widgetBorder(root.section, Style.capsuleBorderColor)
     border.width: Style.capsuleBorderWidth
 
     Item {

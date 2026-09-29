@@ -1977,6 +1977,8 @@
       "settings-description": "Position, appearance, and cycling",
       "background-color-label": "Background color",
       "background-color-description": "Choose a theme color for this bubble. None uses the standard surface color.",
+      "oled-mode-label": "OLED mode",
+      "oled-mode-description": "Use a fully black background and white widget content.",
       "move-earlier": "Move bubble earlier",
       "move-later": "Move bubble later",
       "widget-order-description": "Drag widget cards to change their cycling order. Use the arrows in the bubble header to change the order of bubbles on this monitor."

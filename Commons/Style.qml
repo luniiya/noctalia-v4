@@ -2,6 +2,7 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
+import "../Helpers/BubbleLogic.js" as BubbleLogic
 import "../Helpers/NotchGeometry.js" as NotchGeometry
 import "../Helpers/OutlineStyle.js" as OutlineStyle
 import qs.Services.Power
@@ -158,6 +159,14 @@ Singleton {
 
   readonly property color capsuleBorderColor: Settings.data.bar.showOutline ? Color.mPrimary : "transparent"
   readonly property int capsuleBorderWidth: Settings.data.bar.showOutline ? Style.borderS : 0
+
+  function widgetBackground(section, color) {
+    return BubbleLogic.widgetBackground(section, color);
+  }
+
+  function widgetBorder(section, color) {
+    return BubbleLogic.widgetBackground(section, color);
+  }
 
   // Container outlines (NBox and friends): color key, brightness and opacity from settings
   readonly property color boxBorderColor: {

@@ -654,8 +654,8 @@ Item {
     height: root.contentHeight
     anchors.centerIn: parent
     radius: Style.radiusM
-    color: Style.capsuleColor
-    border.color: Style.capsuleBorderColor
+    color: Style.widgetBackground(root.section, Style.capsuleColor)
+    border.color: Style.widgetBorder(root.section, Style.capsuleBorderColor)
     border.width: Style.capsuleBorderWidth
 
     GridLayout {
@@ -691,7 +691,7 @@ Item {
           readonly property real contentWidth: shouldShowTitle ? root.itemSize + itemSpacing + root.titleWidth : root.itemSize
 
           readonly property string title: modelData.title || modelData.appId || "Unknown application"
-          readonly property color titleBgColor: (isHovered || isFocused) ? Color.mHover : Style.capsuleColor
+          readonly property color titleBgColor: Style.widgetBackground(root.section, (isHovered || isFocused) ? Color.mHover : Style.capsuleColor)
           readonly property color titleFgColor: (isHovered || isFocused) ? Color.mOnHover : Color.mOnSurface
 
           Layout.preferredWidth: root.isVerticalBar ? root.barHeight : (root.showTitle ? Math.round(contentWidth + Style.margin2M) : Math.round(contentWidth)) // Add margins for both pinned and running apps

@@ -50,12 +50,12 @@ NIconButton {
   baseSize: Style.getCapsuleHeightForScreen(screenName, section)
   applyUiScale: false
   customRadius: Style.radiusL
-  colorBg: Style.capsuleColor
+  colorBg: Style.widgetBackground(root.section, Style.capsuleColor)
   colorFg: iconColor
-  colorBgHover: Color.mHover
+  colorBgHover: Style.widgetBackground(root.section, Color.mHover)
   colorFgHover: Color.mOnHover
-  colorBorder: Style.capsuleBorderColor
-  colorBorderHover: Style.capsuleBorderColor
+  colorBorder: Style.widgetBorder(root.section, Style.capsuleBorderColor)
+  colorBorderHover: Style.widgetBorder(root.section, Style.capsuleBorderColor)
 
   NPopupContextMenu {
     id: contextMenu

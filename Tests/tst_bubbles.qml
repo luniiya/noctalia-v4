@@ -15,6 +15,7 @@ TestCase {
                                      padding: 4,
                                      radius: 16,
                                      backgroundColorKey: "none",
+                                     oledMode: false,
                                      opacity: 0.93,
                                      autoCycle: true,
                                      cycleInterval: 5,
@@ -73,8 +74,57 @@ TestCase {
     compare(effective.height, 34);
     compare(effective.hideOnFullscreen, true);
     compare(effective.autoCycle, false);
+    compare(effective.oledMode, false);
     compare(defaults.position, "top");
     verify(config.height === undefined);
+  }
+
+  function test_oledModeForcesOpaqueBlackBackground() {
+    var normal = Bubbles.effective({
+                                     backgroundColorKey: "primary",
+                                     opacity: 0.4
+                                   }, defaults);
+    compare(Bubbles.backgroundColor(normal, "#123456"), "#123456");
+    compare(Bubbles.backgroundOpacity(normal), 0.4);
+
+    var oled = Bubbles.effective({
+                                   oledMode: true,
+                                   backgroundColorKey: "primary",
+                                   opacity: 0.4
+                                 }, defaults);
+    compare(Bubbles.backgroundColor(oled, "#123456"), "#000000");
+    compare(Bubbles.backgroundOpacity(oled), 1);
+    compare(Bubbles.effective({
+                                oledMode: "true"
+                              }, defaults).oledMode, false);
+  }
+
+  function test_bubbleWidgetsHaveNoSeparateBackground() {
+    compare(Bubbles.widgetBackground("bubble:clock", "#123456"), "transparent");
+    compare(Bubbles.widgetBackground("bubble:clock", "#abcdef"), "transparent");
+    compare(Bubbles.widgetBackground("left", "#123456"), "#123456");
+    compare(Bubbles.widgetBackground("", "#123456"), "#123456");
+  }
+
+  function test_oledContextIsInheritedOnlyInsideItsBubble() {
+    var bubbleViewport = {
+      bubbleContext: {
+        oledMode: true
+      },
+      parent: null
+    };
+    var widget = {
+      parent: bubbleViewport
+    };
+    var text = {
+      parent: widget
+    };
+    verify(Bubbles.isOledItem(text));
+    bubbleViewport.bubbleContext.oledMode = false;
+    verify(!Bubbles.isOledItem(text));
+    verify(!Bubbles.isOledItem({
+                                 parent: null
+                               }));
   }
 
   function test_savedQmlWidgetSequencesAreRendered() {

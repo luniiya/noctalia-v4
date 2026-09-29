@@ -67,9 +67,11 @@ NIconButton {
     }
   }
   tooltipDirection: BarService.getTooltipDirection(screen?.name, section)
-  colorBg: Style.capsuleColor
+  colorBgHover: Style.widgetBackground(root.section, Color.mHover)
+  colorBorderHover: Style.widgetBorder(root.section, Style.capsuleBorderColor)
+  colorBg: Style.widgetBackground(root.section, Style.capsuleColor)
   colorFg: Color.resolveColorKey(iconColorKey)
-  border.color: Style.capsuleBorderColor
+  border.color: Style.widgetBorder(root.section, Style.capsuleBorderColor)
   border.width: Style.capsuleBorderWidth
   visible: !((hideWhenZero && NotificationService.historyModel.count === 0) || (hideWhenZeroUnread && count === 0))
   opacity: !((hideWhenZero && NotificationService.historyModel.count === 0) || (hideWhenZeroUnread && count === 0)) ? 1.0 : 0.0

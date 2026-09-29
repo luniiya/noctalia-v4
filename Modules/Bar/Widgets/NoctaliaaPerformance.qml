@@ -37,9 +37,11 @@ NIconButton {
   baseSize: Style.getCapsuleHeightForScreen(screen?.name, section)
   applyUiScale: false
   customRadius: Style.radiusL
-  colorBg: PowerProfileService.noctaliaaPerformanceMode ? Color.mPrimary : Style.capsuleColor
+  colorBgHover: Style.widgetBackground(root.section, Color.mHover)
+  colorBorderHover: Style.widgetBorder(root.section, Style.capsuleBorderColor)
+  colorBg: Style.widgetBackground(root.section, PowerProfileService.noctaliaaPerformanceMode ? Color.mPrimary : Style.capsuleColor)
   colorFg: PowerProfileService.noctaliaaPerformanceMode ? Color.mOnPrimary : Color.resolveColorKey(iconColorKey)
-  border.color: Style.capsuleBorderColor
+  border.color: Style.widgetBorder(root.section, Style.capsuleBorderColor)
   border.width: Style.capsuleBorderWidth
 
   icon: PowerProfileService.noctaliaaPerformanceMode ? "rocket" : "rocket-off"
