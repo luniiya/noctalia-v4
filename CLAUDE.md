@@ -25,6 +25,19 @@ Scripts/dev/run-tests.sh -silent  # quieter; this is what the pre-commit hook ru
 
 - User settings are per host: `~/.config/noctalia/settings/<hostname>.json` (path logic in `Helpers/SettingsPaths.js`). A new host is seeded once from the legacy `settings.json`; `NOCTALIA_SETTINGS_FILE` overrides the path.
 - Settings live in `Commons/Settings.qml` (`JsonAdapter`); every new setting needs a default there. Breaking changes to settings need a migration in `Commons/Migrations/` and a bump of `settingsVersion`.
+
+## Checklist: adding or changing a setting
+
+Do **all** of these, every time. Missing one breaks the setting's reset button or search entry without any visible error.
+
+1. Add or change the default in `Commons/Settings.qml`.
+2. Add or change **the same value** in `Assets/settings-default.json`. It backs `Settings.getDefaultValue()`, which every reset button uses.
+3. Add the UI control in `Modules/Panels/Settings/Tabs/...` with `defaultValue: Settings.getDefaultValue("section.key")`.
+4. Add the label and description keys to `Assets/Translations/en.json`.
+5. Run `python3 Scripts/dev/build-settings-search-index.py`.
+6. If existing users need their saved value changed or renamed, add a migration. Changing a default only affects new installs and people who never saved that key.
+7. Put any logic behind the setting in a `Helpers/*.js` module and add unit tests for it.
+8. Run `Scripts/dev/run-tests.sh`. `Tests/python/test_settings_defaults.py` fails if steps 1 and 2 disagree, and `test_repo_consistency.py` catches missing translations and a stale search index.
 - User-facing strings go through `I18n.tr("…")` with keys added to `Assets/Translations/en.json` only (other languages are synced separately).
 - After changing settings UI, run `python3 Scripts/dev/build-settings-search-index.py`.
 - `Scripts/dev/qmlfmt.sh` formats every QML file. If your local `qmlformat` version reformats files you didn't touch, revert those files and keep the diff limited to your change.

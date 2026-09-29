@@ -343,7 +343,7 @@ Singleton {
       property string avatarImage: ""
       property real dimmerOpacity: 0.2
       property bool showScreenCorners: false
-      property bool forceBlackScreenCorners: false
+      property bool forceBlackScreenCorners: true
       property real scaleRatio: 1.0
       property real radiusRatio: 1.0
       property real iRadiusRatio: 1.0

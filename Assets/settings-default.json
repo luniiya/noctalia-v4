@@ -19,6 +19,7 @@
     "marginHorizontal": 4,
     "frameThickness": 8,
     "frameRadius": 12,
+    "notchGap": 180,
     "outerCorners": true,
     "hideOnOverview": false,
     "displayMode": "always_visible",
@@ -84,7 +85,7 @@
     "avatarImage": "",
     "dimmerOpacity": 0.2,
     "showScreenCorners": false,
-    "forceBlackScreenCorners": false,
+    "forceBlackScreenCorners": true,
     "scaleRatio": 1,
     "radiusRatio": 1,
     "iRadiusRatio": 1,
@@ -172,7 +173,7 @@
     "firstDayOfWeek": -1,
     "hideWeatherTimezone": false,
     "hideWeatherCityName": false,
-    "autoLocate": true
+    "autoLocate": false
   },
   "calendar": {
     "cards": [
