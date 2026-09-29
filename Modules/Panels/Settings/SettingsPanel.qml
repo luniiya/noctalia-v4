@@ -6,6 +6,7 @@ import qs.Commons
 import qs.Modules.MainScreen
 import qs.Services.UI
 import qs.Widgets
+import "../../../Helpers/SettingsWindowRequest.js" as SettingsWindowRequest
 
 SmartPanel {
   id: root
@@ -106,10 +107,24 @@ SmartPanel {
   // Internal reference to the content (set when panel content loads)
   property var _settingsContent: null
 
+  // Forward the requested tab, subtab or search entry to the settings window
+  function openInWindow() {
+    const request = SettingsWindowRequest.resolve(requestedTab, requestedSubTab, requestedEntry);
+    requestedSubTab = -1;
+    requestedEntry = null;
+    if (request.kind === "entry")
+      SettingsPanelService.openToEntry(request.entry);
+    else
+      SettingsPanelService.openToTab(request.tab, request.subTab);
+  }
+
   // Override toggle to handle window mode
   function toggle(buttonItem, buttonName) {
     if (isWindowMode) {
-      SettingsPanelService.toggleWindow(requestedTab);
+      if (SettingsPanelService.isWindowOpen)
+        SettingsPanelService.closeWindow();
+      else
+        openInWindow();
       return;
     }
     // Call parent toggle
@@ -123,7 +138,7 @@ SmartPanel {
   // Override open to handle window mode
   function open(buttonItem, buttonName) {
     if (isWindowMode) {
-      SettingsPanelService.openWindow(requestedTab);
+      openInWindow();
       return;
     }
 

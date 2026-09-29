@@ -14,7 +14,8 @@ FloatingWindow {
   minimumSize: Qt.size(840 * Style.uiScaleRatio, 910 * Style.uiScaleRatio)
   implicitWidth: Math.round(840 * Style.uiScaleRatio)
   implicitHeight: Math.round(910 * Style.uiScaleRatio)
-  color: "transparent"
+  // Paint the window surface itself, so the compositor's corner rounding is the only one
+  color: Qt.alpha(Color.mSurface, Settings.data.ui.panelBackgroundOpacity)
 
   visible: false
 
@@ -116,15 +117,9 @@ FloatingWindow {
   }
 
   // Main content
-  Rectangle {
+  SettingsContent {
+    id: settingsContent
     anchors.fill: parent
-    color: Qt.alpha(Color.mSurface, Settings.data.ui.panelBackgroundOpacity)
-    radius: Style.radiusL
-
-    SettingsContent {
-      id: settingsContent
-      anchors.fill: parent
-      onCloseRequested: SettingsPanelService.closeWindow()
-    }
+    onCloseRequested: SettingsPanelService.closeWindow()
   }
 }
