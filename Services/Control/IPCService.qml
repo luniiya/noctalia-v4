@@ -13,7 +13,7 @@ import qs.Services.Hardware
 import qs.Services.Location
 import qs.Services.Media
 import qs.Services.Networking
-import qs.Services.Noctalia
+import qs.Services.Noctaliaa
 import qs.Services.Power
 import qs.Services.System
 import qs.Services.Theming
@@ -104,7 +104,6 @@ Singleton {
                                             "system": SettingsPanel.Tab.System,
                                             "systemmonitor": SettingsPanel.Tab.System,
                                             "userinterface": SettingsPanel.Tab.UserInterface,
-                                            "wallpaper": SettingsPanel.Tab.Wallpaper,
                                             "idle": SettingsPanel.Tab.Idle
                                           })
 
@@ -598,65 +597,6 @@ Singleton {
     }
   }
 
-  // Wallpaper IPC: trigger a new random wallpaper
-  IpcHandler {
-    target: "wallpaper"
-    function toggle() {
-      if (Settings.data.wallpaper.enabled) {
-        root.screenDetector.withCurrentScreen(screen => {
-                                                var wallpaperPanel = PanelService.getPanel("wallpaperPanel", screen);
-                                                wallpaperPanel?.toggle();
-                                              });
-      }
-    }
-
-    function random(screen: string) {
-      if (Settings.data.wallpaper.enabled) {
-        if (!screen || screen === "all" || screen.trim().length === 0) {
-          screen = undefined;
-        }
-        WallpaperService.setRandomWallpaper(screen);
-      }
-    }
-
-    function get(screen: string): string {
-      if (screen === "all" || screen === "") {
-        if (Quickshell.screens.length > 1) {
-          return JSON.stringify(WallpaperService.getWallpapersEffectiveMap());
-        }
-        return WallpaperService.getWallpaper(Quickshell.screens[0].name) ?? "";
-      } else {
-        var found = Quickshell.screens.find(s => s.name === screen);
-        if (!found) {
-          Logger.w("IPC", "wallpaper get: unknown screen: " + screen);
-          return "";
-        }
-        return WallpaperService.getWallpaper(screen) ?? "";
-      }
-    }
-
-    function set(path: string, screen: string) {
-      if (screen === "all" || screen === "") {
-        screen = undefined;
-      }
-      WallpaperService.changeWallpaper(path, screen);
-    }
-
-    function refresh() {
-      WallpaperService.refreshWallpapersList();
-    }
-
-    function toggleAutomation() {
-      Settings.data.wallpaper.automationEnabled = !Settings.data.wallpaper.automationEnabled;
-    }
-    function disableAutomation() {
-      Settings.data.wallpaper.automationEnabled = false;
-    }
-    function enableAutomation() {
-      Settings.data.wallpaper.automationEnabled = true;
-    }
-  }
-
   IpcHandler {
     target: "wifi"
     function toggle() {
@@ -755,16 +695,16 @@ Singleton {
       }
     }
 
-    function toggleNoctaliaPerformance() {
-      PowerProfileService.toggleNoctaliaPerformance();
+    function toggleNoctaliaaPerformance() {
+      PowerProfileService.toggleNoctaliaaPerformance();
     }
 
-    function enableNoctaliaPerformance() {
-      PowerProfileService.setNoctaliaPerformance(true);
+    function enableNoctaliaaPerformance() {
+      PowerProfileService.setNoctaliaaPerformance(true);
     }
 
-    function disableNoctaliaPerformance() {
-      PowerProfileService.setNoctaliaPerformance(false);
+    function disableNoctaliaaPerformance() {
+      PowerProfileService.setNoctaliaaPerformance(false);
     }
   }
 

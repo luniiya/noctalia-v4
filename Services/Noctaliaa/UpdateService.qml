@@ -4,7 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Commons
-import qs.Services.Noctalia
+import qs.Services.Noctaliaa
 import qs.Services.UI
 
 Singleton {
@@ -21,8 +21,8 @@ Singleton {
 
   // URLs
   readonly property string discordUrl: "https://discord.noctalia.dev"
-  readonly property string feedbackUrl: Quickshell.env("NOCTALIA_CHANGELOG_FEEDBACK_URL") || ""
-  readonly property string upgradeLogBaseUrl: Quickshell.env("NOCTALIA_UPGRADELOG_URL") || "https://api.noctalia.dev/upgradelog"
+  readonly property string feedbackUrl: Quickshell.env("NOCTALIAA_CHANGELOG_FEEDBACK_URL") || ""
+  readonly property string upgradeLogBaseUrl: Quickshell.env("NOCTALIAA_UPGRADELOG_URL") || "https://api.noctalia.dev/upgradelog"
 
   // Changelog properties
   property bool initialized: false

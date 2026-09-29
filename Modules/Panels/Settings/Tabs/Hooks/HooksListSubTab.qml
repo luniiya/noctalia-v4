@@ -47,28 +47,14 @@ ColumnLayout {
 
   // Startup Hook
   HookRow {
-    label: I18n.tr("panels.hooks.noctalia-started-label")
-    description: I18n.tr("panels.hooks.noctalia-started-description")
+    label: I18n.tr("panels.hooks.noctaliaa-started-label")
+    description: I18n.tr("panels.hooks.noctaliaa-started-description")
     value: Settings.data.hooks.startup
-    onEditClicked: openEdit(label, description, I18n.tr("panels.hooks.noctalia-started-placeholder"), value, newValue => {
+    onEditClicked: openEdit(label, description, I18n.tr("panels.hooks.noctaliaa-started-placeholder"), value, newValue => {
                               Settings.data.hooks.startup = newValue;
                               Settings.saveImmediate();
                             }, val => {
                               HooksService.executeStartupHook();
-                            })
-  }
-
-  // Wallpaper Hook
-  HookRow {
-    label: I18n.tr("panels.hooks.wallpaper-changed-label")
-    description: I18n.tr("panels.hooks.wallpaper-changed-description")
-    value: Settings.data.hooks.wallpaperChange
-    onEditClicked: openEdit(label, description, I18n.tr("panels.hooks.wallpaper-changed-placeholder"), value, newValue => {
-                              Settings.data.hooks.wallpaperChange = newValue;
-                              Settings.saveImmediate();
-                            }, val => {
-                              if (val)
-                              Quickshell.execDetached(["sh", "-lc", val.replace("$1", "test_wallpaper_path").replace("$2", "test_screen").replace("$3", "dark")]);
                             })
   }
 

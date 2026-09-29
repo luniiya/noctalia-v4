@@ -116,11 +116,6 @@ Singleton {
       return;
     }
 
-    if (Settings.data.wallpaper.useOriginalImages && !needsConversion(sourcePath)) {
-      callback(sourcePath, false);
-      return;
-    }
-
     if (!imageMagickAvailable) {
       Logger.d("ImageCache", "ImageMagick not available, using original:", sourcePath);
       callback(sourcePath, false);
@@ -501,7 +496,7 @@ Singleton {
     implicitWidth: 0
     implicitHeight: 0
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.namespace: "noctalia-image-cache-renderer"
+    WlrLayershell.namespace: "noctaliaa-image-cache-renderer"
     color: "transparent"
     mask: Region {}
 

@@ -27,7 +27,7 @@ Singleton {
     return hash.substring(0, 6);
   }
 
-  // Check if a source is the main Noctalia plugins repository
+  // Check if a source is the main Noctaliaa plugins repository
   function isMainSource(sourceUrl) {
     return sourceUrl === root.mainSourceUrl;
   }

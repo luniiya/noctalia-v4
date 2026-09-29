@@ -8,7 +8,7 @@ QtObject {
 
   // Same location as Settings.configDir + "plugins/model-usage/settings.json"
   readonly property string pluginSettingsPath: {
-    let dir = Quickshell.env("NOCTALIA_CONFIG_DIR") || ((Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/noctalia");
+    let dir = Quickshell.env("NOCTALIAA_CONFIG_DIR") || ((Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/noctalia");
     if (!dir.endsWith("/"))
       dir += "/";
     return dir + "plugins/model-usage/settings.json";

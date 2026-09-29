@@ -8,11 +8,25 @@ import qs.Services.UI
 Singleton {
   id: root
 
+  // A wallpaper-based generate() waits for a fresh daemon query first
+  property bool generatePending: false
+
   Connections {
     target: WallpaperService
 
+    function onRefreshed() {
+      if (root.generatePending) {
+        root.generatePending = false;
+        generateFromWallpaper();
+      }
+    }
+
     // When the wallpaper changes, regenerate theme if necessary
     function onWallpaperChanged(screenName, path) {
+      // onRefreshed regenerates right after this
+      if (root.generatePending)
+        return;
+
       var effectiveMonitor = Settings.data.colorSchemes.monitorForColors;
       if (effectiveMonitor === "" || effectiveMonitor === undefined) {
         effectiveMonitor = Screen.name;
@@ -58,7 +72,9 @@ Singleton {
 
   function generate() {
     if (Settings.data.colorSchemes.useWallpaperColors) {
-      generateFromWallpaper();
+      // The wallpaper may have just changed (e.g. `colorScheme refresh` from a wallpaper script)
+      generatePending = true;
+      WallpaperService.refresh();
     } else {
       // applyScheme will trigger template generation via schemeReader.onLoaded
       ColorSchemeService.applyScheme(Settings.data.colorSchemes.predefinedScheme);

@@ -1,6 +1,6 @@
-# Agent notes
+# Noctaliaa – agent notes
 
-Personal fork of Noctalia v4 that is diverging into its own shell. It has one maintainer and few or no outside contributors, and it does not track upstream.
+Noctaliaa (github.com/luniiya/noctaliaa): a personal fork of Noctalia v4 that is diverging into its own shell. It has one maintainer and few or no outside contributors, and it does not track upstream.
 
 Quickshell (QML) desktop shell. Entry point `shell.qml`; singletons in `Commons/` and `Services/`, UI in `Modules/` and `Widgets/`, pure JS helpers in `Helpers/`.
 
@@ -21,7 +21,7 @@ Scripts/dev/run-tests.sh -silent  # quieter; this is what the pre-commit hook ru
 
 ## Live testing
 
-`./install.sh` symlinks `~/.config/quickshell/noctalia-shell` to this checkout and restarts the shell (`--no-restart`, `--copy` available). Check the log with `qs -c noctalia-shell log`. Never `pkill -f "qs -c noctalia-shell"`: it matches the invoking shell too. Use `qs -c noctalia-shell kill`.
+`./install.sh` symlinks `~/.config/quickshell/noctaliaa` to this checkout and restarts the shell (`--no-restart`, `--copy` available). Check the log with `qs -c noctaliaa log`. Never `pkill -f "qs -c noctaliaa"`: it matches the invoking shell too. Use `qs -c noctaliaa kill`.
 
 ## Working in a diverging fork
 
@@ -32,7 +32,7 @@ Scripts/dev/run-tests.sh -silent  # quieter; this is what the pre-commit hook ru
 
 ## Conventions
 
-- User settings are per host: `~/.config/noctalia/settings/<hostname>.json` (path logic in `Helpers/SettingsPaths.js`). A new host is seeded once from the legacy `settings.json`; `NOCTALIA_SETTINGS_FILE` overrides the path.
+- User settings are per host: `~/.config/noctaliaa/settings/<hostname>.json` (path logic in `Helpers/SettingsPaths.js`). A new host is seeded once from the legacy `settings.json`; `NOCTALIAA_SETTINGS_FILE` overrides the path.
 - Settings live in `Commons/Settings.qml` (`JsonAdapter`); every new setting needs a default there. Renaming, moving or changing the meaning of a saved setting needs a migration in `Commons/Migrations/` and a bump of `settingsVersion`, so the maintainer's saved per-host settings keep working. Keep migrations small: they only need to handle configs that actually exist, not every upstream variant.
 
 ## Checklist: adding or changing a setting

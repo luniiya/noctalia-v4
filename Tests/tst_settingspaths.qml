@@ -37,8 +37,8 @@ TestCase {
   }
 
   function test_paths() {
-    compare(SettingsPaths.settingsDir("/home/u/.config/noctalia/"), "/home/u/.config/noctalia/settings/");
-    compare(SettingsPaths.settingsDir("/home/u/.config/noctalia"), "/home/u/.config/noctalia/settings/");
+    compare(SettingsPaths.settingsDir("/home/u/.config/noctaliaa/"), "/home/u/.config/noctaliaa/settings/");
+    compare(SettingsPaths.settingsDir("/home/u/.config/noctaliaa"), "/home/u/.config/noctaliaa/settings/");
     compare(SettingsPaths.legacySettingsFile("/cfg/"), "/cfg/settings.json");
     compare(SettingsPaths.hostSettingsFile("/cfg/", "cubeberry\n"), "/cfg/settings/cubeberry.json");
     compare(SettingsPaths.hostSettingsFile("/cfg/", ""), "/cfg/settings/default.json");

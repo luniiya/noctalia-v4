@@ -190,5 +190,32 @@ class SettingsWindowTests(unittest.TestCase):
         self.assertIn("openInWindow()", source)
 
 
+class WallpaperTests(unittest.TestCase):
+    """The system wallpaper daemon draws wallpapers; the shell only reads them for theming."""
+
+    def test_no_wallpaper_management_left(self):
+        pattern = re.compile(r"Settings\.data\.wallpaper\b|WallhavenService|wallpaperPanel|WallpaperSelector")
+        for path in qml_files():
+            if path.name == "Migration62.qml":
+                continue
+            with self.subTest(path=str(path.relative_to(ROOT))):
+                self.assertIsNone(pattern.search(path.read_text(encoding="utf-8")))
+        defaults = json.loads((ROOT / "Assets" / "settings-default.json").read_text(encoding="utf-8"))
+        self.assertNotIn("wallpaper", defaults)
+
+    def test_only_theming_reads_the_wallpaper(self):
+        users = {str(p.relative_to(ROOT)) for p in qml_files()
+                 if "WallpaperService." in p.read_text(encoding="utf-8")}
+        self.assertEqual(users, {"shell.qml", "Services/Theming/AppThemeService.qml"})
+
+
+class ShellNameTests(unittest.TestCase):
+    def test_shell_name(self):
+        settings = (ROOT / "Commons" / "Settings.qml").read_text(encoding="utf-8")
+        self.assertIn('shellName: "noctaliaa"', settings)
+        install = (ROOT / "install.sh").read_text(encoding="utf-8")
+        self.assertIn("quickshell/noctaliaa\"", install)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,5 @@
 /*
-* Noctalia – made by https://github.com/noctalia-dev
+* Noctaliaa – made by https://github.com/noctalia-dev
 * Licensed under the MIT License.
 * Forks and modifications are allowed under the MIT License,
 * but proper credit must be given to the original author.
@@ -33,7 +33,7 @@ import qs.Services.Hardware
 import qs.Services.Keyboard
 import qs.Services.Location
 import qs.Services.Networking
-import qs.Services.Noctalia
+import qs.Services.Noctaliaa
 import qs.Services.Power
 import qs.Services.System
 import qs.Services.Theming
@@ -48,7 +48,7 @@ ShellRoot {
 
   Component.onCompleted: {
     Logger.i("Shell", "---------------------------");
-    Logger.i("Shell", "Noctalia Hello!");
+    Logger.i("Shell", "Noctaliaa Hello!");
 
     // Initialize plugin system early so Settings can validate plugin widgets
     PluginRegistry.init();
@@ -127,8 +127,6 @@ ShellRoot {
         delayedInitTimer.restart();
       }
 
-      Overview {}
-      Background {}
       DesktopWidgets {}
       AllScreens {}
       Dock {}

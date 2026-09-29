@@ -2,8 +2,10 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Wayland
 import qs.Commons
-import qs.Modules.Bar.Extras
+import qs.Modules.Panels.Settings
+import qs.Services.Power
 import qs.Services.UI
 import qs.Widgets
 
@@ -32,33 +34,23 @@ NIconButton {
 
   readonly property string iconColorKey: widgetSettings.iconColor !== undefined ? widgetSettings.iconColor : widgetMetadata.iconColor
 
-  enabled: Settings.data.wallpaper.enabled
   baseSize: Style.getCapsuleHeightForScreen(screen?.name)
   applyUiScale: false
   customRadius: Style.radiusL
-  icon: "wallpaper-selector"
-  tooltipText: {
-    if (PanelService.getPanel("wallpaperPanel", screen)?.isPanelOpen) {
-      return "";
-    } else {
-      return I18n.tr("tooltips.wallpaper-selector");
-    }
-  }
-  tooltipDirection: BarService.getTooltipDirection(screen?.name)
-  colorBg: Style.capsuleColor
-  colorFg: Color.resolveColorKey(iconColorKey)
+  colorBg: PowerProfileService.noctaliaaPerformanceMode ? Color.mPrimary : Style.capsuleColor
+  colorFg: PowerProfileService.noctaliaaPerformanceMode ? Color.mOnPrimary : Color.resolveColorKey(iconColorKey)
   border.color: Style.capsuleBorderColor
   border.width: Style.capsuleBorderWidth
+
+  icon: PowerProfileService.noctaliaaPerformanceMode ? "rocket" : "rocket-off"
+  tooltipText: PowerProfileService.noctaliaaPerformanceMode ? I18n.tr("tooltips.noctaliaa-performance-enabled") : I18n.tr("tooltips.noctaliaa-performance-enabled")
+  tooltipDirection: BarService.getTooltipDirection(screen?.name)
+  onClicked: PowerProfileService.toggleNoctaliaaPerformance()
 
   NPopupContextMenu {
     id: contextMenu
 
     model: [
-      {
-        "label": I18n.tr("actions.random-wallpaper"),
-        "action": "random-wallpaper",
-        "icon": "dice"
-      },
       {
         "label": I18n.tr("actions.widget-settings"),
         "action": "widget-settings",
@@ -70,22 +62,12 @@ NIconButton {
                    contextMenu.close();
                    PanelService.closeContextMenu(screen);
 
-                   if (action === "random-wallpaper") {
-                     WallpaperService.setRandomWallpaper();
-                   } else if (action === "widget-settings") {
+                   if (action === "widget-settings") {
                      BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
                    }
                  }
   }
 
-  onClicked: {
-    var wallpaperPanel = PanelService.getPanel("wallpaperPanel", screen);
-    if (Settings.data.wallpaper.panelPosition === "follow_bar") {
-      wallpaperPanel?.toggle(this);
-    } else {
-      wallpaperPanel?.toggle();
-    }
-  }
   onRightClicked: {
     PanelService.showContextMenu(contextMenu, root, screen);
   }

@@ -119,7 +119,7 @@ Loader {
                 property string currentLayout: KeyboardLayoutService.currentLayout
               }
 
-              // Background with wallpaper, gradient, and screen corners
+              // Background, gradient and screen corners
               LockScreenBackground {
                 id: backgroundComponent
                 screen: lockSurface.screen

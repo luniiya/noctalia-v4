@@ -33,8 +33,7 @@ SmartPanel {
     Plugins,
     SessionMenu,
     System,
-    UserInterface,
-    Wallpaper
+    UserInterface
   }
 
   property int requestedTab: SettingsPanel.Tab.General

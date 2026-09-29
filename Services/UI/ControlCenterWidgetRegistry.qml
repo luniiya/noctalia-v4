@@ -20,8 +20,7 @@ Singleton {
                            "PowerProfile": powerProfileComponent,
                            "WiFi": networkComponent,
                            "Network": networkComponent,
-                           "NoctaliaPerformance": noctaliaPerformanceComponent,
-                           "WallpaperSelector": wallpaperSelectorComponent
+                           "NoctaliaaPerformance": noctaliaaPerformanceComponent
                          })
 
   property var widgetMetadata: ({
@@ -67,11 +66,8 @@ Singleton {
   property Component networkComponent: Component {
     Network {}
   }
-  property Component noctaliaPerformanceComponent: Component {
-    NoctaliaPerformance {}
-  }
-  property Component wallpaperSelectorComponent: Component {
-    WallpaperSelector {}
+  property Component noctaliaaPerformanceComponent: Component {
+    NoctaliaaPerformance {}
   }
 
   function init() {

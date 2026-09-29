@@ -19,7 +19,7 @@
       "displayMode": "graphic-clean",
       "deviceNativePath": "__default__",
       "showPowerProfiles": false,
-      "showNoctaliaPerformance": false,
+      "showNoctaliaaPerformance": false,
       "hideIfNotDetected": true,
       "hideIfIdle": false
     },
@@ -206,7 +206,7 @@
     "NightLight": {
       "iconColor": "none"
     },
-    "NoctaliaPerformance": {
+    "NoctaliaaPerformance": {
       "iconColor": "none"
     },
     "PowerProfile": {
@@ -237,9 +237,6 @@
       "middleClickCommand": "pwvucontrol || pavucontrol",
       "iconColor": "none",
       "textColor": "none"
-    },
-    "WallpaperSelector": {
-      "iconColor": "none"
     }
   },
   "controlCenter": {

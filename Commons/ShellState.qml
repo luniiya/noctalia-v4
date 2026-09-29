@@ -265,11 +265,10 @@ Singleton {
         settings: settingsData,
         state: {
           doNotDisturb: NotificationService.doNotDisturb,
-          noctaliaPerformanceMode: PowerProfileService.noctaliaPerformanceMode,
+          noctaliaaPerformanceMode: PowerProfileService.noctaliaaPerformanceMode,
           barVisible: BarService.isVisible,
           openedPanel: PanelService.openedPanel?.objectName || "",
           lockScreenActive: PanelService.lockScreen?.active || false,
-          wallpapers: WallpaperService.getWallpapersEffectiveMap(),
           desktopWidgetsEditMode: DesktopWidgetRegistry.editMode || false,
           // -------------
           display: shellStateData.display || {},

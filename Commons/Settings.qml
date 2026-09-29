@@ -8,7 +8,7 @@ import "../Helpers/SettingsPaths.js" as SettingsPaths
 import qs.Commons
 import qs.Commons.Migrations
 import qs.Modules.OSD
-import qs.Services.Noctalia
+import qs.Services.Noctaliaa
 import qs.Services.UI
 
 Singleton {
@@ -24,25 +24,24 @@ Singleton {
 
   /*
   Shell directories.
-  - Default config directory: ~/.config/noctalia
-  - Default cache directory: ~/.cache/noctalia
-  - Settings: ~/.config/noctalia/settings/<hostname>.json (NOCTALIA_SETTINGS_FILE overrides)
+  - Default config directory: ~/.config/noctaliaa
+  - Default cache directory: ~/.cache/noctaliaa
+  - Settings: ~/.config/noctaliaa/settings/<hostname>.json (NOCTALIAA_SETTINGS_FILE overrides)
   */
   readonly property alias data: adapter  // Used to access via Settings.data.xxx.yyy
-  readonly property int settingsVersion: 60
-  property bool isDebug: Quickshell.env("NOCTALIA_DEBUG") === "1"
-  readonly property string shellName: "noctalia"
-  readonly property string configDir: ensureTrailingSlash(Quickshell.env("NOCTALIA_CONFIG_DIR") || (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/" + shellName + "/")
-  readonly property string cacheDir: ensureTrailingSlash(Quickshell.env("NOCTALIA_CACHE_DIR") || (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/" + shellName + "/")
+  readonly property int settingsVersion: 62
+  property bool isDebug: Quickshell.env("NOCTALIAA_DEBUG") === "1"
+  readonly property string shellName: "noctaliaa"
+  readonly property string configDir: ensureTrailingSlash(Quickshell.env("NOCTALIAA_CONFIG_DIR") || (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/" + shellName + "/")
+  readonly property string cacheDir: ensureTrailingSlash(Quickshell.env("NOCTALIAA_CACHE_DIR") || (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/" + shellName + "/")
 
-  readonly property string settingsEnvOverride: Quickshell.env("NOCTALIA_SETTINGS_FILE") || ""
+  readonly property string settingsEnvOverride: Quickshell.env("NOCTALIAA_SETTINGS_FILE") || ""
   readonly property string settingsDir: SettingsPaths.settingsDir(configDir)
   readonly property string legacySettingsFile: SettingsPaths.legacySettingsFile(configDir)
   property string hostName: ""
   readonly property string settingsFile: SettingsPaths.resolveSettingsFile(settingsEnvOverride, configDir, hostName)
   readonly property string defaultAvatar: Quickshell.env("HOME") + "/.face"
   readonly property string defaultVideosDirectory: Quickshell.env("HOME") + "/Videos"
-  readonly property string defaultWallpapersDirectory: Quickshell.env("HOME") + "/Pictures/Wallpapers"
 
   signal settingsLoaded
   signal settingsSaved
@@ -94,7 +93,6 @@ Singleton {
 
     // Patch-in the local default, resolved to user's home
     adapter.general.avatarImage = defaultAvatar;
-    adapter.wallpaper.directory = defaultWallpapersDirectory;
     adapter.ui.fontDefault = Qt.application.font.family;
     adapter.ui.fontFixed = "monospace";
 
@@ -374,8 +372,6 @@ Singleton {
       property string clockFormat: "hh\\nmm"
       property bool passwordChars: false
       property list<string> lockScreenMonitors: [] // holds lock screen visibility per monitor
-      property real lockScreenBlur: 0.0
-      property real lockScreenTint: 0.0
       property JsonObject keybinds: JsonObject {
         property list<string> keyUp: ["Up"]
         property list<string> keyDown: ["Down"]
@@ -444,52 +440,6 @@ Singleton {
       ]
     }
 
-    // wallpaper
-    property JsonObject wallpaper: JsonObject {
-      property bool enabled: true
-      property bool overviewEnabled: false
-      property string directory: ""
-      property list<var> monitorDirectories: []
-      property bool enableMultiMonitorDirectories: false
-      property bool showHiddenFiles: false
-      property string viewMode: "single" // "single" | "recursive" | "browse"
-      property bool setWallpaperOnAllMonitors: true
-      property bool linkLightAndDarkWallpapers: true
-      property string fillMode: "crop"
-      property color fillColor: "#000000"
-      property bool useSolidColor: false
-      property color solidColor: "#1a1a2e"
-      property bool automationEnabled: false
-      property string wallpaperChangeMode: "random" // "random" or "alphabetical"
-      property int randomIntervalSec: 300 // 5 min
-      property int transitionDuration: 1500 // 1500 ms
-      property list<string> transitionType: ["fade", "disc", "stripes", "wipe", "pixelate", "honeycomb"]
-      property bool skipStartupTransition: false
-      property real transitionEdgeSmoothness: 0.05
-      property string panelPosition: "follow_bar"
-      property bool hideWallpaperFilenames: false
-      property bool useOriginalImages: false
-      property real overviewBlur: 0.4
-      property real overviewTint: 0.6
-      // Wallhaven settings
-      property bool useWallhaven: false
-      property string wallhavenQuery: ""
-      property string wallhavenSorting: "relevance"
-      property string wallhavenOrder: "desc"
-      property string wallhavenCategories: "111" // general,anime,people
-      property string wallhavenPurity: "100" // sfw only
-      property string wallhavenRatios: ""
-      property string wallhavenApiKey: ""
-      property string wallhavenResolutionMode: "atleast" // "atleast" or "exact"
-      property string wallhavenResolutionWidth: ""
-
-      property string wallhavenResolutionHeight: ""
-      property string sortOrder: "name" // "name", "name_desc", "date", "date_desc", "random"
-      property list<var> favorites: []
-      // Format: [{ "path": "...", "appearance": "light"|"dark", "colorScheme": "...", "darkMode": bool, "useWallpaperColors": bool, "generationMethod": "...", "paletteColors": [...] }]
-      // Legacy entries omit "appearance" and use darkMode to infer light vs dark slot.
-    }
-
     // applauncher
     property JsonObject appLauncher: JsonObject {
       property bool enableClipboardHistory: false
@@ -536,10 +486,7 @@ Singleton {
             "id": "Bluetooth"
           },
           {
-            "id": "WallpaperSelector"
-          },
-          {
-            "id": "NoctaliaPerformance"
+            "id": "NoctaliaaPerformance"
           }
         ]
         property list<var> right: [
@@ -624,8 +571,7 @@ Singleton {
     }
 
     // performance
-    property JsonObject noctaliaPerformance: JsonObject {
-      property bool disableWallpaper: true
+    property JsonObject noctaliaaPerformance: JsonObject {
       property bool disableDesktopWidgets: true
     }
 
@@ -821,7 +767,6 @@ Singleton {
     // hooks
     property JsonObject hooks: JsonObject {
       property bool enabled: false
-      property string wallpaperChange: ""
       property string darkModeChange: ""
       property string screenLock: ""
       property string screenUnlock: ""
@@ -1152,7 +1097,7 @@ Singleton {
 
       var defaultPath = Quickshell.shellDir + "/Assets/settings-default.json";
 
-      Quickshell.execDetached(["sh", "-c", `cat > "${defaultPath}" << 'NOCTALIA_EOF'\n${jsonData}\nNOCTALIA_EOF`]);
+      Quickshell.execDetached(["sh", "-c", `cat > "${defaultPath}" << 'NOCTALIAA_EOF'\n${jsonData}\nNOCTALIAA_EOF`]);
     } catch (error) {
       Logger.e("Settings", "Failed to generate default settings file: " + error);
     }
@@ -1173,7 +1118,7 @@ Singleton {
 
       var defaultPath = Quickshell.shellDir + "/Assets/settings-widgets-default.json";
 
-      Quickshell.execDetached(["sh", "-c", `cat > "${defaultPath}" << 'NOCTALIA_EOF'\n${jsonData}\nNOCTALIA_EOF`]);
+      Quickshell.execDetached(["sh", "-c", `cat > "${defaultPath}" << 'NOCTALIAA_EOF'\n${jsonData}\nNOCTALIAA_EOF`]);
     } catch (error) {
       Logger.e("Settings", "Failed to generate widget default settings file: " + error);
     }

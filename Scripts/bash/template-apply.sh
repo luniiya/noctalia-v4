@@ -17,9 +17,9 @@ kitty)
     # Many configs use: include ./current-theme.conf
     # Point it at the generated theme whenever the hook runs (including when noctalia.conf
     # was unchanged on disk and the hook was forced from the template processor).
-    NOCTALIA_THEME="$HOME/.config/kitty/themes/noctalia.conf"
+    NOCTALIAA_THEME="$HOME/.config/kitty/themes/noctalia.conf"
     CURRENT_THEME="$HOME/.config/kitty/current-theme.conf"
-    if [ -f "$NOCTALIA_THEME" ]; then
+    if [ -f "$NOCTALIAA_THEME" ]; then
         mkdir -p "$HOME/.config/kitty"
         ln -sf "themes/noctalia.conf" "$CURRENT_THEME"
     fi
@@ -568,7 +568,7 @@ zathura)
     ;;
 
 starship)
-            PALETTE_FILE="$HOME/.cache/noctalia/starship-palette.toml"
+            PALETTE_FILE="$HOME/.cache/noctaliaa/starship-palette.toml"
 
             # Respect STARSHIP_CONFIG env var, then fall back to standard lookup order
             if [ -n "$STARSHIP_CONFIG" ]; then

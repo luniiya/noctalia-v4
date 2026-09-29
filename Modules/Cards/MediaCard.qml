@@ -30,49 +30,10 @@ NBox {
     if (root.needsSpectrum) {
       SpectrumService.registerComponent("mediacard");
     }
-    updateCachedWallpaper();
   }
 
   Component.onDestruction: {
     SpectrumService.unregisterComponent("mediacard");
-  }
-
-  property string wallpaper: WallpaperService.getWallpaper(screen.name)
-  property string cachedWallpaper: ""
-
-  // External state management
-  Connections {
-    target: WallpaperService
-    function onWallpaperChanged(screenName, path) {
-      if (screenName === screen.name) {
-        wallpaper = path;
-        updateCachedWallpaper();
-      }
-    }
-  }
-
-  function updateCachedWallpaper() {
-    // Handle solid color mode - no wallpaper to cache
-    if (Settings.data.wallpaper.useSolidColor || WallpaperService.isSolidColorPath(wallpaper)) {
-      cachedWallpaper = "";
-      return;
-    }
-
-    if (!wallpaper) {
-      cachedWallpaper = "";
-      return;
-    }
-
-    if (!ImageCacheService.initialized) {
-      cachedWallpaper = wallpaper;
-      return;
-    }
-
-    ImageCacheService.getThumbnail(wallpaper, function (cachedPath, success) {
-      if (!root)
-        return;
-      cachedWallpaper = success ? cachedPath : wallpaper;
-    });
   }
 
   // Wrapper - rounded rect clipper
@@ -97,7 +58,7 @@ NBox {
     // Solid color background (always present as base layer)
     Rectangle {
       anchors.fill: parent
-      color: Settings.data.wallpaper.useSolidColor ? Settings.data.wallpaper.solidColor : Color.mSurface
+      color: Color.mSurface
     }
 
     // Background image that covers everything
@@ -106,7 +67,7 @@ NBox {
       readonly property int dim: Math.round(256 * Style.uiScaleRatio)
       anchors.fill: parent
       visible: source.toString() !== ""
-      source: MediaService.trackArtUrl || (Settings.data.wallpaper.enabled && !Settings.data.wallpaper.useSolidColor ? root.cachedWallpaper : "")
+      source: MediaService.trackArtUrl
       sourceSize: Qt.size(dim, dim)
       fillMode: Image.PreserveAspectCrop
       layer.enabled: true

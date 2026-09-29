@@ -10,7 +10,7 @@ import qs.Services.UI
 Singleton {
   id: root
 
-  property string githubDataFile: Quickshell.env("NOCTALIA_GITHUB_FILE") || (Settings.cacheDir + "github.json")
+  property string githubDataFile: Quickshell.env("NOCTALIAA_GITHUB_FILE") || (Settings.cacheDir + "github.json")
   property int githubUpdateFrequency: 60 * 60 // 1 hour expressed in seconds
   property bool isFetchingData: false
   readonly property alias data: adapter // Used to access via GitHubService.data.xxx.yyy
@@ -221,7 +221,7 @@ Singleton {
     property bool fetchSucceeded: false
     property bool wasRateLimited: false
 
-    command: ["curl", "-s", "https://api.github.com/repos/noctalia-dev/noctalia-shell/releases/latest"]
+    command: ["curl", "-s", "https://api.github.com/repos/luniiya/noctaliaa/releases/latest"]
 
     stdout: StdioCollector {
       onStreamFinished: {
@@ -299,7 +299,7 @@ Singleton {
     property bool fetchSucceeded: false
     property bool wasRateLimited: false
 
-    command: ["curl", "-s", "https://api.github.com/repos/noctalia-dev/noctalia-shell/contributors?per_page=100"]
+    command: ["curl", "-s", "https://api.github.com/repos/luniiya/noctaliaa/contributors?per_page=100"]
 
     stdout: StdioCollector {
       onStreamFinished: {

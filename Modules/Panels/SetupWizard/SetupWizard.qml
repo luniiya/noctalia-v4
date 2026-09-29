@@ -5,7 +5,7 @@ import Quickshell
 import Quickshell.Wayland
 import qs.Commons
 import qs.Modules.MainScreen
-import qs.Services.Noctalia
+import qs.Services.Noctaliaa
 import qs.Services.System
 import qs.Services.UI
 import qs.Widgets
@@ -33,19 +33,16 @@ SmartPanel {
 
     // Wizard state (lazy-loaded with panelContent)
     property int currentStep: 0
-    readonly property int totalSteps: root.telemetryOnlyMode ? 1 : 5
+    readonly property int totalSteps: root.telemetryOnlyMode ? 1 : 4
     property bool isCompleting: false
 
     // Setup wizard data
-    property string selectedWallpaperDirectory: Settings.defaultWallpapersDirectory
-    property string selectedWallpaper: ""
     property real selectedScaleRatio: 1.0
     property string selectedBarPosition: "top"
 
     Component.onCompleted: {
       selectedScaleRatio = Settings.data.general.scaleRatio;
       selectedBarPosition = Settings.data.bar.position;
-      selectedWallpaperDirectory = Settings.data.wallpaper.directory || Settings.defaultWallpapersDirectory;
     }
 
     Connections {
@@ -83,17 +80,6 @@ SmartPanel {
 
         // In telemetry-only mode, we only need to save the telemetry setting
         if (!root.telemetryOnlyMode) {
-          if (typeof WallpaperService !== "undefined" && WallpaperService.refreshWallpapersList) {
-            if (selectedWallpaperDirectory !== Settings.data.wallpaper.directory) {
-              Settings.data.wallpaper.directory = selectedWallpaperDirectory;
-              WallpaperService.refreshWallpapersList();
-            }
-
-            if (selectedWallpaper !== "") {
-              WallpaperService.changeWallpaper(selectedWallpaper, undefined);
-            }
-          }
-
           Settings.data.general.scaleRatio = selectedScaleRatio;
           Settings.data.bar.position = selectedBarPosition;
         }
@@ -121,19 +107,6 @@ SmartPanel {
       } catch (error) {
         Logger.e("SetupWizard", "Error completing setup:", error);
         isCompleting = false;
-      }
-    }
-
-    function applyWallpaperSettings() {
-      if (typeof WallpaperService !== "undefined" && WallpaperService.refreshWallpapersList) {
-        if (selectedWallpaperDirectory !== Settings.data.wallpaper.directory) {
-          Settings.data.wallpaper.directory = selectedWallpaperDirectory;
-          WallpaperService.refreshWallpapersList();
-        }
-
-        if (selectedWallpaper !== "") {
-          WallpaperService.changeWallpaper(selectedWallpaper, undefined);
-        }
       }
     }
 
@@ -282,27 +255,12 @@ SmartPanel {
             }
           }
 
-          // Step 1: Wallpaper Setup
-          SetupWallpaperStep {
-            id: step1
-            selectedDirectory: panelContent.selectedWallpaperDirectory
-            selectedWallpaper: panelContent.selectedWallpaper
-            onDirectoryChanged: function (directory) {
-              panelContent.selectedWallpaperDirectory = directory;
-              panelContent.applyWallpaperSettings();
-            }
-            onWallpaperChanged: function (wallpaper) {
-              panelContent.selectedWallpaper = wallpaper;
-              panelContent.applyWallpaperSettings();
-            }
-          }
-
-          // Step 2: Appearance - Dark mode and color source
+          // Step 1: Appearance - Dark mode and color source
           SetupAppearanceStep {
             id: step3
           }
 
-          // Step 3: UI Configuration
+          // Step 2: UI Configuration
           SetupCustomizeStep {
             id: step2
             selectedScaleRatio: panelContent.selectedScaleRatio
@@ -317,7 +275,7 @@ SmartPanel {
             }
           }
 
-          // Step 4: Dock Setup
+          // Step 3: Dock Setup
           SetupDockStep {
             id: stepDock
           }
@@ -348,10 +306,6 @@ SmartPanel {
               {
                 "icon": "sparkles",
                 "label": I18n.tr("setup.welcome")
-              },
-              {
-                "icon": "image",
-                "label": I18n.tr("common.wallpaper")
               },
               {
                 "icon": "palette",

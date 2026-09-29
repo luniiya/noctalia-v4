@@ -94,7 +94,7 @@ Singleton {
     if (nameOrPath.indexOf("/") !== -1) {
       return nameOrPath;
     }
-    // Handle special cases for Noctalia schemes
+    // Handle special cases for Noctaliaa schemes
     var schemeName = nameOrPath.replace(".json", "");
     if (schemeName === "Noctalia (default)") {
       schemeName = "Noctalia-default";

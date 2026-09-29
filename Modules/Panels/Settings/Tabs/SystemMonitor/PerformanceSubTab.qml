@@ -11,19 +11,10 @@ ColumnLayout {
 
   NToggle {
     Layout.fillWidth: true
-    label: I18n.tr("panels.system.noctalia-performance-disable-wallpaper-label")
-    description: I18n.tr("panels.system.noctalia-performance-disable-wallpaper-description")
-    checked: !Settings.data.noctaliaPerformance.disableWallpaper
-    defaultValue: !Settings.getDefaultValue("noctaliaPerformance.disableWallpaper")
-    onToggled: checked => Settings.data.noctaliaPerformance.disableWallpaper = !checked
-  }
-
-  NToggle {
-    Layout.fillWidth: true
-    label: I18n.tr("panels.system.noctalia-performance-disable-desktop-widgets-label")
-    description: I18n.tr("panels.system.noctalia-performance-disable-desktop-widgets-description")
-    checked: !Settings.data.noctaliaPerformance.disableDesktopWidgets
-    defaultValue: !Settings.getDefaultValue("noctaliaPerformance.disableDesktopWidgets")
-    onToggled: checked => Settings.data.noctaliaPerformance.disableDesktopWidgets = !checked
+    label: I18n.tr("panels.system.noctaliaa-performance-disable-desktop-widgets-label")
+    description: I18n.tr("panels.system.noctaliaa-performance-disable-desktop-widgets-description")
+    checked: !Settings.data.noctaliaaPerformance.disableDesktopWidgets
+    defaultValue: !Settings.getDefaultValue("noctaliaaPerformance.disableDesktopWidgets")
+    onToggled: checked => Settings.data.noctaliaaPerformance.disableDesktopWidgets = !checked
   }
 }

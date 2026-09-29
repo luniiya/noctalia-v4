@@ -34,7 +34,7 @@ function hostSettingsFile(configDir, hostName) {
   return settingsDir(configDir) + sanitizeHostName(hostName) + ".json";
 }
 
-// An explicit NOCTALIA_SETTINGS_FILE always wins over the per-host file
+// An explicit NOCTALIAA_SETTINGS_FILE always wins over the per-host file
 function resolveSettingsFile(envOverride, configDir, hostName) {
   if (envOverride && String(envOverride).length > 0)
     return String(envOverride);

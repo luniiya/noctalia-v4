@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Install this Noctalia checkout as the user's noctalia-shell config.
+# Install this Noctaliaa checkout as the user's noctaliaa config.
 #
 # Usage: ./install.sh [--copy] [--no-restart]
-#   default       symlink ~/.config/quickshell/noctalia-shell -> this repo (edits go live on restart)
+#   default       symlink ~/.config/quickshell/noctaliaa -> this repo (edits go live on restart)
 #   --copy        copy the files instead of symlinking
 #   --no-restart  don't restart the running shell afterwards
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET="${XDG_CONFIG_HOME:-$HOME/.config}/quickshell/noctalia-shell"
+TARGET="${XDG_CONFIG_HOME:-$HOME/.config}/quickshell/noctaliaa"
 MODE="link"
 RESTART=1
 
@@ -32,9 +32,9 @@ if ! command -v qs >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ -e /etc/xdg/quickshell/noctalia-shell ]; then
-  echo "Note: a system copy exists at /etc/xdg/quickshell/noctalia-shell."
-  echo "      $TARGET takes precedence, but you can remove the package with: sudo pacman -Rns noctalia-shell"
+if [ -e /etc/xdg/quickshell/noctaliaa ]; then
+  echo "Note: a system copy exists at /etc/xdg/quickshell/noctaliaa."
+  echo "      $TARGET takes precedence, but you can remove the package with: sudo pacman -Rns noctaliaa"
 fi
 
 mkdir -p "$(dirname "$TARGET")"
@@ -60,10 +60,10 @@ if [ ! -e "$TARGET" ]; then
 fi
 
 if [ "$RESTART" -eq 1 ] && [ -n "${WAYLAND_DISPLAY:-}" ]; then
-  echo "Restarting noctalia-shell..."
-  qs -c noctalia-shell kill >/dev/null 2>&1 || true
+  echo "Restarting noctaliaa..."
+  qs -c noctaliaa kill >/dev/null 2>&1 || true
   sleep 0.5
-  setsid -f qs -c noctalia-shell >/dev/null 2>&1
+  setsid -f qs -c noctaliaa >/dev/null 2>&1
 fi
 
-echo "Done. Launch manually with: qs -c noctalia-shell"
+echo "Done. Launch manually with: qs -c noctaliaa"

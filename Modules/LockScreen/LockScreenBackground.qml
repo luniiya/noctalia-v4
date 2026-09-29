@@ -1,143 +1,20 @@
 import QtQuick
-import QtQuick.Effects
 import Quickshell
 import qs.Commons
-import qs.Services.Compositor
-import qs.Services.Power
-import qs.Services.UI
 
 Item {
   id: root
   anchors.fill: parent
 
-  // Cached wallpaper path - exposed for parent components
-  property string resolvedWallpaperPath: ""
-  property color tintColor: Settings.data.colorSchemes.darkMode ? Color.mSurface : Color.mOnSurface
-
   required property var screen
 
-  // Request preprocessed wallpaper when lock screen becomes active or dimensions change
-  Component.onCompleted: {
-    if (screen) {
-      Qt.callLater(requestCachedWallpaper);
-    }
-  }
-
-  onWidthChanged: {
-    if (screen && width > 0 && height > 0) {
-      Qt.callLater(requestCachedWallpaper);
-    }
-  }
-
-  onHeightChanged: {
-    if (screen && width > 0 && height > 0) {
-      Qt.callLater(requestCachedWallpaper);
-    }
-  }
-
-  // Listen for wallpaper changes
-  Connections {
-    target: WallpaperService
-    function onWallpaperChanged(screenName, path) {
-      if (screen && screenName === screen.name) {
-        Qt.callLater(requestCachedWallpaper);
-      }
-    }
-  }
-
-  // Listen for display scale changes
-  Connections {
-    target: CompositorService
-    function onDisplayScalesChanged() {
-      if (screen && width > 0 && height > 0) {
-        Qt.callLater(requestCachedWallpaper);
-      }
-    }
-  }
-
-  function requestCachedWallpaper() {
-    if (!screen || width <= 0 || height <= 0) {
-      return;
-    }
-
-    // Check for solid color mode first
-    if (Settings.data.wallpaper.useSolidColor) {
-      resolvedWallpaperPath = "";
-      return;
-    }
-
-    const originalPath = WallpaperService.getWallpaper(screen.name) || "";
-    if (originalPath === "") {
-      resolvedWallpaperPath = "";
-      return;
-    }
-
-    // Handle solid color paths
-    if (WallpaperService.isSolidColorPath(originalPath)) {
-      resolvedWallpaperPath = "";
-      return;
-    }
-
-    if (!ImageCacheService || !ImageCacheService.initialized) {
-      // Fallback to original if services not ready
-      resolvedWallpaperPath = originalPath;
-      return;
-    }
-
-    const compositorScale = CompositorService.getDisplayScale(screen.name);
-    const targetWidth = Math.round(width * compositorScale);
-    const targetHeight = Math.round(height * compositorScale);
-    if (targetWidth <= 0 || targetHeight <= 0) {
-      return;
-    }
-
-    // Don't set resolvedWallpaperPath until cache is ready
-    // This prevents loading the original huge image
-    ImageCacheService.getLarge(originalPath, targetWidth, targetHeight, function (cachedPath, success) {
-      if (success) {
-        resolvedWallpaperPath = cachedPath;
-      } else {
-        // Only fall back to original if caching failed
-        resolvedWallpaperPath = originalPath;
-      }
-    });
-  }
-
-  // Background - solid color or black fallback
+  // Wallpapers are drawn by the system wallpaper daemon, not the shell
   Rectangle {
     anchors.fill: parent
-    color: Settings.data.wallpaper.useSolidColor ? Settings.data.wallpaper.solidColor : "#000000"
-  }
-
-  Image {
-    id: lockBgImage
-    visible: source !== "" && Settings.data.wallpaper.enabled && !Settings.data.wallpaper.useSolidColor && (!PowerProfileService.noctaliaPerformanceMode || !Settings.data.noctaliaPerformance.disableWallpaper)
-    anchors.fill: parent
-    fillMode: Image.PreserveAspectCrop
-    source: resolvedWallpaperPath
-    cache: false
-    smooth: true
-    mipmap: false
-    antialiasing: true
-
-    layer.enabled: Settings.data.general.lockScreenBlur > 0 && !PowerProfileService.noctaliaPerformanceMode
-    layer.smooth: false
-    layer.effect: MultiEffect {
-      blurEnabled: true
-      blur: Settings.data.general.lockScreenBlur
-      blurMax: 48
-    }
-
-    // Tint overlay
-    Rectangle {
-      anchors.fill: parent
-      color: root.tintColor
-      opacity: Settings.data.general.lockScreenTint
-    }
+    color: "#000000"
   }
 
   Rectangle {
-    visible: !Settings.data.wallpaper.useSolidColor
     anchors.fill: parent
     gradient: Gradient {
       GradientStop {

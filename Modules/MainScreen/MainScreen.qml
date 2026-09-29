@@ -30,7 +30,6 @@ import qs.Modules.Panels.Settings
 import qs.Modules.Panels.SetupWizard
 import qs.Modules.Panels.SystemStats
 import qs.Modules.Panels.Tray
-import qs.Modules.Panels.Wallpaper
 import qs.Services.Compositor
 import qs.Services.Power
 import qs.Services.UI
@@ -46,7 +45,7 @@ PanelWindow {
   }
 
   WlrLayershell.layer: WlrLayer.Top
-  WlrLayershell.namespace: "noctalia-background-" + (screen?.name || "unknown")
+  WlrLayershell.namespace: "noctaliaa-background-" + (screen?.name || "unknown")
   WlrLayershell.exclusionMode: ExclusionMode.Ignore // Don't reserve space - BarExclusionZone handles that
   WlrLayershell.keyboardFocus: {
     // No panel open anywhere: no keyboard focus needed
@@ -387,12 +386,6 @@ PanelWindow {
     TrayDrawerPanel {
       id: trayDrawerPanel
       objectName: "trayDrawerPanel-" + (root.screen?.name || "unknown")
-      screen: root.screen
-    }
-
-    WallpaperPanel {
-      id: wallpaperPanel
-      objectName: "wallpaperPanel-" + (root.screen?.name || "unknown")
       screen: root.screen
     }
 

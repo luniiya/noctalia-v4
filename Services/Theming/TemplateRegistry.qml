@@ -70,7 +70,7 @@ Singleton {
       "name": "Starship",
       "templatePath": "terminal/starship.toml",
       "predefinedTemplatePath": "terminal/starship-predefined.toml",
-      "outputPath": "~/.cache/noctalia/starship-palette.toml",
+      "outputPath": "~/.cache/noctaliaa/starship-palette.toml",
       "postHook": `${templateApplyScript} starship`
     }
   ]
@@ -287,15 +287,15 @@ Singleton {
       "input": "zen-browser/zen-userChrome.css",
       "outputs": [
         {
-          "path": "~/.cache/noctalia/zen-browser/zen-userChrome.css"
+          "path": "~/.cache/noctaliaa/zen-browser/zen-userChrome.css"
         },
         {
-          "path": "~/.cache/noctalia/zen-browser/zen-userContent.css",
+          "path": "~/.cache/noctaliaa/zen-browser/zen-userContent.css",
           "input": "zen-browser/zen-userContent.css"
         }
       ],
       "postProcess": ()
-                     => "sh -c 'CSS_CHROME=\"$HOME/.cache/noctalia/zen-browser/zen-userChrome.css\"; CSS_CONTENT=\"$HOME/.cache/noctalia/zen-browser/zen-userContent.css\"; LINE_CHROME=\"@import \\\"$CSS_CHROME\\\";\"; LINE_CONTENT=\"@import \\\"$CSS_CONTENT\\\";\"; find \"$HOME/.config/zen\" \"$HOME/.zen\" -mindepth 2 -maxdepth 2 -type d -name chrome -print0 2>/dev/null | while IFS= read -r -d \"\" dir; do USER_CHROME=\"$dir/userChrome.css\"; USER_CONTENT=\"$dir/userContent.css\"; mkdir -p \"$dir\"; touch \"$USER_CHROME\" \"$USER_CONTENT\"; sed -i \"/zen-browser\\/zen-userChrome\\.css/d\" \"$USER_CHROME\"; sed -i \"/zen-browser\\/zen-userContent\\.css/d\" \"$USER_CONTENT\"; if ! grep -Fq \"$LINE_CHROME\" \"$USER_CHROME\"; then printf \"%s\\n\" \"$LINE_CHROME\" >> \"$USER_CHROME\"; fi; if ! grep -Fq \"$LINE_CONTENT\" \"$USER_CONTENT\"; then printf \"%s\\n\" \"$LINE_CONTENT\" >> \"$USER_CONTENT\"; fi; done'"
+                     => "sh -c 'CSS_CHROME=\"$HOME/.cache/noctaliaa/zen-browser/zen-userChrome.css\"; CSS_CONTENT=\"$HOME/.cache/noctaliaa/zen-browser/zen-userContent.css\"; LINE_CHROME=\"@import \\\"$CSS_CHROME\\\";\"; LINE_CONTENT=\"@import \\\"$CSS_CONTENT\\\";\"; find \"$HOME/.config/zen\" \"$HOME/.zen\" -mindepth 2 -maxdepth 2 -type d -name chrome -print0 2>/dev/null | while IFS= read -r -d \"\" dir; do USER_CHROME=\"$dir/userChrome.css\"; USER_CONTENT=\"$dir/userContent.css\"; mkdir -p \"$dir\"; touch \"$USER_CHROME\" \"$USER_CONTENT\"; sed -i \"/zen-browser\\/zen-userChrome\\.css/d\" \"$USER_CHROME\"; sed -i \"/zen-browser\\/zen-userContent\\.css/d\" \"$USER_CONTENT\"; if ! grep -Fq \"$LINE_CHROME\" \"$USER_CHROME\"; then printf \"%s\\n\" \"$LINE_CHROME\" >> \"$USER_CHROME\"; fi; if ! grep -Fq \"$LINE_CONTENT\" \"$USER_CONTENT\"; then printf \"%s\\n\" \"$LINE_CONTENT\" >> \"$USER_CONTENT\"; fi; done'"
     },
     {
       "id": "cava",
@@ -549,7 +549,7 @@ Singleton {
     lines.push("# Add your custom templates below");
     lines.push("# Example:");
     lines.push("# [templates.myapp]");
-    lines.push("# input_path = \"~/.config/noctalia/templates/myapp.css\"");
+    lines.push("# input_path = \"~/.config/noctaliaa/templates/myapp.css\"");
     lines.push("# output_path = \"~/.config/myapp/theme.css\"");
     lines.push("# post_hook = \"myapp --reload-theme\"");
     lines.push("");

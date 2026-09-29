@@ -30,7 +30,7 @@ Singleton {
                            "ModelUsage": modelUsageComponent,
                            "Network": networkComponent,
                            "NightLight": nightLightComponent,
-                           "NoctaliaPerformance": noctaliaPerformanceComponent,
+                           "NoctaliaaPerformance": noctaliaaPerformanceComponent,
                            "NotificationHistory": notificationHistoryComponent,
                            "PowerProfile": powerProfileComponent,
                            "SessionMenu": sessionMenuComponent,
@@ -41,7 +41,6 @@ Singleton {
                            "Tray": trayComponent,
                            "Volume": volumeComponent,
                            "VPN": vpnComponent,
-                           "WallpaperSelector": wallpaperSelectorComponent,
                            "Workspace": workspaceComponent
                          })
 
@@ -64,7 +63,7 @@ Singleton {
                                      "ModelUsage": "WidgetSettings/ModelUsageSettings.qml",
                                      "Network": "WidgetSettings/NetworkSettings.qml",
                                      "NightLight": "WidgetSettings/NightLightSettings.qml",
-                                     "NoctaliaPerformance": "WidgetSettings/NoctaliaPerformanceSettings.qml",
+                                     "NoctaliaaPerformance": "WidgetSettings/NoctaliaaPerformanceSettings.qml",
                                      "NotificationHistory": "WidgetSettings/NotificationHistorySettings.qml",
                                      "PowerProfile": "WidgetSettings/PowerProfileSettings.qml",
                                      "SessionMenu": "WidgetSettings/SessionMenuSettings.qml",
@@ -75,7 +74,6 @@ Singleton {
                                      "Tray": "WidgetSettings/TraySettings.qml",
                                      "Volume": "WidgetSettings/VolumeSettings.qml",
                                      "VPN": "WidgetSettings/VPNSettings.qml",
-                                     "WallpaperSelector": "WidgetSettings/WallpaperSelectorSettings.qml",
                                      "Workspace": "WidgetSettings/WorkspaceSettings.qml"
                                    })
 
@@ -99,7 +97,7 @@ Singleton {
                                     "displayMode": "graphic-clean",
                                     "deviceNativePath": "__default__",
                                     "showPowerProfiles": false,
-                                    "showNoctaliaPerformance": false,
+                                    "showNoctaliaaPerformance": false,
                                     "hideIfNotDetected": true,
                                     "hideIfIdle": false
                                   },
@@ -293,7 +291,7 @@ Singleton {
                                   "NightLight": {
                                     "iconColor": "none"
                                   },
-                                  "NoctaliaPerformance": {
+                                  "NoctaliaaPerformance": {
                                     "iconColor": "none"
                                   },
                                   "PowerProfile": {
@@ -324,9 +322,6 @@ Singleton {
                                     "middleClickCommand": "pwvucontrol || pavucontrol",
                                     "iconColor": "none",
                                     "textColor": "none"
-                                  },
-                                  "WallpaperSelector": {
-                                    "iconColor": "none"
                                   }
                                 })
 
@@ -376,8 +371,8 @@ Singleton {
   property Component nightLightComponent: Component {
     NightLight {}
   }
-  property Component noctaliaPerformanceComponent: Component {
-    NoctaliaPerformance {}
+  property Component noctaliaaPerformanceComponent: Component {
+    NoctaliaaPerformance {}
   }
   property Component notificationHistoryComponent: Component {
     NotificationHistory {}
@@ -414,9 +409,6 @@ Singleton {
   }
   property Component networkComponent: Component {
     Network {}
-  }
-  property Component wallpaperSelectorComponent: Component {
-    WallpaperSelector {}
   }
   property Component workspaceComponent: Component {
     Workspace {}
