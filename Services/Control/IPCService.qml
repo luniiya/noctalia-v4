@@ -490,6 +490,11 @@ Singleton {
     function set(schemeName: string) {
       ColorSchemeService.setPredefinedScheme(schemeName);
     }
+    // Regenerate the theme for the current mode, e.g. after an external tool
+    // overwrote the wallpaper file in place (same path, so no change signal)
+    function refresh() {
+      AppThemeService.generate();
+    }
     function setGenerationMethod(method: string) {
       var valid = false;
       for (var i = 0; i < TemplateProcessor.schemeTypes.length; i++) {

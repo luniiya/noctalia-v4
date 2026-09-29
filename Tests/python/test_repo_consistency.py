@@ -92,5 +92,30 @@ class SettingsSchemaTests(unittest.TestCase):
         self.assertRegex(settings, r"property int notchGap: \d+")
 
 
+def ipc_handlers():
+    """Map each IpcHandler target in IPCService.qml to its source block."""
+    source = (ROOT / "Services" / "Control" / "IPCService.qml").read_text(encoding="utf-8")
+    handlers = {}
+    for block in source.split("IpcHandler {")[1:]:
+        target = re.search(r'target: "(\w+)"', block)
+        if target:
+            handlers[target.group(1)] = block
+    return handlers
+
+
+class IpcTests(unittest.TestCase):
+    def test_color_scheme_refresh_regenerates_theme(self):
+        block = ipc_handlers()["colorScheme"]
+        body = re.search(r"function refresh\(\)\s*\{(.*?)\n    \}", block, re.S)
+        self.assertIsNotNone(body, "colorScheme.refresh() missing")
+        self.assertIn("AppThemeService.generate()", body.group(1))
+
+    def test_dark_mode_handlers_still_exist(self):
+        block = ipc_handlers()["darkMode"]
+        for name in ("toggle", "setDark", "setLight"):
+            with self.subTest(name=name):
+                self.assertRegex(block, rf"function {name}\(\)")
+
+
 if __name__ == "__main__":
     unittest.main()
