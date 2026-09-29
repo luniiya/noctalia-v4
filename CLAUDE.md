@@ -1,4 +1,6 @@
-# Noctalia v4 – agent notes
+# Agent notes
+
+Personal fork of Noctalia v4 that is diverging into its own shell. It has one maintainer and few or no outside contributors, and it does not track upstream.
 
 Quickshell (QML) desktop shell. Entry point `shell.qml`; singletons in `Commons/` and `Services/`, UI in `Modules/` and `Widgets/`, pure JS helpers in `Helpers/`.
 
@@ -21,10 +23,17 @@ Scripts/dev/run-tests.sh -silent  # quieter; this is what the pre-commit hook ru
 
 `./install.sh` symlinks `~/.config/quickshell/noctalia-shell` to this checkout and restarts the shell (`--no-restart`, `--copy` available). Check the log with `qs -c noctalia-shell log`. Never `pkill -f "qs -c noctalia-shell"`: it matches the invoking shell too. Use `qs -c noctalia-shell kill`.
 
+## Working in a diverging fork
+
+- Upstream compatibility is not a goal. Refactor, rename or delete upstream code when it makes the change cleaner; don't keep shims or dead options around for upstream parity, and don't worry about merge conflicts with upstream.
+- The maintainer's own setup is the main target. Don't add compatibility layers for hypothetical other users unless asked.
+- The maintainer commits and pushes; leave changes uncommitted.
+- Upstream-only infrastructure (e.g. `.github/workflows/close-v4-issues.yml`, `codeberg-mirror.yml`, the `i18n-*.sh` scripts that talk to `i18n.noctalia.dev`) is not part of the workflow here. Don't rely on it or update it.
+
 ## Conventions
 
 - User settings are per host: `~/.config/noctalia/settings/<hostname>.json` (path logic in `Helpers/SettingsPaths.js`). A new host is seeded once from the legacy `settings.json`; `NOCTALIA_SETTINGS_FILE` overrides the path.
-- Settings live in `Commons/Settings.qml` (`JsonAdapter`); every new setting needs a default there. Breaking changes to settings need a migration in `Commons/Migrations/` and a bump of `settingsVersion`.
+- Settings live in `Commons/Settings.qml` (`JsonAdapter`); every new setting needs a default there. Renaming, moving or changing the meaning of a saved setting needs a migration in `Commons/Migrations/` and a bump of `settingsVersion`, so the maintainer's saved per-host settings keep working. Keep migrations small: they only need to handle configs that actually exist, not every upstream variant.
 
 ## Checklist: adding or changing a setting
 
@@ -35,10 +44,10 @@ Do **all** of these, every time. Missing one breaks the setting's reset button o
 3. Add the UI control in `Modules/Panels/Settings/Tabs/...` with `defaultValue: Settings.getDefaultValue("section.key")`.
 4. Add the label and description keys to `Assets/Translations/en.json`.
 5. Run `python3 Scripts/dev/build-settings-search-index.py`.
-6. If existing users need their saved value changed or renamed, add a migration. Changing a default only affects new installs and people who never saved that key.
+6. If the saved value must be changed or renamed, add a migration. Changing a default only affects hosts that never saved that key.
 7. Put any logic behind the setting in a `Helpers/*.js` module and add unit tests for it.
 8. Run `Scripts/dev/run-tests.sh`. `Tests/python/test_settings_defaults.py` fails if steps 1 and 2 disagree, and `test_repo_consistency.py` catches missing translations and a stale search index.
-- User-facing strings go through `I18n.tr("…")` with keys added to `Assets/Translations/en.json` only (other languages are synced separately).
+- User-facing strings go through `I18n.tr("…")` with keys added to `Assets/Translations/en.json` only. Other language files are leftovers from upstream and are no longer synced; missing keys fall back to English (`Commons/I18n.qml`), so don't edit them. Removing a string may leave stale keys in them, which is fine.
 - After changing settings UI, run `python3 Scripts/dev/build-settings-search-index.py`.
-- `Scripts/dev/qmlfmt.sh` formats every QML file. If your local `qmlformat` version reformats files you didn't touch, revert those files and keep the diff limited to your change.
+- `Scripts/dev/qmlfmt.sh` formats every QML file, and the pre-commit hook runs it on the whole tree. Formatter churn in files you touched is fine; don't mass-reformat unrelated files as part of a feature change.
 - Match surrounding code: 2-space indent in QML/JS, comment density and naming of neighbouring code.

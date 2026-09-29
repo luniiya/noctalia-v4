@@ -158,6 +158,18 @@ class BarWidgetRegistryTests(unittest.TestCase):
         self.assertIn('objectName: "modelUsagePanel-"', main_screen)
 
 
+class BoxOutlineTests(unittest.TestCase):
+    def test_outline_color_uses_outline_width(self):
+        # Boxes using the outline color must also follow the outline thickness setting
+        pattern = re.compile(
+            r"border\.width: Style\.borderS\n\s*border\.color: Style\.boxBorderColor"
+            r"|border\.color: Style\.boxBorderColor\n\s*border\.width: Style\.borderS"
+        )
+        for path in qml_files():
+            with self.subTest(path=str(path.relative_to(ROOT))):
+                self.assertIsNone(pattern.search(path.read_text(encoding="utf-8")))
+
+
 class SettingsWindowTests(unittest.TestCase):
     """Settings always open in their own compositor window, never inside the bar."""
 

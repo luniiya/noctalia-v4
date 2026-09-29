@@ -13,6 +13,8 @@ RowLayout {
   property var defaultValue: undefined
   property var noneColor: undefined      // color declared as var so we can nullify
   property var noneOnColor: undefined    // color declared as var so we can nullify
+  // Choices as [{ key, name }]; keys are resolved with Color.resolveColorKey
+  property var model: Color.colorKeyModel
 
   readonly property bool isValueChanged: (defaultValue !== undefined) && (currentKey !== defaultValue)
   readonly property string indicatorTooltip: {
@@ -36,10 +38,10 @@ RowLayout {
     id: colourRow
 
     opacity: enabled ? 1.0 : 0.6
-    Layout.minimumWidth: root.diameter * Color.colorKeyModel.length
+    Layout.minimumWidth: root.diameter * root.model.length
 
     Repeater {
-      model: Color.colorKeyModel
+      model: root.model
 
       Rectangle {
         id: colorCircle

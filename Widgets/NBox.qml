@@ -18,7 +18,7 @@ Item {
     anchors.fill: parent
     radius: Style.radiusM
     border.color: Style.boxBorderColor
-    border.width: Style.borderS
+    border.width: Style.boxBorderWidth
     color: {
       if (forceOpaque) {
         return root.color;

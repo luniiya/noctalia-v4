@@ -865,7 +865,7 @@ Item {
           implicitHeight: infoColumn.implicitHeight + Style.margin2S
           radius: Style.radiusXS
           color: Color.mSurfaceVariant
-          border.width: Style.borderS
+          border.width: Style.boxBorderWidth
           border.color: Style.boxBorderColor
           clip: true
 

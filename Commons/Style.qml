@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import qs.Services.Power
 import "../Helpers/NotchGeometry.js" as NotchGeometry
+import "../Helpers/OutlineStyle.js" as OutlineStyle
 
 Singleton {
   id: root
@@ -158,7 +159,20 @@ Singleton {
   readonly property color capsuleBorderColor: Settings.data.bar.showOutline ? Color.mPrimary : "transparent"
   readonly property int capsuleBorderWidth: Settings.data.bar.showOutline ? Style.borderS : 0
 
-  readonly property color boxBorderColor: Settings.data.ui.boxBorderEnabled ? Color.mOutline : "transparent"
+  // Container outlines (NBox and friends): color key, brightness and opacity from settings
+  readonly property color boxBorderColor: {
+    if (!Settings.data.ui.boxBorderEnabled)
+      return "transparent";
+    const base = Color.resolveColorKey(Settings.data.ui.boxBorderColor);
+    const c = OutlineStyle.outlineColor({
+                                          "r": base.r,
+                                          "g": base.g,
+                                          "b": base.b,
+                                          "a": base.a
+                                        }, Settings.data.ui.boxBorderBrightness, Settings.data.ui.boxBorderOpacity);
+    return Qt.rgba(c.r, c.g, c.b, c.a);
+  }
+  readonly property int boxBorderWidth: OutlineStyle.borderWidth(Settings.data.ui.boxBorderWidth, uiScaleRatio)
 
   // Pixel-perfect utility for centering content without subpixel positioning
   function pixelAlignCenter(containerSize, contentSize) {

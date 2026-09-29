@@ -131,7 +131,7 @@ NBox {
       anchors.fill: parent
       color: "transparent"
       border.color: Style.boxBorderColor
-      border.width: Style.borderS
+      border.width: Style.boxBorderWidth
       radius: Style.radiusM
     }
 

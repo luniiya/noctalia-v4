@@ -304,6 +304,8 @@ Singleton {
 
   function resolveColorKey(key) {
     switch (key) {
+    case "outline":
+      return root.mOutline;
     case "primary":
       return root.mPrimary;
     case "secondary":

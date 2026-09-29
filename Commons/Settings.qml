@@ -398,6 +398,10 @@ Singleton {
       property bool tooltipsEnabled: true
       property bool scrollbarAlwaysVisible: true
       property bool boxBorderEnabled: false
+      property int boxBorderWidth: 1 // 1-6, scaled with the UI
+      property string boxBorderColor: "outline" // "outline", "primary", "secondary", "tertiary", "error"
+      property int boxBorderBrightness: 0 // -100 (black) to 100 (white)
+      property int boxBorderOpacity: 100 // percent
       property real panelBackgroundOpacity: 0.93
       property bool translucentWidgets: false
       property bool panelsAttachedToBar: true

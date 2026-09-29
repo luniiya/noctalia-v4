@@ -25,6 +25,82 @@ ColumnLayout {
     onToggled: checked => Settings.data.ui.boxBorderEnabled = checked
   }
 
+  NValueSlider {
+    visible: Settings.data.ui.boxBorderEnabled
+    Layout.fillWidth: true
+    label: I18n.tr("panels.user-interface.box-border-width-label")
+    description: I18n.tr("panels.user-interface.box-border-width-description")
+    from: 1
+    to: 6
+    stepSize: 1
+    showReset: true
+    value: Settings.data.ui.boxBorderWidth
+    defaultValue: Settings.getDefaultValue("ui.boxBorderWidth")
+    onMoved: value => Settings.data.ui.boxBorderWidth = Math.round(value)
+    text: Settings.data.ui.boxBorderWidth + "px"
+  }
+
+  NColorChoice {
+    visible: Settings.data.ui.boxBorderEnabled
+    label: I18n.tr("panels.user-interface.box-border-color-label")
+    description: I18n.tr("panels.user-interface.box-border-color-description")
+    model: [
+      {
+        "key": "outline",
+        "name": I18n.tr("panels.user-interface.box-border-color-outline")
+      },
+      {
+        "key": "primary",
+        "name": I18n.tr("common.primary")
+      },
+      {
+        "key": "secondary",
+        "name": I18n.tr("common.secondary")
+      },
+      {
+        "key": "tertiary",
+        "name": I18n.tr("common.tertiary")
+      },
+      {
+        "key": "error",
+        "name": I18n.tr("common.error")
+      }
+    ]
+    currentKey: Settings.data.ui.boxBorderColor
+    defaultValue: Settings.getDefaultValue("ui.boxBorderColor")
+    onSelected: key => Settings.data.ui.boxBorderColor = key
+  }
+
+  NValueSlider {
+    visible: Settings.data.ui.boxBorderEnabled
+    Layout.fillWidth: true
+    label: I18n.tr("panels.user-interface.box-border-brightness-label")
+    description: I18n.tr("panels.user-interface.box-border-brightness-description")
+    from: -100
+    to: 100
+    stepSize: 5
+    showReset: true
+    value: Settings.data.ui.boxBorderBrightness
+    defaultValue: Settings.getDefaultValue("ui.boxBorderBrightness")
+    onMoved: value => Settings.data.ui.boxBorderBrightness = Math.round(value)
+    text: (Settings.data.ui.boxBorderBrightness > 0 ? "+" : "") + Settings.data.ui.boxBorderBrightness
+  }
+
+  NValueSlider {
+    visible: Settings.data.ui.boxBorderEnabled
+    Layout.fillWidth: true
+    label: I18n.tr("panels.user-interface.box-border-opacity-label")
+    description: I18n.tr("panels.user-interface.box-border-opacity-description")
+    from: 0
+    to: 100
+    stepSize: 5
+    showReset: true
+    value: Settings.data.ui.boxBorderOpacity
+    defaultValue: Settings.getDefaultValue("ui.boxBorderOpacity")
+    onMoved: value => Settings.data.ui.boxBorderOpacity = Math.round(value)
+    text: Settings.data.ui.boxBorderOpacity + "%"
+  }
+
   NToggle {
     label: I18n.tr("panels.user-interface.scrollbar-always-visible-label")
     description: I18n.tr("panels.user-interface.scrollbar-always-visible-description")

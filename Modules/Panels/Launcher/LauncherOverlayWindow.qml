@@ -322,7 +322,7 @@ Variants {
           color: "transparent"
           radius: Style.radiusL
           border.color: Style.boxBorderColor
-          border.width: Style.borderS
+          border.width: Style.boxBorderWidth
           visible: !launcherPanel.touchingLeft && !launcherPanel.touchingRight && !launcherPanel.touchingTop && !launcherPanel.touchingBottom
         }
 
