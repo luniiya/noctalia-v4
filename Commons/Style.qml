@@ -234,14 +234,14 @@ Singleton {
     return getBarHeightForDensity(density, isVertical);
   }
 
-  // Notch bar: gap left at each end of the bar's edge so it only spans notchLength of the screen
+  // Notch bar: empty gap left at each end of the bar's edge (clamped so the bar keeps at least 20% of the edge)
   function getBarNotchInsetForScreen(screen) {
     if (Settings.data.bar.barType !== "notch" || !screen)
       return 0;
     var position = Settings.getBarPositionForScreen(screen.name);
     var edgeLength = (position === "left" || position === "right") ? screen.height : screen.width;
-    var ratio = Math.max(0.2, Math.min(1.0, Settings.data.bar.notchLength ?? 0.8));
-    return Math.floor(edgeLength * (1 - ratio) / 2);
+    var gap = Math.max(0, Settings.data.bar.notchGap ?? 180);
+    return Math.floor(Math.min(gap, edgeLength * 0.4));
   }
 
   function getCapsuleHeightForScreen(screenName) {

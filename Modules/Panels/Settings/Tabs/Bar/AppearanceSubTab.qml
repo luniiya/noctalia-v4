@@ -97,6 +97,21 @@ ColumnLayout {
                 }
   }
 
+  NValueSlider {
+    Layout.fillWidth: true
+    visible: Settings.data.bar.barType === "notch"
+    label: I18n.tr("panels.bar.appearance-notch-gap-label")
+    description: I18n.tr("panels.bar.appearance-notch-gap-description")
+    from: 0
+    to: 800
+    stepSize: 1
+    showReset: true
+    value: Settings.data.bar.notchGap
+    defaultValue: Settings.getDefaultValue("bar.notchGap")
+    onMoved: value => Settings.data.bar.notchGap = value
+    text: Settings.data.bar.notchGap + "px"
+  }
+
   NComboBox {
     Layout.fillWidth: true
     label: I18n.tr("common.display-mode")
@@ -256,21 +271,6 @@ ColumnLayout {
     visible: Settings.data.bar.barType === "simple" || Settings.data.bar.barType === "notch"
     defaultValue: Settings.getDefaultValue("bar.outerCorners")
     onToggled: checked => Settings.data.bar.outerCorners = checked
-  }
-
-  NValueSlider {
-    Layout.fillWidth: true
-    visible: Settings.data.bar.barType === "notch"
-    label: I18n.tr("panels.bar.appearance-notch-length-label")
-    description: I18n.tr("panels.bar.appearance-notch-length-description")
-    from: 0.2
-    to: 1.0
-    stepSize: 0.01
-    showReset: true
-    value: Settings.data.bar.notchLength
-    defaultValue: Settings.getDefaultValue("bar.notchLength")
-    onMoved: value => Settings.data.bar.notchLength = value
-    text: Math.round(Settings.data.bar.notchLength * 100) + "%"
   }
 
   ColumnLayout {

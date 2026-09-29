@@ -227,8 +227,8 @@ Singleton {
       property int frameThickness: 8
       property int frameRadius: 12
 
-      // Notch bar settings (fraction of the screen edge the bar spans)
-      property real notchLength: 0.8
+      // Notch bar settings (empty gap left at each end of the bar, in px)
+      property int notchGap: 180
 
       // Bar outer corners (inverted/concave corners at bar edges when not floating)
       property bool outerCorners: true
