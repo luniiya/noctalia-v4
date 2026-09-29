@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
+import "../Helpers/BubbleLogic.js" as BubbleLogic
 import qs.Commons
 
 // Simple context menu PopupWindow (similar to TrayMenu)
@@ -27,8 +28,27 @@ PopupWindow {
   property real targetWidth: 0
   property real targetHeight: 0
 
-  readonly property string barPosition: Settings.getBarPositionForScreen(screen?.name)
+  readonly property var bubbleContext: BubbleLogic.itemContext(anchorItem)
+  readonly property string barPosition: bubbleContext ? bubbleContext.position : Settings.getBarPositionForScreen(screen?.name)
   readonly property real barHeight: Style.getBarHeightForScreen(screen?.name)
+
+  readonly property var bubblePlacement: {
+    if (!bubbleContext || !anchorItem || !screen)
+      return null;
+    var local = anchorItem.mapToItem(null, 0, 0);
+    var originX = bubbleContext.x + local.x;
+    var originY = bubbleContext.y + local.y;
+    var placement = BubbleLogic.panelPosition({
+                                                x: originX + targetOffsetX,
+                                                y: originY + targetOffsetY,
+                                                width: targetWidth > 0 ? targetWidth : anchorItem.width,
+                                                height: targetHeight > 0 ? targetHeight : anchorItem.height
+                                              }, barPosition, implicitWidth, implicitHeight, screen.width, screen.height, Style.marginM);
+    return {
+      x: placement.x - originX,
+      y: placement.y - originY
+    };
+  }
 
   signal triggered(string action, var item)
 
@@ -88,6 +108,8 @@ PopupWindow {
   anchor.item: anchorItem
 
   anchor.rect.x: {
+    if (bubblePlacement)
+      return bubblePlacement.x;
     if (anchorItem && screen) {
       const anchorGlobalPos = anchorItem.mapToItem(null, 0, 0);
 
@@ -128,6 +150,8 @@ PopupWindow {
     return 0;
   }
   anchor.rect.y: {
+    if (bubblePlacement)
+      return bubblePlacement.y;
     if (anchorItem && screen) {
       // Check if using absolute positioning (small anchor point item)
       const isAbsolutePosition = anchorItem.width <= 1 && anchorItem.height <= 1;
@@ -358,8 +382,8 @@ PopupWindow {
 
     // Force anchor recalculation after showing
     Qt.callLater(() => {
-                   anchor.updateAnchor();
-                 });
+      anchor.updateAnchor();
+    });
   }
 
   function close() {

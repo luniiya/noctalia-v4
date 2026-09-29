@@ -25,7 +25,7 @@ Item {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -33,7 +33,7 @@ Item {
     return {};
   }
 
-  readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
+  readonly property string barPosition: Settings.getBarPositionForScreen(screenName, section)
   readonly property bool isBarVertical: barPosition === "left" || barPosition === "right"
   readonly property string displayMode: (widgetSettings.displayMode !== undefined) ? widgetSettings.displayMode : widgetMetadata.displayMode
   readonly property string middleClickCommand: (widgetSettings.middleClickCommand !== undefined) ? widgetSettings.middleClickCommand : widgetMetadata.middleClickCommand
@@ -128,23 +128,24 @@ Item {
     ]
 
     onTriggered: action => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   if (action === "toggle-mute") {
-                     AudioService.setOutputMuted(!AudioService.muted);
-                   } else if (action === "custom-command") {
-                     Quickshell.execDetached(["sh", "-c", middleClickCommand]);
-                   } else if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      if (action === "toggle-mute") {
+        AudioService.setOutputMuted(!AudioService.muted);
+      } else if (action === "custom-command") {
+        Quickshell.execDetached(["sh", "-c", middleClickCommand]);
+      } else if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   BarPill {
     id: pill
 
     screen: root.screen
+    section: root.section
     oppositeDirection: BarService.getPillDirection(root)
     customIconColor: Color.resolveColorKeyOptional(root.iconColorKey)
     customTextColor: Color.resolveColorKeyOptional(root.textColorKey)
@@ -165,10 +166,10 @@ Item {
         const nick = AudioService.sink?.nickname ?? "";
         const volumeText = I18n.tr("tooltips.volume-at", {
                                      "volume": (() => {
-                                                  const maxVolume = Settings.data.audio.volumeOverdrive ? 1.5 : 1.0;
-                                                  const displayVolume = Math.min(maxVolume, AudioService.volume);
-                                                  return Math.round(displayVolume * 100);
-                                                })()
+                                       const maxVolume = Settings.data.audio.volumeOverdrive ? 1.5 : 1.0;
+                                       const displayVolume = Math.min(maxVolume, AudioService.volume);
+                                       return Math.round(displayVolume * 100);
+                                     })()
                                    });
         return nick ? volumeText + "\n" + nick : volumeText;
       }

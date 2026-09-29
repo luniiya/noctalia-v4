@@ -2,6 +2,7 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
+import "../../Helpers/BubbleLogic.js" as BubbleLogic
 import qs.Commons
 import qs.Services.Compositor
 import qs.Services.UI
@@ -494,8 +495,8 @@ Singleton {
     return true;
   }
 
-  function getTooltipDirection(screenName) {
-    const position = Settings.getBarPositionForScreen(screenName);
+  function getTooltipDirection(screenName, section) {
+    const position = Settings.getBarPositionForScreen(screenName, section);
     switch (position) {
     case "right":
       return "left";
@@ -559,30 +560,32 @@ Singleton {
 
       if (dialog) {
         dialog.updateWidgetSettings.connect((sec, idx, settings) => {
-                                              var screenName = screen?.name || "";
-                                              if (Settings.hasScreenOverride(screenName, "widgets")) {
-                                                var overrideWidgets = Settings.getBarWidgetsForScreen(screenName);
-                                                if (overrideWidgets && overrideWidgets[sec] && idx < overrideWidgets[sec].length) {
-                                                  overrideWidgets[sec][idx] = Object.assign({}, overrideWidgets[sec][idx], settings);
-                                                  Settings.setScreenOverride(screenName, "widgets", overrideWidgets);
-                                                }
-                                              } else {
-                                                var widgets = Settings.data.bar.widgets[sec];
-                                                if (widgets && idx < widgets.length) {
-                                                  widgets[idx] = Object.assign({}, widgets[idx], settings);
-                                                  Settings.data.bar.widgets[sec] = widgets;
-                                                  Settings.saveImmediate();
-                                                }
-                                              }
-                                            });
+          var screenName = screen?.name || "";
+          if (BubbleLogic.isBubbleSection(sec)) {
+            Settings.updateBubbleWidget(screenName, sec, idx, settings);
+          } else if (Settings.hasScreenOverride(screenName, "widgets")) {
+            var overrideWidgets = Settings.getBarWidgetsForScreen(screenName);
+            if (overrideWidgets && overrideWidgets[sec] && idx < overrideWidgets[sec].length) {
+              overrideWidgets[sec][idx] = Object.assign({}, overrideWidgets[sec][idx], settings);
+              Settings.setScreenOverride(screenName, "widgets", overrideWidgets);
+            }
+          } else {
+            var widgets = Settings.data.bar.widgets[sec];
+            if (widgets && idx < widgets.length) {
+              widgets[idx] = Object.assign({}, widgets[idx], settings);
+              Settings.data.bar.widgets[sec] = widgets;
+              Settings.saveImmediate();
+            }
+          }
+        });
         // Enable keyboard focus for the popup menu window when dialog is open
         popupMenuWindow.hasDialog = true;
         // Close the popup menu window when dialog closes
         dialog.closed.connect(() => {
-                                popupMenuWindow.hasDialog = false;
-                                popupMenuWindow.close();
-                                dialog.destroy();
-                              });
+          popupMenuWindow.hasDialog = false;
+          popupMenuWindow.close();
+          dialog.destroy();
+        });
         // Show the popup menu window and open the dialog
         popupMenuWindow.open();
         dialog.open();
@@ -639,10 +642,10 @@ Singleton {
         popupMenuWindow.hasDialog = true;
         // Close the popup menu window when dialog closes
         dialog.closed.connect(() => {
-                                popupMenuWindow.hasDialog = false;
-                                popupMenuWindow.close();
-                                dialog.destroy();
-                              });
+          popupMenuWindow.hasDialog = false;
+          popupMenuWindow.close();
+          dialog.destroy();
+        });
         // Show the popup menu window and open the dialog
         popupMenuWindow.open();
         dialog.openPluginSettings(pluginManifest);

@@ -23,16 +23,16 @@ Item {
 
   // Explicit screenName property ensures reactive binding when screen changes
   readonly property string screenName: screen ? screen.name : ""
-  readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
+  readonly property string barPosition: Settings.getBarPositionForScreen(screenName, section)
   readonly property bool isVerticalBar: barPosition === "left" || barPosition === "right"
-  readonly property real barHeight: Style.getBarHeightForScreen(screenName)
-  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName)
-  readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName)
+  readonly property real barHeight: Style.getBarHeightForScreen(screenName, section)
+  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName, section)
+  readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName, section)
 
   property var widgetMetadata: BarWidgetRegistry.widgetMetadata[widgetId] ?? {}
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -168,23 +168,23 @@ Item {
 
     // Extract pinned apps in their current visual order
     combinedModel.forEach(app => {
-                            if (app.appId && !seen.has(app.appId)) {
-                              const isPinned = currentPinned.some(p => normalizeAppId(p) === normalizeAppId(app.appId));
+      if (app.appId && !seen.has(app.appId)) {
+        const isPinned = currentPinned.some(p => normalizeAppId(p) === normalizeAppId(app.appId));
 
-                              if (isPinned) {
-                                newPinned.push(app.appId);
-                                seen.add(app.appId);
-                              }
-                            }
-                          });
+        if (isPinned) {
+          newPinned.push(app.appId);
+          seen.add(app.appId);
+        }
+      }
+    });
 
     // Check if any pinned apps were missed (e.g. filtered out by workspace)
     currentPinned.forEach(p => {
-                            if (!seen.has(p)) {
-                              newPinned.push(p);
-                              seen.add(p);
-                            }
-                          });
+      if (!seen.has(p)) {
+        newPinned.push(p);
+        seen.add(p);
+      }
+    });
 
     if (JSON.stringify(currentPinned) !== JSON.stringify(newPinned)) {
       Settings.data.dock.pinnedApps = newPinned;
@@ -382,18 +382,18 @@ Item {
     // Second pass: Add non-running pinned apps (only if showPinnedApps is enabled)
     if (showPinnedApps) {
       pinnedApps.forEach(pinnedAppId => {
-                           const normalizedPinnedId = normalizeAppId(pinnedAppId);
-                           if (!processedAppIds.has(normalizedPinnedId)) {
-                             const appName = getAppNameFromDesktopEntry(pinnedAppId);
-                             runningWindows.push({
-                                                   "id": pinnedAppId,
-                                                   "type": "pinned",
-                                                   "window": null,
-                                                   "appId": pinnedAppId,
-                                                   "title": appName
-                                                 });
-                           }
-                         });
+        const normalizedPinnedId = normalizeAppId(pinnedAppId);
+        if (!processedAppIds.has(normalizedPinnedId)) {
+          const appName = getAppNameFromDesktopEntry(pinnedAppId);
+          runningWindows.push({
+                                "id": pinnedAppId,
+                                "type": "pinned",
+                                "window": null,
+                                "appId": pinnedAppId,
+                                "title": appName
+                              });
+        }
+      });
     }
 
     combinedModel = sortApps(runningWindows);
@@ -497,30 +497,30 @@ Item {
       return items;
     }
     onTriggered: (action, item) => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(root.screen);
+      contextMenu.close();
+      PanelService.closeContextMenu(root.screen);
 
-                   // Look up the window fresh each time to avoid stale references
-                   const selectedWindow = root.getSelectedWindow();
+      // Look up the window fresh each time to avoid stale references
+      const selectedWindow = root.getSelectedWindow();
 
-                   if (action === "focus" && selectedWindow) {
-                     CompositorService.focusWindow(selectedWindow);
-                   } else if (action === "pin" && root.selectedAppId) {
-                     root.toggleAppPin(root.selectedAppId);
-                   } else if (action === "close" && selectedWindow) {
-                     CompositorService.closeWindow(selectedWindow);
-                   } else if (action === "widget-settings") {
-                     BarService.openWidgetSettings(root.screen, root.section, root.sectionWidgetIndex, root.widgetId, root.widgetSettings);
-                   } else if (action.startsWith("desktop-action-") && item && item.desktopAction) {
-                     if (item.desktopAction.command && item.desktopAction.command.length > 0) {
-                       Quickshell.execDetached(item.desktopAction.command);
-                     } else if (item.desktopAction.execute) {
-                       item.desktopAction.execute();
-                     }
-                   }
-                   root.selectedWindowId = "";
-                   root.selectedAppId = "";
-                 }
+      if (action === "focus" && selectedWindow) {
+        CompositorService.focusWindow(selectedWindow);
+      } else if (action === "pin" && root.selectedAppId) {
+        root.toggleAppPin(root.selectedAppId);
+      } else if (action === "close" && selectedWindow) {
+        CompositorService.closeWindow(selectedWindow);
+      } else if (action === "widget-settings") {
+        BarService.openWidgetSettings(root.screen, root.section, root.sectionWidgetIndex, root.widgetId, root.widgetSettings);
+      } else if (action.startsWith("desktop-action-") && item && item.desktopAction) {
+        if (item.desktopAction.command && item.desktopAction.command.length > 0) {
+          Quickshell.execDetached(item.desktopAction.command);
+        } else if (item.desktopAction.execute) {
+          item.desktopAction.execute();
+        }
+      }
+      root.selectedWindowId = "";
+      root.selectedAppId = "";
+    }
   }
 
   function updateHasWindow() {
@@ -793,11 +793,11 @@ Item {
                   // Slight delay/check? For now, let DropArea handle reset on success.
                   // If cancelled (dropped nowhere), we should reset.
                   Qt.callLater(() => {
-                                 if (!taskbarMouseArea.drag.active && root.dragSourceIndex === index) {
-                                   root.dragSourceIndex = -1;
-                                   root.dragTargetIndex = -1;
-                                 }
-                               });
+                    if (!taskbarMouseArea.drag.active && root.dragSourceIndex === index) {
+                      root.dragSourceIndex = -1;
+                      root.dragTargetIndex = -1;
+                    }
+                  });
                 }
               }
             }
@@ -932,33 +932,33 @@ Item {
             }
 
             onClicked: mouse => {
-                         if (!modelData)
-                         return;
-                         if (mouse.button === Qt.LeftButton) {
-                           if (isRunning && modelData.window) {
-                             // Running app - focus it
-                             try {
-                               CompositorService.focusWindow(modelData.window);
-                             } catch (error) {
-                               Logger.e("Taskbar", "Failed to activate toplevel: " + error);
-                             }
-                           } else if (isPinned) {
-                             // Pinned app not running - launch it
-                             root.launchPinnedApp(modelData.appId);
-                           }
-                         } else if (mouse.button === Qt.RightButton) {
-                           TooltipService.hide();
-                           // Only show context menu for running apps
-                           if (isRunning && modelData.window) {
-                             root.selectedWindowId = modelData.id;
-                             root.selectedAppId = modelData.appId;
-                             root.openTaskbarContextMenu(taskbarItem);
-                           }
-                         }
-                       }
+              if (!modelData)
+                return;
+              if (mouse.button === Qt.LeftButton) {
+                if (isRunning && modelData.window) {
+                  // Running app - focus it
+                  try {
+                    CompositorService.focusWindow(modelData.window);
+                  } catch (error) {
+                    Logger.e("Taskbar", "Failed to activate toplevel: " + error);
+                  }
+                } else if (isPinned) {
+                  // Pinned app not running - launch it
+                  root.launchPinnedApp(modelData.appId);
+                }
+              } else if (mouse.button === Qt.RightButton) {
+                TooltipService.hide();
+                // Only show context menu for running apps
+                if (isRunning && modelData.window) {
+                  root.selectedWindowId = modelData.id;
+                  root.selectedAppId = modelData.appId;
+                  root.openTaskbarContextMenu(taskbarItem);
+                }
+              }
+            }
             onEntered: {
               root.hoveredWindowId = taskbarItem.modelData.id;
-              TooltipService.show(taskbarItem, taskbarItem.title, BarService.getTooltipDirection(root.screen?.name));
+              TooltipService.show(taskbarItem, taskbarItem.title, BarService.getTooltipDirection(root.screen?.name, root.section));
             }
             onExited: {
               root.hoveredWindowId = "";

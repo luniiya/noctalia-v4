@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../Helpers/BubbleLogic.js" as BubbleLogic
 import "../Helpers/QtObj2JS.js" as QtObj2JS
 import "../Helpers/SettingsPaths.js" as SettingsPaths
 import qs.Commons
@@ -233,6 +234,29 @@ Singleton {
     id: adapter
 
     property int settingsVersion: 0
+
+    // Independent overlays; configurations are saved per monitor.
+    property JsonObject bubbles: JsonObject {
+      property bool enabled: false
+      property list<var> configurations: []
+      property JsonObject defaults: JsonObject {
+        property string position: "top"
+        property string alignment: "end"
+        property string style: "floating"
+        property int margin: 8
+        property int offset: 0
+        property int height: 34
+        property int padding: 4
+        property int spacing: 8
+        property int radius: 16
+        property real opacity: 0.93
+        property bool autoCycle: true
+        property int cycleInterval: 5
+        property string transition: "up"
+        property int transitionDuration: 220
+        property bool hideOnFullscreen: true
+      }
+    }
 
     // bar
     property JsonObject bar: JsonObject {
@@ -943,7 +967,25 @@ Singleton {
   // -----------------------------------------------------
   // Get effective bar position for a screen (with inheritance)
   // If the screen has a position override and overrides are enabled, use it; otherwise use global default
-  function getBarPositionForScreen(screenName) {
+  function getBubble(screenName, section) {
+    if (!BubbleLogic.isBubbleSection(section))
+      return null;
+    var bubble = BubbleLogic.find(data.bubbles.configurations, screenName, section.slice(7));
+    return bubble ? BubbleLogic.effective(bubble, QtObj2JS.qtObjectToPlainObject(data.bubbles.defaults)) : null;
+  }
+
+  function updateBubble(screenName, id, patch) {
+    data.bubbles.configurations = BubbleLogic.update(data.bubbles.configurations, screenName, id, patch);
+  }
+
+  function updateBubbleWidget(screenName, section, index, settings) {
+    data.bubbles.configurations = BubbleLogic.updateWidget(data.bubbles.configurations, screenName, section.slice(7), index, settings);
+  }
+
+  function getBarPositionForScreen(screenName, section) {
+    var bubble = getBubble(screenName, section);
+    if (bubble)
+      return bubble.position;
     var override = _findScreenOverride(screenName);
     if (override && override.enabled !== false && override.position !== undefined) {
       return override.position;
@@ -954,7 +996,13 @@ Singleton {
   // -----------------------------------------------------
   // Get effective bar widgets for a screen (with inheritance)
   // If the screen has widget overrides and overrides are enabled, use them; otherwise use global defaults
-  function getBarWidgetsForScreen(screenName) {
+  function getBarWidgetsForScreen(screenName, section) {
+    var bubble = getBubble(screenName, section);
+    if (bubble) {
+      var result = {};
+      result[section] = bubble.widgets;
+      return result;
+    }
     var override = _findScreenOverride(screenName);
     if (override && override.enabled !== false && override.widgets !== undefined) {
       return override.widgets;

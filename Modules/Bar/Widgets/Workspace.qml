@@ -28,7 +28,7 @@ Item {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -36,11 +36,11 @@ Item {
     return {};
   }
 
-  readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
+  readonly property string barPosition: Settings.getBarPositionForScreen(screenName, section)
   readonly property bool isVertical: barPosition === "left" || barPosition === "right"
-  readonly property real barHeight: Style.getBarHeightForScreen(screenName)
-  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName)
-  readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName)
+  readonly property real barHeight: Style.getBarHeightForScreen(screenName, section)
+  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName, section)
+  readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName, section)
 
   readonly property string labelMode: (widgetSettings.labelMode !== undefined) ? widgetSettings.labelMode : widgetMetadata.labelMode
   readonly property bool hasLabel: (labelMode !== "none")
@@ -505,29 +505,29 @@ Item {
     }
 
     onTriggered: (action, item) => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   const selectedWindow = root.getSelectedWindow();
+      const selectedWindow = root.getSelectedWindow();
 
-                   if (action === "focus" && selectedWindow) {
-                     CompositorService.focusWindow(selectedWindow);
-                   } else if (action === "pin" && selectedAppId) {
-                     root.toggleAppPin(selectedAppId);
-                   } else if (action === "close" && selectedWindow) {
-                     CompositorService.closeWindow(selectedWindow);
-                   } else if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   } else if (action.startsWith("desktop-action-") && item && item.desktopAction) {
-                     if (item.desktopAction.command && item.desktopAction.command.length > 0) {
-                       Quickshell.execDetached(item.desktopAction.command);
-                     } else if (item.desktopAction.execute) {
-                       item.desktopAction.execute();
-                     }
-                   }
-                   selectedWindowId = "";
-                   selectedAppId = "";
-                 }
+      if (action === "focus" && selectedWindow) {
+        CompositorService.focusWindow(selectedWindow);
+      } else if (action === "pin" && selectedAppId) {
+        root.toggleAppPin(selectedAppId);
+      } else if (action === "close" && selectedWindow) {
+        CompositorService.closeWindow(selectedWindow);
+      } else if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      } else if (action.startsWith("desktop-action-") && item && item.desktopAction) {
+        if (item.desktopAction.command && item.desktopAction.command.length > 0) {
+          Quickshell.execDetached(item.desktopAction.command);
+        } else if (item.desktopAction.execute) {
+          item.desktopAction.execute();
+        }
+      }
+      selectedWindowId = "";
+      selectedAppId = "";
+    }
   }
 
   Rectangle {
@@ -547,10 +547,10 @@ Item {
       anchors.fill: parent
       acceptedButtons: Qt.RightButton
       onClicked: mouse => {
-                   if (mouse.button === Qt.RightButton) {
-                     PanelService.showContextMenu(contextMenu, workspaceBackground, screen);
-                   }
-                 }
+        if (mouse.button === Qt.RightButton) {
+          PanelService.showContextMenu(contextMenu, workspaceBackground, screen);
+        }
+      }
     }
   }
 
@@ -750,19 +750,19 @@ Item {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         preventStealing: true
         onPressed: mouse => {
-                     if (mouse.button === Qt.LeftButton) {
-                       CompositorService.switchToWorkspace(groupedContainer.workspaceModel);
-                     }
-                   }
+          if (mouse.button === Qt.LeftButton) {
+            CompositorService.switchToWorkspace(groupedContainer.workspaceModel);
+          }
+        }
         onReleased: mouse => {
-                      if (mouse.button === Qt.RightButton) {
-                        mouse.accepted = true;
-                        TooltipService.hide();
-                        root.selectedWindowId = "";
-                        root.selectedAppId = "";
-                        openGroupedContextMenu(groupedContainer);
-                      }
-                    }
+          if (mouse.button === Qt.RightButton) {
+            mouse.accepted = true;
+            TooltipService.hide();
+            root.selectedWindowId = "";
+            root.selectedAppId = "";
+            openGroupedContextMenu(groupedContainer);
+          }
+        }
       }
 
       Flow {
@@ -830,24 +830,24 @@ Item {
               preventStealing: true
 
               onPressed: mouse => {
-                           if (mouse.button === Qt.LeftButton && modelData) {
-                             CompositorService.focusWindow(modelData);
-                           }
-                         }
+                if (mouse.button === Qt.LeftButton && modelData) {
+                  CompositorService.focusWindow(modelData);
+                }
+              }
 
               onReleased: mouse => {
-                            if (mouse.button === Qt.RightButton && modelData) {
-                              mouse.accepted = true;
-                              TooltipService.hide();
-                              root.selectedWindowId = modelData.id || modelData.address || "";
-                              root.selectedAppId = modelData.appId;
-                              openGroupedContextMenu(groupedTaskbarItem);
-                            }
-                          }
+                if (mouse.button === Qt.RightButton && modelData) {
+                  mouse.accepted = true;
+                  TooltipService.hide();
+                  root.selectedWindowId = modelData.id || modelData.address || "";
+                  root.selectedAppId = modelData.appId;
+                  openGroupedContextMenu(groupedTaskbarItem);
+                }
+              }
               onEntered: {
                 if (!modelData)
                   return;
-                TooltipService.show(groupedTaskbarItem, modelData.title || modelData.appId || "Unknown app.", BarService.getTooltipDirection(root.screenName));
+                TooltipService.show(groupedTaskbarItem, modelData.title || modelData.appId || "Unknown app.", BarService.getTooltipDirection(root.screenName, root.section));
               }
               onExited: {
                 TooltipService.hide();

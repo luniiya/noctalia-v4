@@ -21,14 +21,14 @@ Item {
 
   // Explicit screenName property ensures reactive binding when screen changes
   readonly property string screenName: screen ? screen.name : ""
-  readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
+  readonly property string barPosition: Settings.getBarPositionForScreen(screenName, section)
   readonly property bool isVerticalBar: barPosition === "left" || barPosition === "right"
-  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName)
+  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName, section)
 
   property var widgetMetadata: BarWidgetRegistry.widgetMetadata[widgetId] ?? {}
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -139,20 +139,20 @@ Item {
     ]
 
     onTriggered: action => {
-                   contextMenu.close();
-                   if (screen) {
-                     PanelService.closeContextMenu(screen);
-                   }
+      contextMenu.close();
+      if (screen) {
+        PanelService.closeContextMenu(screen);
+      }
 
-                   if (action === "cycle-visualizer") {
-                     const types = ["linear", "mirrored", "wave"];
-                     const currentIndex = types.indexOf(currentVisualizerType);
-                     const nextIndex = (currentIndex + 1) % types.length;
-                     Settings.data.audio.visualizerType = types[nextIndex];
-                   } else if (action === "widget-settings" && screen) {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      if (action === "cycle-visualizer") {
+        const types = ["linear", "mirrored", "wave"];
+        const currentIndex = types.indexOf(currentVisualizerType);
+        const nextIndex = (currentIndex + 1) % types.length;
+        Settings.data.audio.visualizerType = types[nextIndex];
+      } else if (action === "widget-settings" && screen) {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   // Click to cycle through visualizer types
@@ -164,17 +164,17 @@ Item {
     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
     onClicked: mouse => {
-                 if (mouse.button === Qt.RightButton) {
-                   if (screen) {
-                     PanelService.showContextMenu(contextMenu, root, screen);
-                   }
-                 } else {
-                   const types = ["linear", "mirrored", "wave"];
-                   const currentIndex = types.indexOf(currentVisualizerType);
-                   const nextIndex = (currentIndex + 1) % types.length;
-                   Settings.data.audio.visualizerType = types[nextIndex];
-                 }
-               }
+      if (mouse.button === Qt.RightButton) {
+        if (screen) {
+          PanelService.showContextMenu(contextMenu, root, screen);
+        }
+      } else {
+        const types = ["linear", "mirrored", "wave"];
+        const currentIndex = types.indexOf(currentVisualizerType);
+        const nextIndex = (currentIndex + 1) % types.length;
+        Settings.data.audio.visualizerType = types[nextIndex];
+      }
+    }
   }
 
   Component {

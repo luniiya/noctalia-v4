@@ -1,11 +1,11 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import "../../../Helpers/ModelUsageLogic.js" as ModelUsageLogic
 import qs.Commons
 import qs.Services.System
 import qs.Services.UI
 import qs.Widgets
-import "../../../Helpers/ModelUsageLogic.js" as ModelUsageLogic
 
 Item {
   id: root
@@ -23,7 +23,7 @@ Item {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -31,10 +31,10 @@ Item {
     return {};
   }
 
-  readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
+  readonly property string barPosition: Settings.getBarPositionForScreen(screenName, section)
   readonly property bool isBarVertical: barPosition === "left" || barPosition === "right"
-  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName)
-  readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName)
+  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName, section)
+  readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName, section)
 
   readonly property string displayMode: widgetSettings.displayMode !== undefined ? widgetSettings.displayMode : widgetMetadata.displayMode
   readonly property int cycleIntervalSec: widgetSettings.cycleIntervalSec !== undefined ? widgetSettings.cycleIntervalSec : widgetMetadata.cycleIntervalSec
@@ -96,14 +96,14 @@ Item {
     ]
 
     onTriggered: action => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
-                   if (action === "refresh") {
-                     ModelUsageService.refresh();
-                   } else if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
+      if (action === "refresh") {
+        ModelUsageService.refresh();
+      } else if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   Rectangle {
@@ -153,14 +153,14 @@ Item {
     acceptedButtons: Qt.LeftButton | Qt.RightButton
 
     onClicked: mouse => {
-                 TooltipService.hide();
-                 if (mouse.button === Qt.LeftButton) {
-                   PanelService.getPanel("modelUsagePanel", screen)?.toggle(root);
-                 } else if (mouse.button === Qt.RightButton) {
-                   PanelService.showContextMenu(contextMenu, root, screen);
-                 }
-               }
-    onEntered: TooltipService.show(root, root.tooltipText, BarService.getTooltipDirection(root.screenName))
+      TooltipService.hide();
+      if (mouse.button === Qt.LeftButton) {
+        PanelService.getPanel("modelUsagePanel", screen)?.toggle(root);
+      } else if (mouse.button === Qt.RightButton) {
+        PanelService.showContextMenu(contextMenu, root, screen);
+      }
+    }
+    onEntered: TooltipService.show(root, root.tooltipText, BarService.getTooltipDirection(root.screenName, root.section))
     onExited: TooltipService.hide()
   }
 }

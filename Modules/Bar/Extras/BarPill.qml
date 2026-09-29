@@ -8,6 +8,7 @@ Item {
   id: root
 
   required property ShellScreen screen
+  property string section: ""
 
   property string icon: ""
   property string iconPosition: ""
@@ -25,7 +26,7 @@ Item {
   property color customIconColor: "transparent"
   property color customTextColor: "transparent"
 
-  readonly property string barPosition: Settings.getBarPositionForScreen(screen?.name)
+  readonly property string barPosition: Settings.getBarPositionForScreen(screen?.name, section)
   readonly property bool isVerticalBar: barPosition === "left" || barPosition === "right"
 
   signal shown
@@ -55,6 +56,7 @@ Item {
       id: verticalPillComponent
       BarPillVertical {
         screen: root.screen
+        section: root.section
         icon: root.icon
         iconPosition: root.iconPosition
         text: root.text
@@ -85,6 +87,7 @@ Item {
       id: horizontalPillComponent
       BarPillHorizontal {
         screen: root.screen
+        section: root.section
         icon: root.icon
         iconPosition: root.iconPosition
         text: root.text

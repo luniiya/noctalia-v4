@@ -9,6 +9,7 @@ Item {
   id: root
 
   required property ShellScreen screen
+  property string section: ""
 
   property string icon: ""
   property string text: ""
@@ -42,8 +43,8 @@ Item {
   property bool shouldAnimateHide: false
 
   // Sizing logic for vertical bars
-  readonly property int buttonSize: Style.getCapsuleHeightForScreen(screen?.name)
-  readonly property real barFontSize: Style.getBarFontSizeForScreen(screen?.name)
+  readonly property int buttonSize: Style.getCapsuleHeightForScreen(screen?.name, section)
+  readonly property real barFontSize: Style.getBarFontSizeForScreen(screen?.name, section)
   readonly property int pillHeight: buttonSize
   readonly property int pillOverlap: Math.round(buttonSize * 0.5)
   readonly property int maxPillWidth: rotateText ? Math.max(buttonSize, Math.round(textItem.implicitHeight + Style.margin2M)) : buttonSize
@@ -309,7 +310,7 @@ Item {
     onEntered: {
       hovered = true;
       root.entered();
-      TooltipService.show(root, root.tooltipText, BarService.getTooltipDirection(root.screen?.name), (forceOpen || forceClose) ? Style.tooltipDelay : Style.tooltipDelayLong);
+      TooltipService.show(root, root.tooltipText, BarService.getTooltipDirection(root.screen?.name, root.section), (forceOpen || forceClose) ? Style.tooltipDelay : Style.tooltipDelayLong);
       if (forceClose) {
         return;
       }
@@ -326,15 +327,15 @@ Item {
       TooltipService.hide();
     }
     onClicked: mouse => {
-                 TooltipService.hide();
-                 if (mouse.button === Qt.LeftButton) {
-                   root.clicked();
-                 } else if (mouse.button === Qt.RightButton) {
-                   root.rightClicked();
-                 } else if (mouse.button === Qt.MiddleButton) {
-                   root.middleClicked();
-                 }
-               }
+      TooltipService.hide();
+      if (mouse.button === Qt.LeftButton) {
+        root.clicked();
+      } else if (mouse.button === Qt.RightButton) {
+        root.rightClicked();
+      } else if (mouse.button === Qt.MiddleButton) {
+        root.middleClicked();
+      }
+    }
     onWheel: wheel => root.wheel(wheel.angleDelta.y)
   }
 

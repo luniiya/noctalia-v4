@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import "../../../Helpers/BubbleLogic.js" as BubbleLogic
 import qs.Commons
 import qs.Services.Noctaliaa
 import qs.Services.UI
@@ -10,6 +11,8 @@ Item {
   required property string widgetId
   required property var widgetScreen
   required property var widgetProps
+  property bool registerInstance: true
+  property bool preserveSizeWhenHidden: false
 
   // Extract section info from widgetProps
   readonly property string section: widgetProps ? (widgetProps.section || "") : ""
@@ -30,9 +33,26 @@ Item {
   }
 
   // Bar orientation and height for extended click areas
-  readonly property string barPosition: Settings.getBarPositionForScreen(widgetScreen?.name)
+  readonly property string barPosition: Settings.getBarPositionForScreen(widgetScreen?.name, section)
   readonly property bool isVerticalBar: barPosition === "left" || barPosition === "right"
-  readonly property real barHeight: Style.getBarHeightForScreen(widgetScreen?.name)
+  readonly property real barHeight: Style.getBarHeightForScreen(widgetScreen?.name, section)
+
+  function syncRegistration() {
+    root._unregister();
+    if (!registerInstance || !loader.item)
+      return;
+    BarService.registerWidget(widgetScreen.name, section, widgetId, sectionIndex, loader.item);
+    root._regScreen = widgetScreen.name;
+    root._regSection = section;
+    root._regWidgetId = widgetId;
+    root._regIndex = sectionIndex;
+  }
+
+  onRegisterInstanceChanged: Qt.callLater(syncRegistration)
+  onWidgetIdChanged: {
+    if (loader.active)
+      root._loadWidget();
+  }
 
   // Request full bar dimension from layout to extend click areas above/below widgets
   // For horizontal bars: full bar height, widget's content width
@@ -44,7 +64,7 @@ Item {
   visible: loader.item ? ((loader.item.opacity > 0.0) || (loader.item.hasOwnProperty("hideMode") && loader.item.hideMode === "transparent")) : false
 
   function getImplicitSize(item, prop) {
-    return (item && item.visible) ? Math.round(item[prop]) : 0;
+    return BubbleLogic.widgetExtent(item, prop, preserveSizeWhenHidden);
   }
 
   // Only load if widget exists in registry
@@ -162,14 +182,7 @@ Item {
       }
 
       // Unregister any previous registration before registering the new instance
-      root._unregister();
-
-      // Register and store the key for reliable unregistration
-      BarService.registerWidget(widgetScreen.name, section, widgetId, sectionIndex, item);
-      root._regScreen = widgetScreen.name;
-      root._regSection = section;
-      root._regWidgetId = widgetId;
-      root._regIndex = sectionIndex;
+      Qt.callLater(root.syncRegistration);
 
       // Call custom onLoaded if it exists
       if (item.hasOwnProperty("onLoaded")) {

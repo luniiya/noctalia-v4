@@ -1,9 +1,9 @@
 import QtQuick
 import Quickshell
+import "../../../Helpers/SettingsWindowRequest.js" as SettingsWindowRequest
 import qs.Commons
 import qs.Modules.MainScreen
 import qs.Services.UI
-import "../../../Helpers/SettingsWindowRequest.js" as SettingsWindowRequest
 
 // Settings always open in their own compositor window (SettingsPanelWindow).
 // This panel is never shown; it stays registered as "settingsPanel" so existing
@@ -33,7 +33,8 @@ SmartPanel {
     Plugins,
     SessionMenu,
     System,
-    UserInterface
+    UserInterface,
+    Bubbles
   }
 
   property int requestedTab: SettingsPanel.Tab.General

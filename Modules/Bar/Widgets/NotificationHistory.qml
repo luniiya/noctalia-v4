@@ -25,7 +25,7 @@ NIconButton {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -55,7 +55,7 @@ NIconButton {
 
   readonly property int count: computeUnreadCount()
 
-  baseSize: Style.getCapsuleHeightForScreen(screen?.name)
+  baseSize: Style.getCapsuleHeightForScreen(screen?.name, section)
   applyUiScale: false
   customRadius: Style.radiusL
   icon: NotificationService.doNotDisturb ? "bell-off" : "bell"
@@ -66,7 +66,7 @@ NIconButton {
       return I18n.tr("tooltips.open-notification-history-enable-dnd");
     }
   }
-  tooltipDirection: BarService.getTooltipDirection(screen?.name)
+  tooltipDirection: BarService.getTooltipDirection(screen?.name, section)
   colorBg: Style.capsuleColor
   colorFg: Color.resolveColorKey(iconColorKey)
   border.color: Style.capsuleBorderColor
@@ -96,17 +96,17 @@ NIconButton {
     ]
 
     onTriggered: action => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   if (action === "toggle-dnd") {
-                     NotificationService.doNotDisturb = !NotificationService.doNotDisturb;
-                   } else if (action === "clear-history") {
-                     NotificationService.clearHistory();
-                   } else if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      if (action === "toggle-dnd") {
+        NotificationService.doNotDisturb = !NotificationService.doNotDisturb;
+      } else if (action === "clear-history") {
+        NotificationService.clearHistory();
+      } else if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   onClicked: {

@@ -24,7 +24,7 @@ Variants {
       if (!Settings.data.general.allowPanelsOnScreenWithoutBar) {
         // Check if bar is configured for this screen
         var monitors = Settings.data.bar.monitors || [];
-        shouldLoad = monitors.length === 0 || monitors.includes(modelData?.name);
+        shouldLoad = monitors.length === 0 || monitors.includes(modelData?.name) || BubbleService.hasBubbles(modelData?.name);
       }
 
       if (shouldLoad) {
@@ -148,7 +148,7 @@ Variants {
 
         // Check if bar is configured for this screen
         var monitors = Settings.data.bar.monitors || [];
-        return monitors.length === 0 || monitors.includes(modelData?.name);
+        return monitors.length === 0 || monitors.includes(modelData?.name) || BubbleService.hasBubbles(modelData?.name);
       }
       asynchronous: false
 

@@ -109,13 +109,13 @@ Popup {
               // Try to focus the first focusable item in the loaded settings
               if (item) {
                 Qt.callLater(() => {
-                               var firstInput = findFirstFocusable(item);
-                               if (firstInput) {
-                                 firstInput.forceActiveFocus();
-                               } else {
-                                 focusScope.forceActiveFocus();
-                               }
-                             });
+                  var firstInput = findFirstFocusable(item);
+                  if (firstInput) {
+                    firstInput.forceActiveFocus();
+                  } else {
+                    focusScope.forceActiveFocus();
+                  }
+                });
               }
             }
 
@@ -179,7 +179,7 @@ Popup {
     if (source) {
       var currentWidgetData = widgetData;
       if (sectionId && widgetIndex >= 0) {
-        var widgets = Settings.getBarWidgetsForScreen(screen?.name || "")[sectionId];
+        var widgets = Settings.getBarWidgetsForScreen(screen?.name || "", sectionId)[sectionId];
         if (widgets && widgetIndex < widgets.length) {
           currentWidgetData = widgets[widgetIndex];
         }

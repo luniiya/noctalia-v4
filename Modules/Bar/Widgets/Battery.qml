@@ -26,7 +26,7 @@ Item {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -34,9 +34,9 @@ Item {
     return {};
   }
 
-  readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
+  readonly property string barPosition: Settings.getBarPositionForScreen(screenName, section)
   readonly property bool isBarVertical: barPosition === "left" || barPosition === "right"
-  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName)
+  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName, section)
 
   readonly property string displayMode: widgetSettings.displayMode !== undefined ? widgetSettings.displayMode : widgetMetadata.displayMode
   readonly property bool useGraphicMode: displayMode === "graphic" || displayMode === "graphic-clean"
@@ -137,13 +137,13 @@ Item {
     ]
 
     onTriggered: action => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   // ==================== GRAPHIC MODE ====================
@@ -173,7 +173,7 @@ Item {
     id: nBattery
     visible: root.useGraphicMode
     anchors.centerIn: parent
-    baseSize: (Style.getBarHeightForScreen(root.screenName) / root.capsuleHeight) * Style.fontSizeXXS
+    baseSize: (Style.getBarHeightForScreen(root.screenName, root.section) / root.capsuleHeight) * Style.fontSizeXXS
     showPercentageText: root.displayMode !== "graphic-clean"
     vertical: root.isBarVertical
     percentage: root.percent
@@ -195,7 +195,7 @@ Item {
     cursorShape: Qt.PointingHandCursor
     onEntered: {
       if (!getBatteryPanel()?.isPanelOpen && root.tooltipContent) {
-        TooltipService.show(root, root.tooltipContent, BarService.getTooltipDirection(root.screen?.name));
+        TooltipService.show(root, root.tooltipContent, BarService.getTooltipDirection(root.screen?.name, root.section));
         tooltipRefreshTimer.start();
       }
     }
@@ -204,13 +204,13 @@ Item {
       TooltipService.hide();
     }
     onClicked: mouse => {
-                 TooltipService.hide();
-                 if (mouse.button === Qt.RightButton) {
-                   PanelService.showContextMenu(contextMenu, nBattery, screen);
-                 } else {
-                   toggleBatteryPanel();
-                 }
-               }
+      TooltipService.hide();
+      if (mouse.button === Qt.RightButton) {
+        PanelService.showContextMenu(contextMenu, nBattery, screen);
+      } else {
+        toggleBatteryPanel();
+      }
+    }
   }
 
   Timer {
@@ -230,6 +230,7 @@ Item {
     id: pill
     visible: !root.useGraphicMode
     screen: root.screen
+    section: root.section
     oppositeDirection: BarService.getPillDirection(root)
     icon: BatteryService.getIcon(root.percent, root.isCharging, root.isPluggedIn, root.isReady)
     text: root.isReady ? root.percent : "-"

@@ -5,11 +5,11 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
+import "../../../Helpers/TrayIcon.js" as TrayIcon
 import qs.Commons
 import qs.Modules.Bar.Extras
 import qs.Services.UI
 import qs.Widgets
-import "../../../Helpers/TrayIcon.js" as TrayIcon
 
 Item {
   id: root
@@ -48,7 +48,7 @@ Item {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -56,10 +56,10 @@ Item {
     return {};
   }
 
-  readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
+  readonly property string barPosition: Settings.getBarPositionForScreen(screenName, section)
   readonly property bool isVertical: barPosition === "left" || barPosition === "right"
-  readonly property real barHeight: Style.getBarHeightForScreen(screenName)
-  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName)
+  readonly property real barHeight: Style.getBarHeightForScreen(screenName, section)
+  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName, section)
   readonly property bool density: Settings.data.bar.density
   readonly property int iconSize: Style.toOdd(capsuleHeight * 0.65)
 
@@ -123,7 +123,7 @@ Item {
     // Force a fresh read of settings to ensure we have the latest blacklist
     var currentSettings = {};
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var w = Settings.getBarWidgetsForScreen(screenName)[section];
+      var w = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (w && sectionWidgetIndex < w.length) {
         currentSettings = w[sectionWidgetIndex];
       }
@@ -328,13 +328,13 @@ Item {
     ]
 
     onTriggered: action => {
-                   chevronContextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      chevronContextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   Flow {
@@ -358,7 +358,7 @@ Item {
           return I18n.tr("tooltips.open-tray-dropdown");
         }
       }
-      tooltipDirection: BarService.getTooltipDirection(root.screen?.name)
+      tooltipDirection: BarService.getTooltipDirection(root.screen?.name, root.section)
       baseSize: capsuleHeight
       applyUiScale: false
       customRadius: Style.radiusL
@@ -469,77 +469,77 @@ Item {
                 popupMenuWindow.close();
               }
               root.hoveredItemIndex = trayDelegate.index;
-              TooltipService.show(tooltipAnchor, modelData.tooltipTitle || modelData.name || modelData.id || "Tray Item", BarService.getTooltipDirection(root.screen?.name));
+              TooltipService.show(tooltipAnchor, modelData.tooltipTitle || modelData.name || modelData.id || "Tray Item", BarService.getTooltipDirection(root.screen?.name, root.section));
             } else if (root.hoveredItemIndex === trayDelegate.index) {
               root.hoveredItemIndex = -1;
               TooltipService.hide(tooltipAnchor);
             }
           }
           onClicked: mouse => {
-                       if (!modelData) {
-                         return;
-                       }
+            if (!modelData) {
+              return;
+            }
 
-                       if (mouse.button === Qt.LeftButton) {
-                         // Close any open menu first
-                         if (popupMenuWindow) {
-                           popupMenuWindow.close();
-                         }
+            if (mouse.button === Qt.LeftButton) {
+              // Close any open menu first
+              if (popupMenuWindow) {
+                popupMenuWindow.close();
+              }
 
-                         if (!modelData.onlyMenu) {
-                           modelData.activate();
-                         }
-                       } else if (mouse.button === Qt.MiddleButton) {
-                         // Close the menu if it was visible
-                         if (popupMenuWindow && popupMenuWindow.visible) {
-                           popupMenuWindow.close();
-                           return;
-                         }
-                         modelData.secondaryActivate && modelData.secondaryActivate();
-                       } else if (mouse.button === Qt.RightButton) {
-                         TooltipService.hideImmediately();
+              if (!modelData.onlyMenu) {
+                modelData.activate();
+              }
+            } else if (mouse.button === Qt.MiddleButton) {
+              // Close the menu if it was visible
+              if (popupMenuWindow && popupMenuWindow.visible) {
+                popupMenuWindow.close();
+                return;
+              }
+              modelData.secondaryActivate && modelData.secondaryActivate();
+            } else if (mouse.button === Qt.RightButton) {
+              TooltipService.hideImmediately();
 
-                         // Close the menu if it was visible
-                         if (popupMenuWindow && popupMenuWindow.visible) {
-                           popupMenuWindow.close();
-                           return;
-                         }
+              // Close the menu if it was visible
+              if (popupMenuWindow && popupMenuWindow.visible) {
+                popupMenuWindow.close();
+                return;
+              }
 
-                         // Close any opened panel
-                         if ((PanelService.openedPanel !== null) && !PanelService.openedPanel.isClosing) {
-                           PanelService.openedPanel.close();
-                         }
+              // Close any opened panel
+              if ((PanelService.openedPanel !== null) && !PanelService.openedPanel.isClosing) {
+                PanelService.openedPanel.close();
+              }
 
-                         if (modelData.hasMenu && modelData.menu && trayMenu && trayMenu.item) {
-                           // Calculate menu position after ensuring menu is loaded
-                           const calculateAndShow = () => {
-                             // Position menu based on bar position, using tooltipAnchor for proper positioning
-                             // Increased spacing for better alignment with other context menus
-                             let menuX, menuY;
-                             if (barPosition === "left") {
-                               // For left bar: position menu to the right of the visual area
-                               menuX = tooltipAnchor.width + Style.marginL;
-                               menuY = 0;
-                             } else if (barPosition === "right") {
-                               // For right bar: position menu to the left of the visual area
-                               menuX = -trayMenu.item.implicitWidth - Style.marginL;
-                               menuY = 0;
-                             } else {
-                               // For horizontal bars: center horizontally and position below visual area
-                               menuX = (tooltipAnchor.width / 2) - (trayMenu.item.implicitWidth / 2);
-                               menuY = tooltipAnchor.height + Style.marginS;
-                             }
+              if (modelData.hasMenu && modelData.menu && trayMenu && trayMenu.item) {
+                // Calculate menu position after ensuring menu is loaded
+                const calculateAndShow = () => {
+                  // Position menu based on bar position, using tooltipAnchor for proper positioning
+                  // Increased spacing for better alignment with other context menus
+                  let menuX, menuY;
+                  if (barPosition === "left") {
+                    // For left bar: position menu to the right of the visual area
+                    menuX = tooltipAnchor.width + Style.marginL;
+                    menuY = 0;
+                  } else if (barPosition === "right") {
+                    // For right bar: position menu to the left of the visual area
+                    menuX = -trayMenu.item.implicitWidth - Style.marginL;
+                    menuY = 0;
+                  } else {
+                    // For horizontal bars: center horizontally and position below visual area
+                    menuX = (tooltipAnchor.width / 2) - (trayMenu.item.implicitWidth / 2);
+                    menuY = tooltipAnchor.height + Style.marginS;
+                  }
 
-                             PanelService.showTrayMenu(root.screen, modelData, trayMenu.item, tooltipAnchor, menuX, menuY, root.section, root.sectionWidgetIndex);
-                           };
+                  PanelService.showTrayMenu(root.screen, modelData, trayMenu.item, tooltipAnchor, menuX, menuY, root.section, root.sectionWidgetIndex);
+                };
 
-                           // Use Qt.callLater to ensure menu dimensions are calculated
-                           Qt.callLater(calculateAndShow);
-                         } else {
-                           Logger.d("Tray", "No menu available for", modelData.id, "or trayMenu not set");
-                         }
-                       }
-                     }
+                // Use Qt.callLater to ensure menu dimensions are calculated
+                Qt.callLater(calculateAndShow);
+              } else {
+                Logger.d("Tray", "No menu available for", modelData.id, "or trayMenu not set");
+              }
+            }
+          }
         }
       }
     }
@@ -551,7 +551,7 @@ Item {
       width: isVertical ? barHeight : capsuleHeight
       height: isVertical ? capsuleHeight : barHeight
       tooltipText: I18n.tr("tooltips.open-tray-dropdown")
-      tooltipDirection: BarService.getTooltipDirection(root.screen?.name)
+      tooltipDirection: BarService.getTooltipDirection(root.screen?.name, root.section)
       baseSize: capsuleHeight
       applyUiScale: false
       customRadius: Style.radiusL

@@ -24,7 +24,7 @@ Item {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -33,10 +33,10 @@ Item {
   }
 
   // Bar orientation (per-screen)
-  readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
+  readonly property string barPosition: Settings.getBarPositionForScreen(screenName, section)
   readonly property bool isVertical: barPosition === "left" || barPosition === "right"
-  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName)
-  readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName)
+  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName, section)
+  readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName, section)
 
   // Widget settings
   readonly property string hideMode: widgetSettings.hideMode !== undefined ? widgetSettings.hideMode : widgetMetadata.hideMode
@@ -77,8 +77,8 @@ Item {
   readonly property string spectrumComponentId: "bar:mediamini:" + root.screen?.name + ":" + root.section + ":" + root.sectionWidgetIndex
   readonly property bool needsSpectrum: root.showVisualizer && root.visualizerType !== "" && root.visualizerType !== "none" && !root.isHidden
 
-  Layout.preferredHeight: isVertical ? -1 : Style.getBarHeightForScreen(screenName)
-  Layout.preferredWidth: isVertical ? Style.getBarHeightForScreen(screenName) : -1
+  Layout.preferredHeight: isVertical ? -1 : Style.getBarHeightForScreen(screenName, section)
+  Layout.preferredWidth: isVertical ? Style.getBarHeightForScreen(screenName, section) : -1
   Layout.fillHeight: false
   Layout.fillWidth: false
 
@@ -209,24 +209,24 @@ Item {
     }
 
     onTriggered: action => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   if (action === "play-pause")
-                   MediaService.playPause();
-                   else if (action === "previous")
-                   MediaService.previous();
-                   else if (action === "next")
-                   MediaService.next();
-                   else if (action && action.indexOf("player-") === 0) {
-                     var idx = parseInt(action.split("-")[1]);
-                     if (!isNaN(idx)) {
-                       MediaService.switchToPlayer(idx);
-                     }
-                   } else if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      if (action === "play-pause")
+        MediaService.playPause();
+      else if (action === "previous")
+        MediaService.previous();
+      else if (action === "next")
+        MediaService.next();
+      else if (action && action.indexOf("player-") === 0) {
+        var idx = parseInt(action.split("-")[1]);
+        if (!isNaN(idx)) {
+          MediaService.switchToPlayer(idx);
+        }
+      } else if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   // Main container - stays at content size, pixel-perfect centered in parent
@@ -393,19 +393,19 @@ Item {
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton | Qt.ForwardButton | Qt.BackButton
 
     onClicked: mouse => {
-                 TooltipService.hide();
-                 if (mouse.button === Qt.LeftButton) {
-                   PanelService.getPanel("mediaPlayerPanel", screen)?.toggle(container);
-                 } else if (mouse.button === Qt.RightButton) {
-                   PanelService.showContextMenu(contextMenu, container, screen);
-                 } else if (mouse.button === Qt.MiddleButton && hasPlayer) {
-                   MediaService.playPause();
-                 } else if (mouse.button === Qt.ForwardButton && hasPlayer) {
-                   MediaService.next();
-                 } else if (mouse.button === Qt.BackButton && hasPlayer) {
-                   MediaService.previous();
-                 }
-               }
+      TooltipService.hide();
+      if (mouse.button === Qt.LeftButton) {
+        PanelService.getPanel("mediaPlayerPanel", screen)?.toggle(container);
+      } else if (mouse.button === Qt.RightButton) {
+        PanelService.showContextMenu(contextMenu, container, screen);
+      } else if (mouse.button === Qt.MiddleButton && hasPlayer) {
+        MediaService.playPause();
+      } else if (mouse.button === Qt.ForwardButton && hasPlayer) {
+        MediaService.next();
+      } else if (mouse.button === Qt.BackButton && hasPlayer) {
+        MediaService.previous();
+      }
+    }
 
     onEntered: {
       if (!root || !screen) {
@@ -415,7 +415,7 @@ Item {
       if ((isVertical || scrollMode === "never")) {
         var panel = PanelService.getPanel("mediaPlayerPanel", screen);
         if (panel && !panel.isPanelOpen) {
-          TooltipService.show(root, title, BarService.getTooltipDirection(root.screen?.name));
+          TooltipService.show(root, title, BarService.getTooltipDirection(root.screen?.name, root.section));
         }
       }
     }

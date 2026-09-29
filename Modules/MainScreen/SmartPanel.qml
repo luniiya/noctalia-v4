@@ -1,8 +1,9 @@
 import QtQuick
 import Quickshell
+import "../../Helpers/BubbleLogic.js" as BubbleLogic
+import "../../Helpers/NotchGeometry.js" as NotchGeometry
 import qs.Commons
 import qs.Services.UI
-import "../../Helpers/NotchGeometry.js" as NotchGeometry
 
 /**
 * SmartPanel for use within MainScreen
@@ -27,6 +28,7 @@ Item {
   property color panelBackgroundColor: Color.mSurface
   property color panelBorderColor: Color.mOutline
   property var buttonItem: null
+  property var bubbleContext: null
   property bool forceAttachToBar: false
 
   // Anchoring properties
@@ -98,13 +100,13 @@ Item {
   readonly property var panelRegion: panelContent.geometryPlaceholder
   readonly property bool touchingBar: panelContent.touchingTopBar || panelContent.touchingBottomBar || panelContent.touchingLeftBar || panelContent.touchingRightBar
 
-  readonly property string barPosition: Settings.getBarPositionForScreen(screen?.name)
+  readonly property string barPosition: bubbleContext ? bubbleContext.position : Settings.getBarPositionForScreen(screen?.name)
   readonly property bool barIsVertical: barPosition === "left" || barPosition === "right"
-  readonly property real barHeight: barShouldShow ? Style.getBarHeightForScreen(screen?.name) : 0
+  readonly property real barHeight: !bubbleContext && barShouldShow ? Style.getBarHeightForScreen(screen?.name) : 0
   readonly property bool hasBar: modelData && modelData.name ? (Settings.data.bar.monitors.includes(modelData.name) || (Settings.data.bar.monitors.length === 0)) : false
-  readonly property bool isFramed: Settings.data.bar.barType === "framed" && hasBar
+  readonly property bool isFramed: !bubbleContext && Settings.data.bar.barType === "framed" && hasBar
   readonly property real frameThickness: Settings.data.bar.frameThickness ?? 12
-  readonly property bool barFloating: Settings.data.bar.barType === "floating"
+  readonly property bool barFloating: !bubbleContext && Settings.data.bar.barType === "floating"
   readonly property real barMarginH: (barFloating && barShouldShow) ? Math.ceil(Settings.data.bar.marginHorizontal) : 0
   readonly property real barMarginV: (barFloating && barShouldShow) ? Math.ceil(Settings.data.bar.marginVertical) : 0
   readonly property real attachmentOverlap: 1 // Panel extends into bar area to fix hairline gap with fractional scaling
@@ -164,6 +166,7 @@ Item {
     PanelService.closedImmediately = false;
     // Reset to default - fixes panel being stuck in one position
     root.useButtonPosition = false;
+    root.bubbleContext = null;
 
     // Calculate the bar window's position on screen based on bar settings
     // The BarContentWindow uses anchors + margins, so we need to compute its origin
@@ -213,10 +216,11 @@ Item {
     if (buttonItem && typeof buttonItem.mapToItem === "function") {
       try {
         root.buttonItem = buttonItem;
+        root.bubbleContext = BubbleLogic.itemContext(buttonItem);
         // Map button position within its window (BarContentWindow-local coordinates)
         var buttonLocal = buttonItem.mapToItem(null, 0, 0);
 
-        root.buttonPosition = Qt.point(barWindowX + buttonLocal.x, barWindowY + buttonLocal.y);
+        root.buttonPosition = Qt.point((root.bubbleContext ? root.bubbleContext.x : barWindowX) + buttonLocal.x, (root.bubbleContext ? root.bubbleContext.y : barWindowY) + buttonLocal.y);
         root.buttonWidth = buttonItem.width;
         root.buttonHeight = buttonItem.height;
         root.useButtonPosition = true;
@@ -668,6 +672,17 @@ Item {
       }
     }
 
+    if (root.bubbleContext && root.useButtonPosition) {
+      var bubblePanelPosition = BubbleLogic.panelPosition({
+                                                            x: root.buttonPosition.x,
+                                                            y: root.buttonPosition.y,
+                                                            width: root.buttonWidth,
+                                                            height: root.buttonHeight
+                                                          }, root.barPosition, panelWidth, panelHeight, root.width, root.height, Style.marginM);
+      calculatedX = bubblePanelPosition.x;
+      calculatedY = bubblePanelPosition.y;
+    }
+
     // Notch bar: keep attached panels out of the bar's rounded end zones
     if (Settings.data.bar.barType === "notch" && panelContent.allowAttachToBar && root.barShouldShow) {
       var notchInset = Style.getBarNotchInsetForScreen(root.screen);
@@ -819,12 +834,16 @@ Item {
     // Screen-dependent attachment properties
     // Allow panel content to override allowAttach (e.g., plugin panels)
     readonly property bool allowAttach: {
+      if (root.bubbleContext)
+        return false;
       if (contentLoader.item && contentLoader.item.allowAttach !== undefined) {
         return contentLoader.item.allowAttach;
       }
       return Settings.data.ui.panelsAttachedToBar || root.forceAttachToBar;
     }
     readonly property bool allowAttachToBar: {
+      if (root.bubbleContext)
+        return false;
       if (!(Settings.data.ui.panelsAttachedToBar || root.forceAttachToBar)) {
         return false;
       }
@@ -1318,8 +1337,8 @@ Item {
         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
         z: -1 // Behind content, but on the panel background
         onClicked: mouse => {
-                     mouse.accepted = true; // Accept and ignore - prevents propagation to background
-                   }
+          mouse.accepted = true; // Accept and ignore - prevents propagation to background
+        }
       }
     }
 

@@ -21,7 +21,7 @@ NIconButton {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -41,8 +41,8 @@ NIconButton {
       return I18n.tr("tooltips.open-settings");
     }
   }
-  tooltipDirection: BarService.getTooltipDirection(screen?.name)
-  baseSize: Style.getCapsuleHeightForScreen(screen?.name)
+  tooltipDirection: BarService.getTooltipDirection(screen?.name, section)
+  baseSize: Style.getCapsuleHeightForScreen(screen?.name, section)
   applyUiScale: false
   customRadius: Style.radiusL
   colorBg: Style.capsuleColor
@@ -64,13 +64,13 @@ NIconButton {
     ]
 
     onTriggered: action => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   onClicked: {

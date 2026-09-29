@@ -22,7 +22,7 @@ Item {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -30,7 +30,7 @@ Item {
     return {};
   }
 
-  readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
+  readonly property string barPosition: Settings.getBarPositionForScreen(screenName, section)
   readonly property bool isBarVertical: barPosition === "left" || barPosition === "right"
   readonly property string displayMode: widgetSettings.displayMode !== undefined ? widgetSettings.displayMode : widgetMetadata.displayMode
   readonly property string iconColorKey: widgetSettings.iconColor !== undefined ? widgetSettings.iconColor : widgetMetadata.iconColor
@@ -75,32 +75,33 @@ Item {
     }
 
     onTriggered: action => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   if (!action) {
-                     return;
-                   }
-                   if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                     return;
-                   }
-                   if (action.startsWith("connect:")) {
-                     const uuid = action.substring("connect:".length);
-                     VPNService.connect(uuid);
-                     return;
-                   }
-                   if (action.startsWith("disconnect:")) {
-                     const uuid = action.substring("disconnect:".length);
-                     VPNService.disconnect(uuid);
-                   }
-                 }
+      if (!action) {
+        return;
+      }
+      if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+        return;
+      }
+      if (action.startsWith("connect:")) {
+        const uuid = action.substring("connect:".length);
+        VPNService.connect(uuid);
+        return;
+      }
+      if (action.startsWith("disconnect:")) {
+        const uuid = action.substring("disconnect:".length);
+        VPNService.disconnect(uuid);
+      }
+    }
   }
 
   BarPill {
     id: pill
 
     screen: root.screen
+    section: root.section
     oppositeDirection: BarService.getPillDirection(root)
     customIconColor: Color.resolveColorKeyOptional(root.iconColorKey)
     customTextColor: Color.resolveColorKeyOptional(root.textColorKey)

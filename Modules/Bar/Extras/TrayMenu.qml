@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
+import "../../../Helpers/BubbleLogic.js" as BubbleLogic
 import qs.Commons
 import qs.Services.UI
 import qs.Widgets
@@ -19,6 +20,25 @@ PopupWindow {
   property string widgetSection: ""
   property int widgetIndex: -1
 
+  readonly property var bubblePlacement: {
+    var context = BubbleLogic.itemContext(anchorItem);
+    if (!context || isSubMenu || !screen)
+      return null;
+    var local = anchorItem.mapToItem(null, 0, 0);
+    var originX = context.x + local.x;
+    var originY = context.y + local.y;
+    var placement = BubbleLogic.panelPosition({
+                                                x: originX,
+                                                y: originY,
+                                                width: anchorItem.width,
+                                                height: anchorItem.height
+                                              }, context.position, implicitWidth, implicitHeight, screen.width, screen.height, Style.marginM);
+    return {
+      x: placement.x - originX,
+      y: placement.y - originY
+    };
+  }
+
   // Derive menu from trayItem (only used for non-submenus)
   readonly property QsMenuHandle menu: isSubMenu ? null : (trayItem ? trayItem.menu : null)
 
@@ -26,7 +46,7 @@ PopupWindow {
   readonly property bool isPinned: {
     if (!trayItem || widgetSection === "" || widgetIndex < 0)
       return false;
-    var widgets = Settings.getBarWidgetsForScreen(root.screen?.name)[widgetSection];
+    var widgets = Settings.getBarWidgetsForScreen(root.screen?.name, widgetSection)[widgetSection];
     if (!widgets || widgetIndex >= widgets.length)
       return false;
     var widgetSettings = widgets[widgetIndex];
@@ -52,8 +72,8 @@ PopupWindow {
   onImplicitHeightChanged: {
     if (visible && anchorItem) {
       Qt.callLater(() => {
-                     anchor.updateAnchor();
-                   });
+        anchor.updateAnchor();
+      });
     }
   }
 
@@ -61,6 +81,8 @@ PopupWindow {
   color: "transparent"
   anchor.item: anchorItem
   anchor.rect.x: {
+    if (bubblePlacement)
+      return bubblePlacement.x;
     if (anchorItem && screen) {
       let baseX = anchorX;
 
@@ -97,8 +119,10 @@ PopupWindow {
     return anchorX;
   }
   anchor.rect.y: {
+    if (bubblePlacement)
+      return bubblePlacement.y;
     if (anchorItem && screen) {
-      const barPosition = Settings.getBarPositionForScreen(root.screen?.name);
+      const barPosition = Settings.getBarPositionForScreen(root.screen?.name, widgetSection);
 
       let baseY = anchorY;
 
@@ -113,7 +137,7 @@ PopupWindow {
         baseY = -(implicitHeight + Style.marginS);
       } else if (barPosition === "top" && !isSubMenu && anchorY >= 0) {
         // For top bar: position menu below bar with margin
-        const barHeight = Style.getBarHeightForScreen(root.screen?.name);
+        const barHeight = Style.getBarHeightForScreen(root.screen?.name, widgetSection);
         baseY = barHeight + Style.marginS;
       }
 
@@ -160,7 +184,7 @@ PopupWindow {
     if (isSubMenu) {
       return anchorY;
     }
-    return anchorY + (Settings.getBarPositionForScreen(root.screen?.name) === "bottom" ? -implicitHeight : Style.getBarHeightForScreen(root.screen?.name));
+    return anchorY + (Settings.getBarPositionForScreen(root.screen?.name, widgetSection) === "bottom" ? -implicitHeight : Style.getBarHeightForScreen(root.screen?.name, widgetSection));
   }
 
   function showAt(item, x, y) {
@@ -184,8 +208,8 @@ PopupWindow {
 
     // Force update after showing.
     Qt.callLater(() => {
-                   root.anchor.updateAnchor();
-                 });
+      root.anchor.updateAnchor();
+    });
   }
 
   function hideMenu() {
@@ -408,72 +432,72 @@ PopupWindow {
               acceptedButtons: Qt.LeftButton | Qt.RightButton
 
               onClicked: mouse => {
-                           if (modelData && !modelData.isSeparator) {
-                             if (modelData.hasChildren) {
-                               // Click on items with children toggles submenu
-                               if (entry.subMenu) {
-                                 // Close existing submenu
-                                 entry.subMenu.hideMenu();
-                                 entry.subMenu.destroy();
-                                 entry.subMenu = null;
-                               } else {
-                                 // Close any other open submenus first
-                                 for (var i = 0; i < columnLayout.children.length; i++) {
-                                   const sibling = columnLayout.children[i];
-                                   if (sibling !== entry && sibling.subMenu) {
-                                     sibling.subMenu.hideMenu();
-                                     sibling.subMenu.destroy();
-                                     sibling.subMenu = null;
-                                   }
-                                 }
+                if (modelData && !modelData.isSeparator) {
+                  if (modelData.hasChildren) {
+                    // Click on items with children toggles submenu
+                    if (entry.subMenu) {
+                      // Close existing submenu
+                      entry.subMenu.hideMenu();
+                      entry.subMenu.destroy();
+                      entry.subMenu = null;
+                    } else {
+                      // Close any other open submenus first
+                      for (var i = 0; i < columnLayout.children.length; i++) {
+                        const sibling = columnLayout.children[i];
+                        if (sibling !== entry && sibling.subMenu) {
+                          sibling.subMenu.hideMenu();
+                          sibling.subMenu.destroy();
+                          sibling.subMenu = null;
+                        }
+                      }
 
-                                 // Determine submenu opening direction
-                                 let openLeft = false;
-                                 const barPosition = Settings.getBarPositionForScreen(root.screen?.name);
-                                 const globalPos = entry.mapToItem(null, 0, 0);
+                      // Determine submenu opening direction
+                      let openLeft = false;
+                      const barPosition = Settings.getBarPositionForScreen(root.screen?.name, widgetSection);
+                      const globalPos = entry.mapToItem(null, 0, 0);
 
-                                 if (barPosition === "right") {
-                                   openLeft = true;
-                                 } else if (barPosition === "left") {
-                                   openLeft = false;
-                                 } else {
-                                   openLeft = (root.widgetSection === "right");
-                                 }
+                      if (barPosition === "right") {
+                        openLeft = true;
+                      } else if (barPosition === "left") {
+                        openLeft = false;
+                      } else {
+                        openLeft = (root.widgetSection === "right");
+                      }
 
-                                 // Open new submenu
-                                 entry.subMenu = Qt.createComponent("TrayMenu.qml").createObject(root, {
-                                                                                                   "menu": modelData,
-                                                                                                   "isSubMenu": true,
-                                                                                                   "screen": root.screen
-                                                                                                 });
+                      // Open new submenu
+                      entry.subMenu = Qt.createComponent("TrayMenu.qml").createObject(root, {
+                                                                                        "menu": modelData,
+                                                                                        "isSubMenu": true,
+                                                                                        "screen": root.screen
+                                                                                      });
 
-                                 if (entry.subMenu) {
-                                   const overlap = 60;
-                                   entry.subMenu.anchorItem = entry;
-                                   entry.subMenu.anchorX = openLeft ? -overlap : overlap;
-                                   entry.subMenu.anchorY = 0;
-                                   entry.subMenu.visible = true;
-                                   // Force anchor update with new position
-                                   Qt.callLater(() => {
-                                                  entry.subMenu.anchor.updateAnchor();
-                                                });
-                                 }
-                               }
-                             } else {
-                               // Click on regular items triggers them
-                               modelData.triggered();
-                               root.hideMenu();
+                      if (entry.subMenu) {
+                        const overlap = 60;
+                        entry.subMenu.anchorItem = entry;
+                        entry.subMenu.anchorX = openLeft ? -overlap : overlap;
+                        entry.subMenu.anchorY = 0;
+                        entry.subMenu.visible = true;
+                        // Force anchor update with new position
+                        Qt.callLater(() => {
+                          entry.subMenu.anchor.updateAnchor();
+                        });
+                      }
+                    }
+                  } else {
+                    // Click on regular items triggers them
+                    modelData.triggered();
+                    root.hideMenu();
 
-                               // Close the drawer if it's open
-                               if (root.screen) {
-                                 const panel = PanelService.getPanel("trayDrawerPanel", root.screen);
-                                 if (panel && panel.visible) {
-                                   panel.close();
-                                 }
-                               }
-                             }
-                           }
-                         }
+                    // Close the drawer if it's open
+                    if (root.screen) {
+                      const panel = PanelService.getPanel("trayDrawerPanel", root.screen);
+                      if (panel && panel.visible) {
+                        panel.close();
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
 
@@ -491,7 +515,7 @@ PopupWindow {
         visible: {
           if (widgetSection === "" || widgetIndex < 0)
             return false;
-          var widgets = Settings.getBarWidgetsForScreen(root.screen?.name)[widgetSection];
+          var widgets = Settings.getBarWidgetsForScreen(root.screen?.name, widgetSection)[widgetSection];
           if (!widgets || widgetIndex >= widgets.length)
             return false;
           var widgetSettings = widgets[widgetIndex];
@@ -558,7 +582,7 @@ PopupWindow {
       return;
     }
     var screenName = root.screen?.name || "";
-    var widgets = Settings.getBarWidgetsForScreen(screenName)[widgetSection];
+    var widgets = Settings.getBarWidgetsForScreen(screenName, widgetSection)[widgetSection];
     if (!widgets || widgetIndex >= widgets.length) {
       Logger.w("TrayMenu", "Cannot pin: invalid widget index");
       return;
@@ -576,7 +600,9 @@ PopupWindow {
     widgets[widgetIndex] = newSettings;
 
     // Write to the correct location: screen override or global
-    if (Settings.hasScreenOverride(screenName, "widgets")) {
+    if (BubbleLogic.isBubbleSection(widgetSection)) {
+      Settings.updateBubbleWidget(screenName, widgetSection, widgetIndex, newSettings);
+    } else if (Settings.hasScreenOverride(screenName, "widgets")) {
       var overrideWidgets = Settings.getBarWidgetsForScreen(screenName);
       overrideWidgets[widgetSection] = widgets;
       Settings.setScreenOverride(screenName, "widgets", overrideWidgets);
@@ -604,7 +630,7 @@ PopupWindow {
       return;
     }
     var screenName = root.screen?.name || "";
-    var widgets = Settings.getBarWidgetsForScreen(screenName)[widgetSection];
+    var widgets = Settings.getBarWidgetsForScreen(screenName, widgetSection)[widgetSection];
     if (!widgets || widgetIndex >= widgets.length) {
       Logger.w("TrayMenu", "Cannot unpin: invalid widget index");
       return;
@@ -626,7 +652,9 @@ PopupWindow {
     widgets[widgetIndex] = newSettings;
 
     // Write to the correct location: screen override or global
-    if (Settings.hasScreenOverride(screenName, "widgets")) {
+    if (BubbleLogic.isBubbleSection(widgetSection)) {
+      Settings.updateBubbleWidget(screenName, widgetSection, widgetIndex, newSettings);
+    } else if (Settings.hasScreenOverride(screenName, "widgets")) {
       var overrideWidgets = Settings.getBarWidgetsForScreen(screenName);
       overrideWidgets[widgetSection] = widgets;
       Settings.setScreenOverride(screenName, "widgets", overrideWidgets);

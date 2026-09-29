@@ -23,7 +23,7 @@ NIconButton {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -33,7 +33,7 @@ NIconButton {
 
   readonly property string iconColorKey: (widgetSettings.iconColor !== undefined) ? widgetSettings.iconColor : widgetMetadata.iconColor
 
-  baseSize: Style.getCapsuleHeightForScreen(screenName)
+  baseSize: Style.getCapsuleHeightForScreen(screenName, section)
   applyUiScale: false
   customRadius: Style.radiusL
   icon: "power"
@@ -43,7 +43,7 @@ NIconButton {
     else
       return I18n.tr("tooltips.session-menu");
   }
-  tooltipDirection: BarService.getTooltipDirection(screenName)
+  tooltipDirection: BarService.getTooltipDirection(screenName, section)
   colorBg: Style.capsuleColor
   colorFg: Color.resolveColorKey(iconColorKey)
   border.color: Style.capsuleBorderColor
@@ -61,13 +61,13 @@ NIconButton {
     ]
 
     onTriggered: action => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   onClicked: PanelService.getPanel("sessionMenuPanel", screen)?.toggle()

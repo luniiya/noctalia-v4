@@ -1,0 +1,699 @@
+import QtQuick
+import QtTest
+import "../Helpers/BubbleLogic.js" as Bubbles
+
+TestCase {
+  name: "Bubbles"
+
+  readonly property var defaults: ({
+                                     position: "top",
+                                     alignment: "end",
+                                     style: "floating",
+                                     margin: 8,
+                                     spacing: 8,
+                                     height: 34,
+                                     padding: 4,
+                                     radius: 16,
+                                     opacity: 0.93,
+                                     autoCycle: true,
+                                     cycleInterval: 5,
+                                     transition: "up",
+                                     transitionDuration: 220,
+                                     hideOnFullscreen: true
+                                   })
+  readonly property list<var> savedBubbles: [
+    {
+      id: "saved",
+      monitor: "DP-2",
+      widgets: [
+        {
+          id: "Clock",
+          formatHorizontal: "HH:mm"
+        }
+      ]
+    }
+  ]
+  readonly property list<var> widgetSequence: [
+    {
+      id: "Clock"
+    },
+    {
+      id: "Volume"
+    }
+  ]
+
+  function bubble(id, monitor, patch) {
+    return Object.assign({
+                           id: id,
+                           monitor: monitor,
+                           widgets: [
+                             {
+                               id: "Clock"
+                             }
+                           ]
+                         }, patch || {});
+  }
+
+  function test_cycleWrapsInBothDirections() {
+    compare(Bubbles.nextIndex(2, 3, 1), 0);
+    compare(Bubbles.nextIndex(0, 3, -1), 2);
+    compare(Bubbles.nextIndex(0, 1, 1), 0);
+    compare(Bubbles.nextIndex(0, 0, 1), 0);
+    compare(Bubbles.nextIndex(0, 3, -7), 2);
+  }
+
+  function test_effectiveSettingsAreIndependent() {
+    var config = bubble("one", "DP-1", {
+                          position: "bottom",
+                          autoCycle: false
+                        });
+    var effective = Bubbles.effective(config, defaults);
+    compare(effective.position, "bottom");
+    compare(effective.height, 34);
+    compare(effective.hideOnFullscreen, true);
+    compare(effective.autoCycle, false);
+    compare(defaults.position, "top");
+    verify(config.height === undefined);
+  }
+
+  function test_savedQmlWidgetSequencesAreRendered() {
+    var saved = Bubbles.effective(savedBubbles[0], defaults);
+    compare(saved.widgets.length, 1);
+    compare(saved.widgets[0].id, "Clock");
+    compare(saved.widgets[0].formatHorizontal, "HH:mm");
+    compare(Bubbles.effective({
+                                widgets: widgetSequence
+                              }, defaults).widgets.length, 2);
+    compare(Bubbles.effective({
+                                widgets: null
+                              }, defaults).widgets.length, 0);
+  }
+
+  function test_invalidGeometryAndTimingAreClamped() {
+    var config = Bubbles.effective({
+                                     position: "bad",
+                                     alignment: "bad",
+                                     style: "bad",
+                                     transition: "bad",
+                                     height: -1,
+                                     padding: -2,
+                                     margin: Infinity,
+                                     radius: 1000,
+                                     opacity: 2,
+                                     cycleInterval: 0,
+                                     transitionDuration: -10
+                                   }, defaults);
+    compare(config.position, "top");
+    compare(config.alignment, "end");
+    compare(config.style, "floating");
+    compare(config.transition, "up");
+    compare(config.height, 20);
+    compare(config.padding, 0);
+    compare(config.margin, 8);
+    compare(config.radius, 50);
+    compare(config.opacity, 1);
+    compare(config.cycleInterval, 1);
+    compare(config.transitionDuration, 0);
+  }
+
+  function test_wheel_data() {
+    return [
+          {
+            tag: "mouse down",
+            accumulator: 0,
+            x: 0,
+            y: -120,
+            pixel: false,
+            step: 1,
+            remaining: 0
+          },
+          {
+            tag: "mouse up",
+            accumulator: 0,
+            x: 0,
+            y: 120,
+            pixel: false,
+            step: -1,
+            remaining: 0
+          },
+          {
+            tag: "touchpad horizontal",
+            accumulator: 0,
+            x: -45,
+            y: 10,
+            pixel: true,
+            step: 1,
+            remaining: 0
+          },
+          {
+            tag: "touchpad vertical",
+            accumulator: 0,
+            x: 5,
+            y: 40,
+            pixel: true,
+            step: -1,
+            remaining: 0
+          },
+          {
+            tag: "small touchpad movement",
+            accumulator: 0,
+            x: -10,
+            y: 0,
+            pixel: true,
+            step: 0,
+            remaining: -10
+          },
+          {
+            tag: "accumulated touchpad movement",
+            accumulator: -30,
+            x: -10,
+            y: 0,
+            pixel: true,
+            step: 1,
+            remaining: 0
+          },
+          {
+            tag: "reversing starts fresh",
+            accumulator: -30,
+            x: 20,
+            y: 0,
+            pixel: true,
+            step: 0,
+            remaining: 20
+          },
+          {
+            tag: "zero delta",
+            accumulator: 12,
+            x: 0,
+            y: 0,
+            pixel: false,
+            step: 0,
+            remaining: 12
+          },
+          {
+            tag: "fast wheel makes one step",
+            accumulator: 0,
+            x: 0,
+            y: -960,
+            pixel: false,
+            step: 1,
+            remaining: 0
+          }
+        ];
+  }
+
+  function test_wheel(data) {
+    var result = Bubbles.wheelStep(data.accumulator, data.x, data.y, data.pixel);
+    compare(result.step, data.step);
+    compare(result.accumulator, data.remaining);
+  }
+
+  function test_animationDirection_data() {
+    return [
+          {
+            tag: "up",
+            direction: "up",
+            x: 0,
+            y: -1
+          },
+          {
+            tag: "down",
+            direction: "down",
+            x: 0,
+            y: 1
+          },
+          {
+            tag: "left",
+            direction: "left",
+            x: -1,
+            y: 0
+          },
+          {
+            tag: "right",
+            direction: "right",
+            x: 1,
+            y: 0
+          },
+          {
+            tag: "fade",
+            direction: "fade",
+            x: 0,
+            y: 0
+          }
+        ];
+  }
+
+  function test_animationDirection(data) {
+    compare(Bubbles.animationVector(data.direction, 1), {
+              x: data.x,
+              y: data.y
+            });
+    compare(Bubbles.animationVector(data.direction, -1), {
+              x: -data.x,
+              y: -data.y
+            });
+  }
+
+  function test_visibility() {
+    verify(Bubbles.shouldShow(true, 1, true, false, false));
+    verify(!Bubbles.shouldShow(true, 1, true, true, false));
+    verify(Bubbles.shouldShow(true, 1, false, true, false));
+    verify(!Bubbles.shouldShow(false, 1, false, false, false));
+    verify(!Bubbles.shouldShow(true, 0, false, false, false));
+    verify(!Bubbles.shouldShow(true, 1, false, false, true));
+  }
+
+  function test_autoCyclePausesDuringInteractionAndRespectsManualMode() {
+    verify(Bubbles.shouldAutoCycle(true, true, 2, false, false));
+    verify(!Bubbles.shouldAutoCycle(true, false, 2, false, false));
+    verify(!Bubbles.shouldAutoCycle(true, true, 1, false, false));
+    verify(!Bubbles.shouldAutoCycle(false, true, 2, false, false));
+    verify(!Bubbles.shouldAutoCycle(true, true, 2, true, false));
+    verify(!Bubbles.shouldAutoCycle(true, true, 2, false, true));
+  }
+
+  function test_fullscreenIsPerMonitorAndIgnoresMinimizedWindows() {
+    var windows = [
+          {
+            fullscreen: true,
+            screens: [
+              {
+                name: "DP-1"
+              }
+            ]
+          },
+          {
+            fullscreen: false,
+            screens: [
+              {
+                name: "DP-2"
+              }
+            ]
+          }
+        ];
+    verify(Bubbles.hasFullscreen(windows, "DP-1"));
+    verify(!Bubbles.hasFullscreen(windows, "DP-2"));
+    windows[0].minimized = true;
+    verify(!Bubbles.hasFullscreen(windows, "DP-1"));
+    verify(!Bubbles.hasFullscreen([], "DP-1"));
+  }
+
+  function test_monitorSelectionAndPanelAvailability() {
+    var configs = [bubble("a", "DP-1"), bubble("b", "DP-2"), bubble("c", "DP-1")];
+    compare(Bubbles.forMonitor(configs, "DP-1").length, 2);
+    compare(Bubbles.find(configs, "DP-2", "b").monitor, "DP-2");
+    compare(Bubbles.find(configs, "DP-1", "b"), null);
+    verify(Bubbles.wantsPanels(true, configs, "DP-2"));
+    verify(!Bubbles.wantsPanels(false, configs, "DP-2"));
+    verify(!Bubbles.wantsPanels(true, [bubble("a", "DP-1", {
+                                                widgets: []
+                                              })], "DP-1"));
+  }
+
+  function test_widgetSettingsDoNotLeakBetweenBubblesOrMonitors() {
+    var configs = [bubble("a", "DP-1"), bubble("b", "DP-1"), bubble("a", "DP-2")];
+    var updated = Bubbles.updateWidget(configs, "DP-1", "a", 0, {
+                                         formatHorizontal: "HH:mm"
+                                       });
+    compare(updated[0].widgets[0].id, "Clock");
+    compare(updated[0].widgets[0].formatHorizontal, "HH:mm");
+    verify(updated[1].widgets[0].formatHorizontal === undefined);
+    verify(updated[2].widgets[0].formatHorizontal === undefined);
+    verify(configs[0].widgets[0].formatHorizontal === undefined);
+    compare(Bubbles.updateWidget(configs, "DP-1", "a", 3, {}), configs);
+  }
+
+  function test_reorderDoesNotMutateOriginal() {
+    var widgets = [
+          {
+            id: "Clock"
+          },
+          {
+            id: "Volume"
+          },
+          {
+            id: "Battery"
+          }
+        ];
+    compare(Bubbles.reorder(widgets, 0, 2).map(function (w) {
+      return w.id;
+    }), ["Volume", "Battery", "Clock"]);
+    compare(widgets[0].id, "Clock");
+    compare(Bubbles.reorder(widgets, -1, 2), widgets);
+  }
+
+  function test_layoutEdges_data() {
+    return [
+          {
+            tag: "floating top",
+            position: "top",
+            style: "floating",
+            x: 400,
+            y: 8
+          },
+          {
+            tag: "floating bottom",
+            position: "bottom",
+            style: "floating",
+            x: 400,
+            y: 642
+          },
+          {
+            tag: "floating left",
+            position: "left",
+            style: "floating",
+            x: 8,
+            y: 325
+          },
+          {
+            tag: "floating right",
+            position: "right",
+            style: "floating",
+            x: 792,
+            y: 325
+          },
+          {
+            tag: "attached top",
+            position: "top",
+            style: "attached",
+            x: 400,
+            y: 0
+          },
+          {
+            tag: "notch bottom",
+            position: "bottom",
+            style: "notch",
+            x: 400,
+            y: 650
+          }
+        ];
+  }
+
+  function test_layoutEdges(data) {
+    var configs = [bubble("a", "DP-1", {
+                            position: data.position,
+                            style: data.style,
+                            alignment: "center"
+                          })];
+    compare(Bubbles.layout(configs, defaults, {
+                             "DP-1|a": {
+                               width: 200,
+                               height: 50
+                             }
+                           }, "DP-1", "a", 1000, 700), {
+              x: data.x,
+              y: data.y,
+              width: 200,
+              height: 50
+            });
+  }
+
+  function test_groupCentersAndDoesNotOverlap() {
+    var configs = [bubble("a", "DP-1", {
+                            alignment: "center"
+                          }), bubble("b", "DP-1", {
+                                       alignment: "center"
+                                     }), bubble("c", "DP-2")];
+    var sizes = {
+      "DP-1|a": {
+        width: 100,
+        height: 34
+      },
+      "DP-1|b": {
+        width: 200,
+        height: 34
+      }
+    };
+    var first = Bubbles.layout(configs, defaults, sizes, "DP-1", "a", 1000, 700);
+    var second = Bubbles.layout(configs, defaults, sizes, "DP-1", "b", 1000, 700);
+    compare(first.x, 346);
+    compare(second.x, 454);
+    compare(second.x - first.x - first.width, 8);
+    configs[0].alignment = "end";
+    configs[1].alignment = "end";
+    compare(Bubbles.layout(configs, defaults, sizes, "DP-1", "b", 1000, 700).x, 792);
+  }
+
+  function test_attachedCorners_data() {
+    return [
+          {
+            tag: "top left",
+            position: "top",
+            alignment: "start",
+            x: 0,
+            y: 0
+          },
+          {
+            tag: "top right",
+            position: "top",
+            alignment: "end",
+            x: 800,
+            y: 0
+          },
+          {
+            tag: "bottom left",
+            position: "bottom",
+            alignment: "start",
+            x: 0,
+            y: 650
+          },
+          {
+            tag: "bottom right",
+            position: "bottom",
+            alignment: "end",
+            x: 800,
+            y: 650
+          },
+          {
+            tag: "left top",
+            position: "left",
+            alignment: "start",
+            x: 0,
+            y: 0
+          },
+          {
+            tag: "left bottom",
+            position: "left",
+            alignment: "end",
+            x: 0,
+            y: 650
+          },
+          {
+            tag: "right top",
+            position: "right",
+            alignment: "start",
+            x: 800,
+            y: 0
+          },
+          {
+            tag: "right bottom",
+            position: "right",
+            alignment: "end",
+            x: 800,
+            y: 650
+          }
+        ];
+  }
+
+  function test_attachedCorners(data) {
+    var configs = [bubble("a", "DP-1", {
+                            style: "attached",
+                            position: data.position,
+                            alignment: data.alignment,
+                            margin: 30
+                          })];
+    compare(Bubbles.layout(configs, defaults, {
+                             "DP-1|a": {
+                               width: 200,
+                               height: 50
+                             }
+                           }, "DP-1", "a", 1000, 700), {
+              x: data.x,
+              y: data.y,
+              width: 200,
+              height: 50
+            });
+  }
+
+  function test_notchesAndFloatingKeepTheirEndMargin() {
+    var sizes = {
+      "DP-1|a": {
+        width: 200,
+        height: 50
+      }
+    };
+    var configs = [bubble("a", "DP-1", {
+                            style: "notch",
+                            alignment: "end",
+                            margin: 30
+                          })];
+    var notch = Bubbles.layout(configs, defaults, sizes, "DP-1", "a", 1000, 700);
+    compare(notch.x, 770);
+    compare(notch.y, 0);
+    configs[0].alignment = "start";
+    compare(Bubbles.layout(configs, defaults, sizes, "DP-1", "a", 1000, 700).x, 30);
+    configs[0].style = "floating";
+    configs[0].alignment = "end";
+    var floating = Bubbles.layout(configs, defaults, sizes, "DP-1", "a", 1000, 700);
+    compare(floating.x, 770);
+    compare(floating.y, 30);
+  }
+
+  function test_layoutClampsOffsetsAndOversizedWidgets() {
+    var configs = [bubble("a", "DP-1", {
+                            offset: 99999
+                          })];
+    var result = Bubbles.layout(configs, defaults, {
+                                  "DP-1|a": {
+                                    width: 1200,
+                                    height: 40
+                                  }
+                                }, "DP-1", "a", 1000, 700);
+    compare(result.x, 0);
+    compare(result.width, 1000);
+    configs[0].offset = -99999;
+    compare(Bubbles.layout(configs, defaults, {}, "DP-1", "a", 1000, 700).x, 0);
+  }
+
+  function test_emptyBubblesDoNotTakeGroupSpace() {
+    var configs = [bubble("empty", "DP-1", {
+                            widgets: []
+                          }), bubble("a", "DP-1")];
+    compare(Bubbles.layout(configs, defaults, {
+                             "DP-1|a": {
+                               width: 100,
+                               height: 34
+                             }
+                           }, "DP-1", "a", 1000, 700).x, 892);
+  }
+
+  function test_inactiveWidgetsKeepCarouselSizeWhileHiddenBarWidgetsCollapse() {
+    var clock = {
+      visible: true,
+      implicitWidth: 90,
+      implicitHeight: 30
+    };
+    var volume = {
+      visible: false,
+      implicitWidth: 40,
+      implicitHeight: 30
+    };
+    function carouselWidth() {
+      return Math.max(Bubbles.widgetExtent(clock, "implicitWidth", true), Bubbles.widgetExtent(volume, "implicitWidth", true));
+    }
+    compare(carouselWidth(), 90);
+    clock.visible = false;
+    volume.visible = true;
+    compare(carouselWidth(), 90);
+    compare(Bubbles.widgetExtent(clock, "implicitWidth", false), 0);
+    compare(Bubbles.widgetExtent(null, "implicitWidth", true), 0);
+  }
+
+  function test_backgroundStylesAndEdges() {
+    var notch = Bubbles.backgroundPath(120, 40, 12, "notch", "top");
+    verify(notch.indexOf("M 0 0 L 120 0 Q 108 0 108 12") === 0);
+    verify(Bubbles.backgroundPath(120, 40, 12, "attached", "top").indexOf("M 0 0") === 0);
+    verify(Bubbles.backgroundPath(120, 40, 12, "floating", "top").indexOf("M 12 0") === 0);
+    verify(Bubbles.backgroundPath(120, 40, 12, "notch", "bottom").indexOf("M 0 40 L 120 40") === 0);
+    verify(Bubbles.backgroundPath(40, 120, 12, "notch", "left").indexOf("M 0 0 L 0 120") === 0);
+    verify(Bubbles.backgroundPath(40, 120, 12, "notch", "right").indexOf("M 40 0 L 40 120") === 0);
+    verify(Bubbles.backgroundPath(20, 20, 100, "notch", "top").indexOf("NaN") < 0);
+    compare(Bubbles.backgroundPath(120, 40, 0, "notch", "top"), "M 0 0 L 120 0 L 120 40 L 0 40 Z");
+  }
+
+  function test_attachedCornerFillsBothScreenEdges() {
+    var topRight = Bubbles.backgroundPath(120, 40, 12, "attached", "top", "end");
+    compare(topRight, "M 0 0 L 120 0 L 120 40 L 12 40 Q 0 40 0 28 L 0 0 Z");
+    var topLeft = Bubbles.backgroundPath(120, 40, 12, "attached", "top", "start");
+    compare(topLeft, "M 0 0 L 120 0 L 120 28 Q 120 40 108 40 L 0 40 L 0 0 Z");
+    var bottomRight = Bubbles.backgroundPath(120, 40, 12, "attached", "bottom", "end");
+    compare(bottomRight, "M 0 40 L 120 40 L 120 0 L 12 0 Q 0 0 0 12 L 0 40 Z");
+    var rightBottom = Bubbles.backgroundPath(40, 120, 12, "attached", "right", "end");
+    compare(rightBottom, "M 40 0 L 40 120 L 0 120 L 0 12 Q 0 0 12 0 L 40 0 Z");
+    compare(Bubbles.backgroundPath(120, 40, 12, "notch", "top", "end"), Bubbles.backgroundPath(120, 40, 12, "notch", "top"));
+  }
+
+  function test_onlyBubbleTouchingCornerLosesSideRounding() {
+    compare(Bubbles.cornerAttachment({
+                                       x: 800,
+                                       y: 0,
+                                       width: 200,
+                                       height: 50
+                                     }, "top", 1000, 700), "end");
+    compare(Bubbles.cornerAttachment({
+                                       x: 0,
+                                       y: 0,
+                                       width: 200,
+                                       height: 50
+                                     }, "top", 1000, 700), "start");
+    compare(Bubbles.cornerAttachment({
+                                       x: 700,
+                                       y: 0,
+                                       width: 200,
+                                       height: 50
+                                     }, "top", 1000, 700), "");
+    compare(Bubbles.cornerAttachment({
+                                       x: 0,
+                                       y: 650,
+                                       width: 50,
+                                       height: 50
+                                     }, "left", 1000, 700), "end");
+    compare(Bubbles.cornerAttachment({
+                                       x: 0,
+                                       y: 0,
+                                       width: 1000,
+                                       height: 50
+                                     }, "top", 1000, 700), "both");
+  }
+
+  function test_contextFoundThroughNestedWidgetItems() {
+    var context = {
+      section: "bubble:a",
+      position: "bottom",
+      x: 300,
+      y: 600
+    };
+    compare(Bubbles.itemContext({
+                                  parent: {
+                                    parent: {
+                                      bubbleContext: context
+                                    }
+                                  }
+                                }), context);
+    compare(Bubbles.itemContext({
+                                  parent: null
+                                }), null);
+    verify(Bubbles.isBubbleSection(context.section));
+    verify(!Bubbles.isBubbleSection("left"));
+  }
+
+  function test_panelsOpenBesideBubbleAndStayOnScreen() {
+    var button = {
+      x: 400,
+      y: 660,
+      width: 100,
+      height: 32
+    };
+    compare(Bubbles.panelPosition(button, "bottom", 300, 200, 1000, 700, 8), {
+              x: 300,
+              y: 452
+            });
+    button = {
+      x: 900,
+      y: 8,
+      width: 92,
+      height: 34
+    };
+    compare(Bubbles.panelPosition(button, "top", 300, 200, 1000, 700, 8), {
+              x: 692,
+              y: 50
+            });
+    button = {
+      x: 0,
+      y: 200,
+      width: 34,
+      height: 34
+    };
+    compare(Bubbles.panelPosition(button, "left", 300, 200, 1000, 700, 8).x, 42);
+  }
+}

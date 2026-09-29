@@ -23,7 +23,7 @@ Item {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -31,10 +31,10 @@ Item {
     return {};
   }
 
-  readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
+  readonly property string barPosition: Settings.getBarPositionForScreen(screenName, section)
   readonly property bool isBarVertical: barPosition === "left" || barPosition === "right"
-  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName)
-  readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName)
+  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName, section)
+  readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName, section)
   readonly property var now: Time.now
 
   // Resolve settings: try user settings or defaults from BarWidgetRegistry
@@ -159,16 +159,16 @@ Item {
     ]
 
     onTriggered: action => {
-                   // Close the context menu
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      // Close the context menu
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   if (action === "open-calendar") {
-                     PanelService.getPanel("clockPanel", screen)?.toggle(root);
-                   } else if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      if (action === "open-calendar") {
+        PanelService.getPanel("clockPanel", screen)?.toggle(root);
+      } else if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   // Build tooltip text with formatted time/date
@@ -188,7 +188,7 @@ Item {
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onEntered: {
       if (!PanelService.getPanel("clockPanel", screen)?.isPanelOpen) {
-        TooltipService.show(root, buildTooltipText(), BarService.getTooltipDirection(root.screen?.name));
+        TooltipService.show(root, buildTooltipText(), BarService.getTooltipDirection(root.screen?.name, root.section));
         tooltipRefreshTimer.start();
       }
     }
@@ -197,13 +197,13 @@ Item {
       TooltipService.hide();
     }
     onClicked: mouse => {
-                 TooltipService.hide();
-                 if (mouse.button === Qt.RightButton) {
-                   PanelService.showContextMenu(contextMenu, root, screen);
-                 } else {
-                   PanelService.getPanel("clockPanel", screen)?.toggle(this);
-                 }
-               }
+      TooltipService.hide();
+      if (mouse.button === Qt.RightButton) {
+        PanelService.showContextMenu(contextMenu, root, screen);
+      } else {
+        PanelService.getPanel("clockPanel", screen)?.toggle(this);
+      }
+    }
   }
 
   Timer {

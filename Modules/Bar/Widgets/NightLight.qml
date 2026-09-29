@@ -24,7 +24,7 @@ NIconButton {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -34,7 +34,7 @@ NIconButton {
 
   readonly property string iconColorKey: widgetSettings.iconColor !== undefined ? widgetSettings.iconColor : widgetMetadata.iconColor
 
-  baseSize: Style.getCapsuleHeightForScreen(screen?.name)
+  baseSize: Style.getCapsuleHeightForScreen(screen?.name, section)
   applyUiScale: false
   customRadius: Style.radiusL
   colorBg: Settings.data.nightLight.enabled ? Color.mPrimary : Style.capsuleColor
@@ -44,7 +44,7 @@ NIconButton {
 
   icon: Settings.data.nightLight.enabled ? (Settings.data.nightLight.forced ? "nightlight-forced" : "nightlight-on") : "nightlight-off"
   tooltipText: Settings.data.nightLight.enabled ? (Settings.data.nightLight.forced ? I18n.tr("common.night-light") : I18n.tr("common.night-light")) : I18n.tr("common.night-light")
-  tooltipDirection: BarService.getTooltipDirection(screen?.name)
+  tooltipDirection: BarService.getTooltipDirection(screen?.name, section)
   onClicked: {
     // Check if wlsunset is available before enabling night light
     if (!ProgramCheckerService.wlsunsetAvailable) {
@@ -75,13 +75,13 @@ NIconButton {
     ]
 
     onTriggered: action => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   onRightClicked: {

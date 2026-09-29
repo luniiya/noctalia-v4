@@ -26,7 +26,7 @@ Item {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -34,10 +34,10 @@ Item {
     return {};
   }
 
-  readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
+  readonly property string barPosition: Settings.getBarPositionForScreen(screenName, section)
   readonly property bool isVertical: barPosition === "left" || barPosition === "right"
-  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName)
-  readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName)
+  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName, section)
+  readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName, section)
 
   readonly property bool compactMode: widgetSettings.compactMode !== undefined ? widgetSettings.compactMode : widgetMetadata.compactMode
   readonly property string iconColorKey: widgetSettings.iconColor !== undefined ? widgetSettings.iconColor : widgetMetadata.iconColor
@@ -171,20 +171,20 @@ Item {
     ]
 
     onTriggered: action => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   if (action === "sysmon-settings") {
-                     let monitorCmd = Settings.data.systemMonitor.externalMonitor;
-                     if (monitorCmd && monitorCmd.trim() !== "") {
-                       openExternalMonitor();
-                     } else {
-                       SettingsPanelService.openToTab(SettingsPanel.Tab.System, 0, screen);
-                     }
-                   } else if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      if (action === "sysmon-settings") {
+        let monitorCmd = Settings.data.systemMonitor.externalMonitor;
+        if (monitorCmd && monitorCmd.trim() !== "") {
+          openExternalMonitor();
+        } else {
+          SettingsPanelService.openToTab(SettingsPanel.Tab.System, 0, screen);
+        }
+      } else if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   // Visual capsule centered in parent
@@ -931,20 +931,20 @@ Item {
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     hoverEnabled: true
     onClicked: mouse => {
-                 if (mouse.button === Qt.LeftButton) {
-                   PanelService.getPanel("systemStatsPanel", screen)?.toggle(root);
-                   TooltipService.hide();
-                 } else if (mouse.button === Qt.RightButton) {
-                   TooltipService.hide();
-                   PanelService.showContextMenu(contextMenu, root, screen);
-                 } else if (mouse.button === Qt.MiddleButton) {
-                   TooltipService.hide();
-                   openExternalMonitor();
-                 }
-               }
+      if (mouse.button === Qt.LeftButton) {
+        PanelService.getPanel("systemStatsPanel", screen)?.toggle(root);
+        TooltipService.hide();
+      } else if (mouse.button === Qt.RightButton) {
+        TooltipService.hide();
+        PanelService.showContextMenu(contextMenu, root, screen);
+      } else if (mouse.button === Qt.MiddleButton) {
+        TooltipService.hide();
+        openExternalMonitor();
+      }
+    }
     onEntered: {
       if (!PanelService.getPanel("systemStatsPanel", screen).isPanelOpen) {
-        TooltipService.show(root, buildTooltipContent(), BarService.getTooltipDirection(root.screen?.name));
+        TooltipService.show(root, buildTooltipContent(), BarService.getTooltipDirection(root.screen?.name, root.section));
         tooltipRefreshTimer.start();
       }
     }

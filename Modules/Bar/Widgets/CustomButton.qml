@@ -24,13 +24,13 @@ Item {
     ]
 
     onTriggered: action => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   property ShellScreen screen
@@ -46,7 +46,7 @@ Item {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -54,7 +54,7 @@ Item {
     return {};
   }
 
-  readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
+  readonly property string barPosition: Settings.getBarPositionForScreen(screenName, section)
   readonly property bool isVerticalBar: barPosition === "left" || barPosition === "right"
 
   readonly property string customIcon: widgetSettings.icon || widgetMetadata.icon
@@ -228,6 +228,7 @@ Item {
     visible: _pillVisible
     opacity: _pillOpacity
     screen: root.screen
+    section: root.section
     oppositeDirection: BarService.getPillDirection(root)
     iconPosition: root.iconPosition
     icon: _pillIcon
@@ -423,11 +424,11 @@ Item {
     stdout: textStream ? textStdoutSplit : textStdoutCollect
     stderr: StdioCollector {}
     onExited: (exitCode, exitStatus) => {
-                if (textStream) {
-                  Logger.w("CustomButton", `Streaming text command exited (code: ${exitCode}), restarting...`);
-                  return;
-                }
-              }
+      if (textStream) {
+        Logger.w("CustomButton", `Streaming text command exited (code: ${exitCode}), restarting...`);
+        return;
+      }
+    }
   }
 
   function parseDynamicContent(content) {
@@ -601,9 +602,9 @@ Item {
     const placeholders = [];
     let i = 0;
     const protectedStr = str.replace(htmlTagRegex, tag => {
-                                       placeholders.push(tag);
-                                       return `___HTML_TAG_${i++}___`;
-                                     });
+      placeholders.push(tag);
+      return `___HTML_TAG_${i++}___`;
+    });
 
     let escaped = protectedStr.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/\r\n|\r|\n/g, "<br/>");
 

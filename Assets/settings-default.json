@@ -520,5 +520,26 @@
     "gridSnap": false,
     "gridSnapScale": false,
     "monitorWidgets": []
+  },
+  "bubbles": {
+    "enabled": false,
+    "configurations": [],
+    "defaults": {
+      "position": "top",
+      "alignment": "end",
+      "style": "floating",
+      "margin": 8,
+      "offset": 0,
+      "height": 34,
+      "padding": 4,
+      "spacing": 8,
+      "radius": 16,
+      "opacity": 0.93,
+      "autoCycle": true,
+      "cycleInterval": 5,
+      "transition": "up",
+      "transitionDuration": 220,
+      "hideOnFullscreen": true
+    }
   }
 }

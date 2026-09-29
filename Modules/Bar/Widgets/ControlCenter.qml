@@ -26,7 +26,7 @@ NIconButton {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length) {
         return widgets[sectionWidgetIndex];
       }
@@ -56,8 +56,8 @@ NIconButton {
       return I18n.tr("tooltips.open-control-center");
     }
   }
-  tooltipDirection: BarService.getTooltipDirection(screen?.name)
-  baseSize: Style.getCapsuleHeightForScreen(screen?.name)
+  tooltipDirection: BarService.getTooltipDirection(screen?.name, section)
+  baseSize: Style.getCapsuleHeightForScreen(screen?.name, section)
   applyUiScale: false
   customRadius: Style.radiusL
   colorBg: Style.capsuleColor
@@ -89,19 +89,19 @@ NIconButton {
     ]
 
     onTriggered: action => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   if (action === "open-launcher") {
-                     PanelService.toggleLauncher(screen);
-                   } else if (action === "open-settings") {
-                     var panel = PanelService.getPanel("settingsPanel", screen);
-                     panel.requestedTab = SettingsPanel.Tab.General;
-                     panel.toggle();
-                   } else if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      if (action === "open-launcher") {
+        PanelService.toggleLauncher(screen);
+      } else if (action === "open-settings") {
+        var panel = PanelService.getPanel("settingsPanel", screen);
+        panel.requestedTab = SettingsPanel.Tab.General;
+        panel.toggle();
+      } else if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   onClicked: {

@@ -12,8 +12,8 @@ import qs.Widgets
 
 Item {
   id: root
-  Layout.preferredHeight: isVerticalBar ? -1 : Style.getBarHeightForScreen(screenName)
-  Layout.preferredWidth: isVerticalBar ? Style.getBarHeightForScreen(screenName) : -1
+  Layout.preferredHeight: isVerticalBar ? -1 : Style.getBarHeightForScreen(screenName, section)
+  Layout.preferredWidth: isVerticalBar ? Style.getBarHeightForScreen(screenName, section) : -1
   Layout.fillHeight: false
   Layout.fillWidth: false
 
@@ -30,7 +30,7 @@ Item {
   readonly property string screenName: screen ? screen.name : ""
   property var widgetSettings: {
     if (section && sectionWidgetIndex >= 0 && screenName) {
-      var widgets = Settings.getBarWidgetsForScreen(screenName)[section];
+      var widgets = Settings.getBarWidgetsForScreen(screenName, section)[section];
       if (widgets && sectionWidgetIndex < widgets.length && widgets[sectionWidgetIndex]) {
         return widgets[sectionWidgetIndex];
       }
@@ -50,11 +50,11 @@ Item {
   readonly property string textColorKey: (widgetSettings.textColor !== undefined) ? widgetSettings.textColor : widgetMetadata.textColor
   readonly property color textColor: Color.resolveColorKey(textColorKey)
 
-  readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
+  readonly property string barPosition: Settings.getBarPositionForScreen(screenName, section)
   readonly property bool isVerticalBar: barPosition === "left" || barPosition === "right"
-  readonly property real barHeight: Style.getBarHeightForScreen(screenName)
-  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName)
-  readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName)
+  readonly property real barHeight: Style.getBarHeightForScreen(screenName, section)
+  readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName, section)
+  readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName, section)
   readonly property bool hasFocusedWindow: CompositorService.getFocusedWindow() !== null
   readonly property string windowTitle: CompositorService.getFocusedWindowTitle() || "No active window"
   readonly property string fallbackIcon: "user-desktop"
@@ -186,13 +186,13 @@ Item {
     ]
 
     onTriggered: action => {
-                   contextMenu.close();
-                   PanelService.closeContextMenu(screen);
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
 
-                   if (action === "widget-settings") {
-                     BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
-                   }
-                 }
+      if (action === "widget-settings") {
+        BarService.openWidgetSettings(screen, section, sectionWidgetIndex, widgetId, widgetSettings);
+      }
+    }
   }
 
   Rectangle {
@@ -350,17 +350,17 @@ Item {
     acceptedButtons: Qt.LeftButton | Qt.RightButton
     onEntered: {
       if ((windowTitle !== "") && isVerticalBar || (scrollingMode === "never")) {
-        TooltipService.show(root, windowTitle, BarService.getTooltipDirection(root.screen?.name));
+        TooltipService.show(root, windowTitle, BarService.getTooltipDirection(root.screen?.name, root.section));
       }
     }
     onExited: {
       TooltipService.hide();
     }
     onClicked: mouse => {
-                 if (mouse.button === Qt.RightButton) {
-                   PanelService.showContextMenu(contextMenu, root, screen);
-                 }
-               }
+      if (mouse.button === Qt.RightButton) {
+        PanelService.showContextMenu(contextMenu, root, screen);
+      }
+    }
   }
 
   Connections {

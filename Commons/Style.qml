@@ -2,9 +2,9 @@ pragma Singleton
 
 import QtQuick
 import Quickshell
-import qs.Services.Power
 import "../Helpers/NotchGeometry.js" as NotchGeometry
 import "../Helpers/OutlineStyle.js" as OutlineStyle
+import qs.Services.Power
 
 Singleton {
   id: root
@@ -106,20 +106,20 @@ Singleton {
   readonly property real barHeight: {
     let h;
     switch (Settings.data.bar.density) {
-      case "mini":
+    case "mini":
       h = (Settings.data.bar.position === "left" || Settings.data.bar.position === "right") ? 23 : 21;
       break;
-      case "compact":
+    case "compact":
       h = (Settings.data.bar.position === "left" || Settings.data.bar.position === "right") ? 27 : 25;
       break;
-      case "comfortable":
+    case "comfortable":
       h = (Settings.data.bar.position === "left" || Settings.data.bar.position === "right") ? 39 : 37;
       break;
-      case "spacious":
+    case "spacious":
       h = (Settings.data.bar.position === "left" || Settings.data.bar.position === "right") ? 49 : 47;
       break;
-      default:
-      case "default":
+    default:
+    case "default":
       h = (Settings.data.bar.position === "left" || Settings.data.bar.position === "right") ? 33 : 31;
     }
     return toOdd(h);
@@ -131,19 +131,19 @@ Singleton {
   readonly property real capsuleHeight: {
     let h;
     switch (Settings.data.bar.density) {
-      case "mini":
+    case "mini":
       h = Math.round(barHeight * 0.90);
       break;
-      case "compact":
+    case "compact":
       h = Math.round(barHeight * 0.85);
       break;
-      case "comfortable":
+    case "comfortable":
       h = Math.round(barHeight * 0.75);
       break;
-      case "spacious":
+    case "spacious":
       h = Math.round(barHeight * 0.65);
       break;
-      default:
+    default:
       h = Math.round(barHeight * 0.82);
       break;
     }
@@ -242,9 +242,12 @@ Singleton {
   }
 
   // Convenience functions for per-screen bar sizing
-  function getBarHeightForScreen(screenName) {
+  function getBarHeightForScreen(screenName, section) {
+    var bubble = Settings.getBubble(screenName, section);
+    if (bubble)
+      return bubble.height;
     var density = Settings.getBarDensityForScreen(screenName);
-    var position = Settings.getBarPositionForScreen(screenName);
+    var position = Settings.getBarPositionForScreen(screenName, section);
     var isVertical = position === "left" || position === "right";
     return getBarHeightForDensity(density, isVertical);
   }
@@ -258,16 +261,16 @@ Singleton {
     return NotchGeometry.inset(edgeLength, Settings.data.bar.notchGap ?? 180);
   }
 
-  function getCapsuleHeightForScreen(screenName) {
-    var barHeight = getBarHeightForScreen(screenName);
+  function getCapsuleHeightForScreen(screenName, section) {
+    var barHeight = getBarHeightForScreen(screenName, section);
     var density = Settings.getBarDensityForScreen(screenName);
     return getCapsuleHeightForDensity(density, barHeight);
   }
 
-  function getBarFontSizeForScreen(screenName) {
-    var barHeight = getBarHeightForScreen(screenName);
-    var capsuleHeight = getCapsuleHeightForScreen(screenName);
-    var position = Settings.getBarPositionForScreen(screenName);
+  function getBarFontSizeForScreen(screenName, section) {
+    var barHeight = getBarHeightForScreen(screenName, section);
+    var capsuleHeight = getCapsuleHeightForScreen(screenName, section);
+    var position = Settings.getBarPositionForScreen(screenName, section);
     var isVertical = position === "left" || position === "right";
     return getBarFontSizeForDensity(barHeight, capsuleHeight, isVertical);
   }
