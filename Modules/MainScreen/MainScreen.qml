@@ -4,6 +4,7 @@ import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
 import "Backgrounds" as Backgrounds
+import "../../Helpers/NotchGeometry.js" as NotchGeometry
 
 import qs.Commons
 
@@ -458,10 +459,16 @@ PanelWindow {
       readonly property real notchEdgeLength: barIsVertical ? (screen?.height ?? 0) : (screen?.width ?? 0)
       readonly property real notchPanelStart: notchPanelItem ? (barIsVertical ? notchPanelItem.targetY : notchPanelItem.targetX) : 0
       readonly property real notchPanelEnd: notchPanelItem ? notchPanelStart + (barIsVertical ? notchPanelItem.targetHeight : notchPanelItem.targetWidth) : 0
-      property real notchStartInset: (notchPanelItem && notchPanelStart < notchInset + Style.radiusL) ? 0 : notchInset
-      property real notchEndInset: (notchPanelItem && notchPanelEnd > notchEdgeLength - notchInset - Style.radiusL) ? 0 : notchInset
+      readonly property var notchFill: NotchGeometry.fillInsets(notchInset, notchEdgeLength, notchPanelItem !== null, notchPanelStart, notchPanelEnd, Style.radiusL)
+      property real notchStartInset: notchFill.start
+      property real notchEndInset: notchFill.end
       readonly property bool notchStartFilled: notchStartInset < 0.5
       readonly property bool notchEndFilled: notchEndInset < 0.5
+
+      // A filled end falls back to the simple bar's corners
+      function notchCornerFilled(corner) {
+        return NotchGeometry.cornerEnd(corner, barPosition) === "start" ? notchStartFilled : notchEndFilled;
+      }
 
       Behavior on notchStartInset {
         NumberAnimation {
@@ -475,15 +482,6 @@ PanelWindow {
           duration: Style.animationFast
           easing.type: Easing.OutCubic
         }
-      }
-
-      // Notch bar: corners on the screen edge flare outward along it, the others are rounded
-      function notchCornerState(onScreenEdge) {
-        if (!onScreenEdge)
-          return 0;
-        if (Settings.data.bar.outerCorners)
-          return barIsVertical ? 2 : 1;
-        return -1;
       }
 
       // Auto-hide properties (read by AllBackgrounds for background fade)
@@ -544,8 +542,8 @@ PanelWindow {
       readonly property int topLeftCornerState: {
         if (barFloating)
           return 0;
-        if (barNotch && !notchStartFilled)
-          return notchCornerState(barPosition === "top" || barPosition === "left");
+        if (barNotch && !notchCornerFilled("topLeft"))
+          return NotchGeometry.cornerState("topLeft", barPosition, Settings.data.bar.outerCorners);
         if (barPosition === "top")
           return -1;
         if (barPosition === "left")
@@ -559,8 +557,8 @@ PanelWindow {
       readonly property int topRightCornerState: {
         if (barFloating)
           return 0;
-        if (barNotch && !(barIsVertical ? notchStartFilled : notchEndFilled))
-          return notchCornerState(barPosition === "top" || barPosition === "right");
+        if (barNotch && !notchCornerFilled("topRight"))
+          return NotchGeometry.cornerState("topRight", barPosition, Settings.data.bar.outerCorners);
         if (barPosition === "top")
           return -1;
         if (barPosition === "right")
@@ -574,8 +572,8 @@ PanelWindow {
       readonly property int bottomLeftCornerState: {
         if (barFloating)
           return 0;
-        if (barNotch && !(barIsVertical ? notchEndFilled : notchStartFilled))
-          return notchCornerState(barPosition === "bottom" || barPosition === "left");
+        if (barNotch && !notchCornerFilled("bottomLeft"))
+          return NotchGeometry.cornerState("bottomLeft", barPosition, Settings.data.bar.outerCorners);
         if (barPosition === "bottom")
           return -1;
         if (barPosition === "left")
@@ -589,8 +587,8 @@ PanelWindow {
       readonly property int bottomRightCornerState: {
         if (barFloating)
           return 0;
-        if (barNotch && !notchEndFilled)
-          return notchCornerState(barPosition === "bottom" || barPosition === "right");
+        if (barNotch && !notchCornerFilled("bottomRight"))
+          return NotchGeometry.cornerState("bottomRight", barPosition, Settings.data.bar.outerCorners);
         if (barPosition === "bottom")
           return -1;
         if (barPosition === "right")

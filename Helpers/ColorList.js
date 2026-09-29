@@ -93,7 +93,7 @@ var colors = [
     { name: "LightSeaGreen", color: "lightseagreen" },
     { name: "DarkCyan", color: "darkcyan" },
     { name: "Teal", color: "teal" },
-    { name: "Turquoise", color: "#1ABC9C" }, // Flat UI
+    { name: "Turquoise (Flat UI)", color: "#1ABC9C" }, // Flat UI (Same name, different color)
     { name: "LightCyan", color: "lightcyan" },
     { name: "PaleTurquoise", color: "paleturquoise" },
     { name: "Aquamarine", color: "aquamarine" },

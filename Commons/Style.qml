@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import qs.Services.Power
+import "../Helpers/NotchGeometry.js" as NotchGeometry
 
 Singleton {
   id: root
@@ -234,14 +235,13 @@ Singleton {
     return getBarHeightForDensity(density, isVertical);
   }
 
-  // Notch bar: empty gap left at each end of the bar's edge (clamped so the bar keeps at least 20% of the edge)
+  // Notch bar: empty gap left at each end of the bar's edge
   function getBarNotchInsetForScreen(screen) {
     if (Settings.data.bar.barType !== "notch" || !screen)
       return 0;
     var position = Settings.getBarPositionForScreen(screen.name);
-    var edgeLength = (position === "left" || position === "right") ? screen.height : screen.width;
-    var gap = Math.max(0, Settings.data.bar.notchGap ?? 180);
-    return Math.floor(Math.min(gap, edgeLength * 0.4));
+    var edgeLength = NotchGeometry.isVertical(position) ? screen.height : screen.width;
+    return NotchGeometry.inset(edgeLength, Settings.data.bar.notchGap ?? 180);
   }
 
   function getCapsuleHeightForScreen(screenName) {

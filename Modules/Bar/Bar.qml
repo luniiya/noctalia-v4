@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Services.UPower
 import Quickshell.Wayland
 import qs.Commons
+import "../../Helpers/NotchGeometry.js" as NotchGeometry
 import qs.Modules.Bar.Extras
 import qs.Modules.Notification
 import qs.Modules.Panels.Settings
@@ -230,7 +231,7 @@ Item {
             return 0;
           // Notch bar: flare along the screen edge, rounded away from it
           if (barNotch)
-            return (barPosition === "top" || barPosition === "left") ? (Settings.data.bar.outerCorners ? (barIsVertical ? 2 : 1) : -1) : 0;
+            return NotchGeometry.cornerState("topLeft", barPosition, Settings.data.bar.outerCorners);
           // Top bar: top corners against screen edge = no radius
           if (barPosition === "top")
             return -1;
@@ -251,7 +252,7 @@ Item {
             return 0;
           // Notch bar: flare along the screen edge, rounded away from it
           if (barNotch)
-            return (barPosition === "top" || barPosition === "right") ? (Settings.data.bar.outerCorners ? (barIsVertical ? 2 : 1) : -1) : 0;
+            return NotchGeometry.cornerState("topRight", barPosition, Settings.data.bar.outerCorners);
           // Top bar: top corners against screen edge = no radius
           if (barPosition === "top")
             return -1;
@@ -272,7 +273,7 @@ Item {
             return 0;
           // Notch bar: flare along the screen edge, rounded away from it
           if (barNotch)
-            return (barPosition === "bottom" || barPosition === "left") ? (Settings.data.bar.outerCorners ? (barIsVertical ? 2 : 1) : -1) : 0;
+            return NotchGeometry.cornerState("bottomLeft", barPosition, Settings.data.bar.outerCorners);
           // Bottom bar: bottom corners against screen edge = no radius
           if (barPosition === "bottom")
             return -1;
@@ -293,7 +294,7 @@ Item {
             return 0;
           // Notch bar: flare along the screen edge, rounded away from it
           if (barNotch)
-            return (barPosition === "bottom" || barPosition === "right") ? (Settings.data.bar.outerCorners ? (barIsVertical ? 2 : 1) : -1) : 0;
+            return NotchGeometry.cornerState("bottomRight", barPosition, Settings.data.bar.outerCorners);
           // Bottom bar: bottom corners against screen edge = no radius
           if (barPosition === "bottom")
             return -1;

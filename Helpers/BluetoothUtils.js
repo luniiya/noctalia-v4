@@ -36,8 +36,7 @@ var parseRssiOutput = (text) => {
     text = text || "";
     var mParen = text.match(/\(\s*(-?\d+)\s*(?:d?b?m?)?\s*\)/i);
     if (mParen && mParen.length > 1) return Number(mParen[1]);
-    var mDec = text.match(/RSSI:\s*(-?\d+)/i);
-    if (mDec && mDec.length > 1) return Number(mDec[1]);
+    // Hex before decimal: the decimal pattern would otherwise read "0x.." as 0
     var mHex = text.match(/RSSI:\s*0x([0-9a-fA-F]+)/i);
     if (mHex && mHex.length > 1) {
       var v = parseInt(mHex[1], 16);
@@ -46,6 +45,8 @@ var parseRssiOutput = (text) => {
       else if (v >= 0x80) v = v - 0x100;         // 8-bit
       return v;
     }
+    var mDec = text.match(/RSSI:\s*(-?\d+)/i);
+    if (mDec && mDec.length > 1) return Number(mDec[1]);
   } catch (e) {}
   return null;
 };
