@@ -119,61 +119,100 @@ TestCase {
   // ----- fillInsets -----
 
   function test_fillInsets_noPanelKeepsGaps() {
-    var r = NotchGeometry.fillInsets(180, 1920, false, 0, 1920, 20);
+    var r = NotchGeometry.fillInsets(180, 1920, false, 0, 1920);
     compare(r.start, 180);
     compare(r.end, 180);
   }
 
   function test_fillInsets_panelInMiddleKeepsGaps() {
-    var r = NotchGeometry.fillInsets(180, 1920, true, 600, 1300, 20);
+    var r = NotchGeometry.fillInsets(180, 1920, true, 600, 1300);
     compare(r.start, 180);
     compare(r.end, 180);
   }
 
   function test_fillInsets_panelPastStartFillsStartOnly() {
-    var r = NotchGeometry.fillInsets(180, 1920, true, 0, 700, 20);
+    var r = NotchGeometry.fillInsets(180, 1920, true, 0, 700);
     compare(r.start, 0);
     compare(r.end, 180);
   }
 
   function test_fillInsets_panelPastEndFillsEndOnly() {
-    var r = NotchGeometry.fillInsets(180, 1920, true, 1200, 1920, 20);
+    var r = NotchGeometry.fillInsets(180, 1920, true, 1200, 1920);
     compare(r.start, 180);
     compare(r.end, 0);
   }
 
   function test_fillInsets_widePanelFillsBothEnds() {
-    var r = NotchGeometry.fillInsets(180, 1920, true, 50, 1870, 20);
+    var r = NotchGeometry.fillInsets(180, 1920, true, 50, 1870);
     compare(r.start, 0);
     compare(r.end, 0);
   }
 
-  function test_fillInsets_panelInsideCornerCurveFills() {
-    // Starts after the gap but inside the bar's corner radius
-    var r = NotchGeometry.fillInsets(180, 1920, true, 190, 700, 20);
-    compare(r.start, 0);
-    // Exactly at gap + radius is clear of the curve
-    r = NotchGeometry.fillInsets(180, 1920, true, 200, 700, 20);
-    compare(r.start, 180);
+  function test_fillInsets_onlyWhenPanelReachesPastBarEnd() {
+    // Exactly at the bar end: no fill; one pixel past it: fill
+    compare(NotchGeometry.fillInsets(180, 1920, true, 180, 700).start, 180);
+    compare(NotchGeometry.fillInsets(180, 1920, true, 179, 700).start, 0);
+    compare(NotchGeometry.fillInsets(180, 1920, true, 1000, 1740).end, 180);
+    compare(NotchGeometry.fillInsets(180, 1920, true, 1000, 1741).end, 0);
   }
 
-  function test_fillInsets_endBoundary() {
-    var r = NotchGeometry.fillInsets(180, 1920, true, 1000, 1720, 20);
-    compare(r.end, 180);
-    r = NotchGeometry.fillInsets(180, 1920, true, 1000, 1721, 20);
-    compare(r.end, 0);
+  function test_fillInsets_panelInCornerZoneDoesNotFill() {
+    // Regression: gap 50, radius 30 on a 1504px edge. A short panel ending at 1440
+    // is inside the bar's rounded end zone but doesn't reach past the bar (1454).
+    var r = NotchGeometry.fillInsets(50, 1504, true, 1200, 1440);
+    compare(r.end, 50);
+    compare(r.start, 50);
   }
 
   function test_fillInsets_zeroGap() {
-    var r = NotchGeometry.fillInsets(0, 1920, true, 0, 1920, 20);
+    var r = NotchGeometry.fillInsets(0, 1920, true, 0, 1920);
     compare(r.start, 0);
     compare(r.end, 0);
   }
 
-  function test_fillInsets_missingRadiusTreatedAsZero() {
-    var r = NotchGeometry.fillInsets(180, 1920, true, 180, 700);
-    compare(r.start, 180);
-    r = NotchGeometry.fillInsets(180, 1920, true, 179, 700);
-    compare(r.start, 0);
+  // ----- avoidCornerZone (gap 50, radius 30, edge 1504: zones 50..80 and 1424..1454) -----
+
+  function test_avoidCornerZone_middleUnchanged() {
+    compare(NotchGeometry.avoidCornerZone(600, 200, 50, 1504, 30), 600);
+    compare(NotchGeometry.avoidCornerZone(80, 200, 50, 1504, 30), 80); // right at the zone edge
+    compare(NotchGeometry.avoidCornerZone(1224, 200, 50, 1504, 30), 1224); // ends exactly at 1424
+  }
+
+  function test_avoidCornerZone_movesOutOfStartZone() {
+    compare(NotchGeometry.avoidCornerZone(50, 200, 50, 1504, 30), 80);
+    compare(NotchGeometry.avoidCornerZone(79, 200, 50, 1504, 30), 80);
+  }
+
+  function test_avoidCornerZone_movesOutOfEndZone() {
+    // Regression: the brightness panel ending at 1440 moves up to end at 1424
+    compare(NotchGeometry.avoidCornerZone(1240, 200, 50, 1504, 30), 1224);
+    compare(NotchGeometry.avoidCornerZone(1254, 200, 50, 1504, 30), 1224); // ends exactly at the bar end
+  }
+
+  function test_avoidCornerZone_resultNeverTriggersFill() {
+    for (var start = 50; start <= 1254; start += 7) {
+      var moved = NotchGeometry.avoidCornerZone(start, 200, 50, 1504, 30);
+      var fill = NotchGeometry.fillInsets(50, 1504, true, moved, moved + 200);
+      compare(fill.start, 50, "start " + start);
+      compare(fill.end, 50, "start " + start);
+      verify(moved >= 80 && moved + 200 <= 1424, "start " + start + " -> " + moved);
+    }
+  }
+
+  function test_avoidCornerZone_panelsPastTheBarKeepTheirPosition() {
+    compare(NotchGeometry.avoidCornerZone(0, 400, 50, 1504, 30), 0); // calendar at the top edge
+    compare(NotchGeometry.avoidCornerZone(20, 400, 50, 1504, 30), 20);
+    compare(NotchGeometry.avoidCornerZone(1104, 400, 50, 1504, 30), 1104); // reaches the bottom edge
+  }
+
+  function test_avoidCornerZone_tooTallPanelUnchanged() {
+    // 1504 - 2 * 80 = 1344 fits; 1345 doesn't
+    compare(NotchGeometry.avoidCornerZone(60, 1344, 50, 1504, 30), 80);
+    compare(NotchGeometry.avoidCornerZone(60, 1345, 50, 1504, 30), 60);
+  }
+
+  function test_avoidCornerZone_noRadiusUnchanged() {
+    compare(NotchGeometry.avoidCornerZone(55, 200, 50, 1504, 0), 55);
+    compare(NotchGeometry.avoidCornerZone(55, 200, 50, 1504, undefined), 55);
   }
 }

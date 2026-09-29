@@ -53,12 +53,29 @@ function cornerState(corner, position, outerCorners) {
 }
 
 // Insets for both ends once an attached panel is taken into account: an end the
-// panel reaches past (or into the corner curve of) is filled so the panel meets
-// the screen edge like on a simple bar. panelStart/panelEnd are along the bar axis.
-function fillInsets(notchInset, edgeLength, hasPanel, panelStart, panelEnd, radius) {
-  var r = radius || 0;
+// panel reaches past is filled so the panel meets the screen edge like on a simple
+// bar. panelStart/panelEnd are along the bar axis.
+function fillInsets(notchInset, edgeLength, hasPanel, panelStart, panelEnd) {
   return {
-    "start": (hasPanel && panelStart < notchInset + r) ? 0 : notchInset,
-    "end": (hasPanel && panelEnd > edgeLength - notchInset - r) ? 0 : notchInset
+    "start": (hasPanel && panelStart < notchInset) ? 0 : notchInset,
+    "end": (hasPanel && panelEnd > edgeLength - notchInset) ? 0 : notchInset
   };
+}
+
+// Position (along the bar axis) for a panel attached to a notch bar. A panel ending
+// within one corner radius of a bar end, without reaching past it, would clash with
+// the bar's rounded end; it is moved toward the middle instead so no fill is needed.
+// Panels that reach past an end, or can't fit between the corner zones, are kept.
+function avoidCornerZone(start, size, notchInset, edgeLength, radius) {
+  var r = radius || 0;
+  var zoneStart = notchInset + r;
+  var zoneEnd = edgeLength - notchInset - r;
+  if (r <= 0 || size > zoneEnd - zoneStart)
+    return start;
+  var end = start + size;
+  if (start >= notchInset && start < zoneStart)
+    return zoneStart;
+  if (end <= edgeLength - notchInset && end > zoneEnd)
+    return zoneEnd - size;
+  return start;
 }

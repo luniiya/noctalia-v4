@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import qs.Commons
 import qs.Services.UI
+import "../../Helpers/NotchGeometry.js" as NotchGeometry
 
 /**
 * SmartPanel for use within MainScreen
@@ -664,6 +665,20 @@ Item {
         calculatedY = topEdgePos;
       } else if (shouldSnapToBottom && Math.abs(calculatedY - bottomEdgePos) <= root.edgeSnapDistance) {
         calculatedY = bottomEdgePos;
+      }
+    }
+
+    // Notch bar: keep attached panels out of the bar's rounded end zones
+    if (Settings.data.bar.barType === "notch" && panelContent.allowAttachToBar && root.barShouldShow) {
+      var notchInset = Style.getBarNotchInsetForScreen(root.screen);
+      if (root.barIsVertical) {
+        var againstBarV = root.barPosition === "left" ? Math.abs(calculatedX - leftBarEdgeWithOverlap) <= 1 : Math.abs(calculatedX + panelWidth - rightBarEdgeWithOverlap) <= 1;
+        if (againstBarV)
+          calculatedY = NotchGeometry.avoidCornerZone(calculatedY, panelHeight, notchInset, root.height, Style.radiusL);
+      } else {
+        var againstBarH = root.barPosition === "top" ? Math.abs(calculatedY - topBarEdgeWithOverlap) <= 1 : Math.abs(calculatedY + panelHeight - bottomBarEdgeWithOverlap) <= 1;
+        if (againstBarH)
+          calculatedX = NotchGeometry.avoidCornerZone(calculatedX, panelWidth, notchInset, root.width, Style.radiusL);
       }
     }
 

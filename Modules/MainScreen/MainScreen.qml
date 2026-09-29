@@ -459,7 +459,7 @@ PanelWindow {
       readonly property real notchEdgeLength: barIsVertical ? (screen?.height ?? 0) : (screen?.width ?? 0)
       readonly property real notchPanelStart: notchPanelItem ? (barIsVertical ? notchPanelItem.targetY : notchPanelItem.targetX) : 0
       readonly property real notchPanelEnd: notchPanelItem ? notchPanelStart + (barIsVertical ? notchPanelItem.targetHeight : notchPanelItem.targetWidth) : 0
-      readonly property var notchFill: NotchGeometry.fillInsets(notchInset, notchEdgeLength, notchPanelItem !== null, notchPanelStart, notchPanelEnd, Style.radiusL)
+      readonly property var notchFill: NotchGeometry.fillInsets(notchInset, notchEdgeLength, notchPanelItem !== null, notchPanelStart, notchPanelEnd)
       property real notchStartInset: notchFill.start
       property real notchEndInset: notchFill.end
       readonly property bool notchStartFilled: notchStartInset < 0.5
