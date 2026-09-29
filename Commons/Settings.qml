@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import "../Helpers/QtObj2JS.js" as QtObj2JS
+import "../Helpers/SettingsPaths.js" as SettingsPaths
 import qs.Commons
 import qs.Commons.Migrations
 import qs.Modules.OSD
@@ -16,6 +17,8 @@ Singleton {
   property bool isLoaded: false
   property bool reloadSettings: false
   property bool directoriesCreated: false
+  // True once the host name is known and the settings file is in place
+  property bool settingsPathReady: false
   property bool shouldOpenSetupWizard: false
   property bool isFreshInstall: false
 
@@ -23,6 +26,7 @@ Singleton {
   Shell directories.
   - Default config directory: ~/.config/noctalia
   - Default cache directory: ~/.cache/noctalia
+  - Settings: ~/.config/noctalia/settings/<hostname>.json (NOCTALIA_SETTINGS_FILE overrides)
   */
   readonly property alias data: adapter  // Used to access via Settings.data.xxx.yyy
   readonly property int settingsVersion: 59
@@ -31,7 +35,11 @@ Singleton {
   readonly property string configDir: ensureTrailingSlash(Quickshell.env("NOCTALIA_CONFIG_DIR") || (Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config") + "/" + shellName + "/")
   readonly property string cacheDir: ensureTrailingSlash(Quickshell.env("NOCTALIA_CACHE_DIR") || (Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache") + "/" + shellName + "/")
 
-  readonly property string settingsFile: Quickshell.env("NOCTALIA_SETTINGS_FILE") || (configDir + "settings.json")
+  readonly property string settingsEnvOverride: Quickshell.env("NOCTALIA_SETTINGS_FILE") || ""
+  readonly property string settingsDir: SettingsPaths.settingsDir(configDir)
+  readonly property string legacySettingsFile: SettingsPaths.legacySettingsFile(configDir)
+  property string hostName: ""
+  readonly property string settingsFile: SettingsPaths.resolveSettingsFile(settingsEnvOverride, configDir, hostName)
   readonly property string defaultAvatar: Quickshell.env("HOME") + "/.face"
   readonly property string defaultVideosDirectory: Quickshell.env("HOME") + "/Videos"
   readonly property string defaultWallpapersDirectory: Quickshell.env("HOME") + "/Pictures/Wallpapers"
@@ -56,7 +64,7 @@ Singleton {
   }
 
   function scheduleExternalReload() {
-    if (!directoriesCreated || settingsFileView.path === undefined) {
+    if (!settingsPathReady || settingsFileView.path === undefined) {
       return;
     }
     externalReloadTimer.restart();
@@ -72,6 +80,9 @@ Singleton {
 
     // Mark directories as created and trigger file loading
     directoriesCreated = true;
+
+    // Resolve the host name, then prepare the per-host settings file (settingsPathReady)
+    hostNameProcess.running = true;
 
     // This should only be activated once when the settings structure has changed
     // Then it should be commented out again, regular users don't need to generate
@@ -102,9 +113,34 @@ Singleton {
     }
   }
 
+  // Settings are per host: read the kernel host name
+  Process {
+    id: hostNameProcess
+    command: ["sh", "-c", "cat /proc/sys/kernel/hostname 2>/dev/null || uname -n"]
+    stdout: StdioCollector {
+      onStreamFinished: {
+        root.hostName = SettingsPaths.sanitizeHostName(text);
+        // Seed a new host's file from the legacy settings.json (copied, the original is kept)
+        var seedFrom = root.settingsEnvOverride ? "" : root.legacySettingsFile;
+        settingsPrepareProcess.command = ["sh", "-c", SettingsPaths.prepareScript([root.configDir, root.cacheDir, root.settingsDir], root.settingsFile, seedFrom)];
+        settingsPrepareProcess.running = true;
+      }
+    }
+  }
+
+  Process {
+    id: settingsPrepareProcess
+    onExited: function (exitCode) {
+      if (exitCode !== 0)
+        Logger.w("Settings", "Preparing settings directory failed with exit code", exitCode);
+      Logger.i("Settings", "Host:", root.hostName, "- using settings file:", root.settingsFile);
+      root.settingsPathReady = true;
+    }
+  }
+
   FileView {
     id: settingsFileView
-    path: directoriesCreated ? settingsFile : undefined
+    path: settingsPathReady ? settingsFile : undefined
     printErrors: false
     watchChanges: true
     onAdapterUpdated: saveTimer.start()
@@ -161,11 +197,11 @@ Singleton {
     }
   }
 
-  // Watch parent config directory as a fallback for declarative setups where
-  // settings.json may be replaced atomically (e.g., symlink/store-path swap).
+  // Watch the settings directory as a fallback for declarative setups where
+  // the settings file may be replaced atomically (e.g., symlink/store-path swap).
   FileView {
     id: settingsDirWatcher
-    path: directoriesCreated ? configDir : undefined
+    path: settingsPathReady ? settingsFile.substring(0, settingsFile.lastIndexOf("/") + 1) : undefined
     printErrors: false
     watchChanges: true
     onFileChanged: scheduleExternalReload()

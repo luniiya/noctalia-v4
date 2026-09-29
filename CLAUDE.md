@@ -23,6 +23,7 @@ Scripts/dev/run-tests.sh -silent  # quieter; this is what the pre-commit hook ru
 
 ## Conventions
 
+- User settings are per host: `~/.config/noctalia/settings/<hostname>.json` (path logic in `Helpers/SettingsPaths.js`). A new host is seeded once from the legacy `settings.json`; `NOCTALIA_SETTINGS_FILE` overrides the path.
 - Settings live in `Commons/Settings.qml` (`JsonAdapter`); every new setting needs a default there. Breaking changes to settings need a migration in `Commons/Migrations/` and a bump of `settingsVersion`.
 - User-facing strings go through `I18n.tr("…")` with keys added to `Assets/Translations/en.json` only (other languages are synced separately).
 - After changing settings UI, run `python3 Scripts/dev/build-settings-search-index.py`.
