@@ -442,9 +442,40 @@ PanelWindow {
       readonly property bool barFloating: Settings.data.bar.barType === "floating"
       readonly property bool barNotch: Settings.data.bar.barType === "notch"
       readonly property real notchInset: Style.getBarNotchInsetForScreen(screen)
-      readonly property real barMarginH: barFloating ? Math.floor(Settings.data.bar.marginHorizontal) : (barIsVertical ? 0 : notchInset)
-      readonly property real barMarginV: barFloating ? Math.floor(Settings.data.bar.marginVertical) : (barIsVertical ? notchInset : 0)
+      readonly property real barMarginH: barFloating ? Math.floor(Settings.data.bar.marginHorizontal) : 0
+      readonly property real barMarginV: barFloating ? Math.floor(Settings.data.bar.marginVertical) : 0
       readonly property real barHeight: Style.getBarHeightForScreen(screen?.name)
+
+      // Notch bar: when an attached panel reaches past an end of the bar, grow that end
+      // into the gap so the panel joins the bar and screen edge like a simple bar
+      readonly property var notchPanelItem: {
+        var op = PanelService.openedPanel;
+        if (!barNotch || !op || op.screen !== screen || !op.touchingBar)
+          return null;
+        var region = op.panelRegion;
+        return (region && region.visible) ? region.panelItem : null;
+      }
+      readonly property real notchEdgeLength: barIsVertical ? (screen?.height ?? 0) : (screen?.width ?? 0)
+      readonly property real notchPanelStart: notchPanelItem ? (barIsVertical ? notchPanelItem.targetY : notchPanelItem.targetX) : 0
+      readonly property real notchPanelEnd: notchPanelItem ? notchPanelStart + (barIsVertical ? notchPanelItem.targetHeight : notchPanelItem.targetWidth) : 0
+      property real notchStartInset: (notchPanelItem && notchPanelStart < notchInset + Style.radiusL) ? 0 : notchInset
+      property real notchEndInset: (notchPanelItem && notchPanelEnd > notchEdgeLength - notchInset - Style.radiusL) ? 0 : notchInset
+      readonly property bool notchStartFilled: notchStartInset < 0.5
+      readonly property bool notchEndFilled: notchEndInset < 0.5
+
+      Behavior on notchStartInset {
+        NumberAnimation {
+          duration: Style.animationFast
+          easing.type: Easing.OutCubic
+        }
+      }
+
+      Behavior on notchEndInset {
+        NumberAnimation {
+          duration: Style.animationFast
+          easing.type: Easing.OutCubic
+        }
+      }
 
       // Notch bar: corners on the screen edge flare outward along it, the others are rounded
       function notchCornerState(onScreenEdge) {
@@ -475,6 +506,8 @@ PanelWindow {
           return (screen?.width ?? 0) - barHeight - barMarginH;
         if (isFramed && !barIsVertical)
           return frameThickness;
+        if (barNotch && !barIsVertical)
+          return notchStartInset;
         return barMarginH;
       }
       y: {
@@ -482,6 +515,8 @@ PanelWindow {
           return (screen?.height ?? 0) - barHeight - barMarginV;
         if (isFramed && barIsVertical)
           return frameThickness;
+        if (barNotch && barIsVertical)
+          return notchStartInset;
         return barMarginV;
       }
       width: {
@@ -490,6 +525,8 @@ PanelWindow {
         }
         if (isFramed)
           return (screen?.width ?? 0) - frameThickness * 2;
+        if (barNotch)
+          return (screen?.width ?? 0) - notchStartInset - notchEndInset;
         return (screen?.width ?? 0) - barMarginH * 2;
       }
       height: {
@@ -498,6 +535,8 @@ PanelWindow {
         }
         if (isFramed)
           return (screen?.height ?? 0) - frameThickness * 2;
+        if (barNotch)
+          return (screen?.height ?? 0) - notchStartInset - notchEndInset;
         return (screen?.height ?? 0) - barMarginV * 2;
       }
 
@@ -505,7 +544,7 @@ PanelWindow {
       readonly property int topLeftCornerState: {
         if (barFloating)
           return 0;
-        if (barNotch)
+        if (barNotch && !notchStartFilled)
           return notchCornerState(barPosition === "top" || barPosition === "left");
         if (barPosition === "top")
           return -1;
@@ -520,7 +559,7 @@ PanelWindow {
       readonly property int topRightCornerState: {
         if (barFloating)
           return 0;
-        if (barNotch)
+        if (barNotch && !(barIsVertical ? notchStartFilled : notchEndFilled))
           return notchCornerState(barPosition === "top" || barPosition === "right");
         if (barPosition === "top")
           return -1;
@@ -535,7 +574,7 @@ PanelWindow {
       readonly property int bottomLeftCornerState: {
         if (barFloating)
           return 0;
-        if (barNotch)
+        if (barNotch && !(barIsVertical ? notchEndFilled : notchStartFilled))
           return notchCornerState(barPosition === "bottom" || barPosition === "left");
         if (barPosition === "bottom")
           return -1;
@@ -550,7 +589,7 @@ PanelWindow {
       readonly property int bottomRightCornerState: {
         if (barFloating)
           return 0;
-        if (barNotch)
+        if (barNotch && !notchEndFilled)
           return notchCornerState(barPosition === "bottom" || barPosition === "right");
         if (barPosition === "bottom")
           return -1;

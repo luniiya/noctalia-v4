@@ -95,6 +95,7 @@ Item {
 
   // Expose panel region for background rendering
   readonly property var panelRegion: panelContent.geometryPlaceholder
+  readonly property bool touchingBar: panelContent.touchingTopBar || panelContent.touchingBottomBar || panelContent.touchingLeftBar || panelContent.touchingRightBar
 
   readonly property string barPosition: Settings.getBarPositionForScreen(screen?.name)
   readonly property bool barIsVertical: barPosition === "left" || barPosition === "right"
