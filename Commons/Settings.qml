@@ -202,7 +202,7 @@ Singleton {
 
     // bar
     property JsonObject bar: JsonObject {
-      property string barType: "simple" // "simple", "floating", "framed"
+      property string barType: "simple" // "simple", "floating", "framed", "notch"
       property string position: "top" // "top", "bottom", "left", or "right"
       property list<string> monitors: [] // holds bar visibility per monitor
       property string density: "default" // "compact", "default", "comfortable"
@@ -226,6 +226,9 @@ Singleton {
       // Framed bar settings
       property int frameThickness: 8
       property int frameRadius: 12
+
+      // Notch bar settings (fraction of the screen edge the bar spans)
+      property real notchLength: 0.8
 
       // Bar outer corners (inverted/concave corners at bar edges when not floating)
       property bool outerCorners: true

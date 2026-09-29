@@ -84,6 +84,10 @@ ColumnLayout {
       {
         "key": "framed",
         "name": I18n.tr("options.bar.type-framed")
+      },
+      {
+        "key": "notch",
+        "name": I18n.tr("options.bar.type-notch")
       }
     ]
     currentKey: Settings.data.bar.barType
@@ -249,9 +253,24 @@ ColumnLayout {
     label: I18n.tr("panels.bar.appearance-outer-corners-label")
     description: I18n.tr("panels.bar.appearance-outer-corners-description")
     checked: Settings.data.bar.outerCorners
-    visible: Settings.data.bar.barType === "simple"
+    visible: Settings.data.bar.barType === "simple" || Settings.data.bar.barType === "notch"
     defaultValue: Settings.getDefaultValue("bar.outerCorners")
     onToggled: checked => Settings.data.bar.outerCorners = checked
+  }
+
+  NValueSlider {
+    Layout.fillWidth: true
+    visible: Settings.data.bar.barType === "notch"
+    label: I18n.tr("panels.bar.appearance-notch-length-label")
+    description: I18n.tr("panels.bar.appearance-notch-length-description")
+    from: 0.2
+    to: 1.0
+    stepSize: 0.01
+    showReset: true
+    value: Settings.data.bar.notchLength
+    defaultValue: Settings.getDefaultValue("bar.notchLength")
+    onMoved: value => Settings.data.bar.notchLength = value
+    text: Math.round(Settings.data.bar.notchLength * 100) + "%"
   }
 
   ColumnLayout {

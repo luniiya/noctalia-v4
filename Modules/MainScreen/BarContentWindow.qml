@@ -42,8 +42,9 @@ PanelWindow {
   readonly property bool isFramed: Settings.data.bar.barType === "framed"
   readonly property real frameThickness: Settings.data.bar.frameThickness ?? 12
   readonly property bool barFloating: Settings.data.bar.barType === "floating"
-  readonly property real barMarginH: Math.ceil(barFloating ? Settings.data.bar.marginHorizontal : 0)
-  readonly property real barMarginV: Math.ceil(barFloating ? Settings.data.bar.marginVertical : 0)
+  readonly property real notchInset: Style.getBarNotchInsetForScreen(barWindow.screen)
+  readonly property real barMarginH: Math.ceil(barFloating ? Settings.data.bar.marginHorizontal : (barIsVertical ? 0 : notchInset))
+  readonly property real barMarginV: Math.ceil(barFloating ? Settings.data.bar.marginVertical : (barIsVertical ? notchInset : 0))
   readonly property real barHeight: Style.getBarHeightForScreen(barWindow.screen?.name)
 
   // Auto-hide properties

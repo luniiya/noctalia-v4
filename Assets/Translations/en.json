@@ -684,6 +684,7 @@
       "display-mode-always-visible": "Always Visible",
       "type-floating": "Floating",
       "type-framed": "Framed",
+      "type-notch": "Notch",
       "type-simple": "Simple"
     },
     "control-center": {
@@ -865,6 +866,8 @@
       "appearance-margins-description": "Adjust the margins around the floating bar.",
       "appearance-margins-horizontal": "Horizontal Margin ",
       "appearance-margins-vertical": "Vertical Margin",
+      "appearance-notch-length-description": "How much of the screen edge the notch bar spans; the rest is left as a gap at each end.",
+      "appearance-notch-length-label": "Notch length",
       "appearance-outer-corners-description": "Display outwardly curved corners on the bar.",
       "appearance-outer-corners-label": "Outer corners",
       "appearance-position-description": "Choose where to place the bar on the screen.",
@@ -875,7 +878,7 @@
       "appearance-show-on-workspace-switch-label": "Show bar on workspace switch",
       "appearance-show-outline-description": "Displays a visible border around every widget.",
       "appearance-show-outline-label": "Show widget outlines",
-      "appearance-type-description": "Choose the style of the bar: Simple, Floating or Framed.",
+      "appearance-type-description": "Choose the style of the bar: Simple, Floating, Framed or Notch.",
       "appearance-type-label": "Bar type",
       "appearance-use-separate-opacity-description": "Enable to use a separate opacity value for the bar background.",
       "appearance-use-separate-opacity-label": "Use separate bar opacity",

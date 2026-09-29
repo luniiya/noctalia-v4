@@ -308,7 +308,19 @@
     "subTab": 0,
     "subTabLabel": "common.appearance",
     "visibleWhen": [
-      "Settings.data.bar.barType === \"simple\""
+      "Settings.data.bar.barType === \"simple\" || Settings.data.bar.barType === \"notch\""
+    ]
+  },
+  {
+    "labelKey": "panels.bar.appearance-notch-length-label",
+    "descriptionKey": "panels.bar.appearance-notch-length-description",
+    "widget": "NValueSlider",
+    "tab": 4,
+    "tabLabel": "panels.bar.title",
+    "subTab": 0,
+    "subTabLabel": "common.appearance",
+    "visibleWhen": [
+      "Settings.data.bar.barType === \"notch\""
     ]
   },
   {

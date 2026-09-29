@@ -68,6 +68,7 @@ Item {
   readonly property string barPosition: Settings.getBarPositionForScreen(screen?.name)
   readonly property bool barIsVertical: barPosition === "left" || barPosition === "right"
   readonly property bool barFloating: Settings.data.bar.barType === "floating"
+  readonly property bool barNotch: Settings.data.bar.barType === "notch"
 
   // Bar density (per-screen)
   readonly property string barDensity: Settings.getBarDensityForScreen(screen?.name)
@@ -227,6 +228,9 @@ Item {
           // Floating bar: always simple rounded corners
           if (barFloating)
             return 0;
+          // Notch bar: flare along the screen edge, rounded away from it
+          if (barNotch)
+            return (barPosition === "top" || barPosition === "left") ? (Settings.data.bar.outerCorners ? (barIsVertical ? 2 : 1) : -1) : 0;
           // Top bar: top corners against screen edge = no radius
           if (barPosition === "top")
             return -1;
@@ -245,6 +249,9 @@ Item {
           // Floating bar: always simple rounded corners
           if (barFloating)
             return 0;
+          // Notch bar: flare along the screen edge, rounded away from it
+          if (barNotch)
+            return (barPosition === "top" || barPosition === "right") ? (Settings.data.bar.outerCorners ? (barIsVertical ? 2 : 1) : -1) : 0;
           // Top bar: top corners against screen edge = no radius
           if (barPosition === "top")
             return -1;
@@ -263,6 +270,9 @@ Item {
           // Floating bar: always simple rounded corners
           if (barFloating)
             return 0;
+          // Notch bar: flare along the screen edge, rounded away from it
+          if (barNotch)
+            return (barPosition === "bottom" || barPosition === "left") ? (Settings.data.bar.outerCorners ? (barIsVertical ? 2 : 1) : -1) : 0;
           // Bottom bar: bottom corners against screen edge = no radius
           if (barPosition === "bottom")
             return -1;
@@ -281,6 +291,9 @@ Item {
           // Floating bar: always simple rounded corners
           if (barFloating)
             return 0;
+          // Notch bar: flare along the screen edge, rounded away from it
+          if (barNotch)
+            return (barPosition === "bottom" || barPosition === "right") ? (Settings.data.bar.outerCorners ? (barIsVertical ? 2 : 1) : -1) : 0;
           // Bottom bar: bottom corners against screen edge = no radius
           if (barPosition === "bottom")
             return -1;
