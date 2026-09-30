@@ -9,6 +9,7 @@ import qs.Services.Noctaliaa
 import qs.Services.System
 import qs.Services.UI
 import qs.Widgets
+import "../../../../../Helpers/VersionDisplay.js" as VersionDisplay
 
 ColumnLayout {
   id: root
@@ -31,6 +32,7 @@ ColumnLayout {
   property string latestVersion: GitHubService.latestVersion
   property string currentVersion: UpdateService.currentVersion
   property string commitInfo: ""
+  readonly property string installedVersion: VersionDisplay.installedVersion(root.currentVersion, root.commitInfo)
   property string qsVersion: ""
   property string qsRevision: ""
 
@@ -128,11 +130,7 @@ ColumnLayout {
   }
 
   function copyInfoToClipboard() {
-    let info = "Noctaliaa Shell: " + root.currentVersion;
-    if (root.isGitVersion && root.commitInfo) {
-      info += " (" + root.commitInfo + ")";
-    }
-    info += "\n";
+    let info = "Noctaliaa Shell: " + root.installedVersion + "\n";
 
     if (root.qsVersion) {
       let qsV = root.qsVersion.startsWith("v") ? root.qsVersion : "v" + root.qsVersion;
@@ -395,18 +393,10 @@ ColumnLayout {
           spacing: Style.marginS
 
           NText {
-            text: root.currentVersion
-            color: Color.mOnSurface
-            font.weight: Style.fontWeightBold
-          }
-
-          // Git commit in parentheses
-          NText {
             id: commitText
-            visible: root.isGitVersion
-            text: "(" + (root.commitInfo || I18n.tr("common.loading")) + ")"
-            color: commitMouseArea.containsMouse ? Color.mPrimary : Color.mOnSurfaceVariant
-            pointSize: Style.fontSizeXS
+            text: root.installedVersion
+            color: commitMouseArea.containsMouse && root.commitInfo ? Color.mPrimary : Color.mOnSurface
+            font.weight: Style.fontWeightBold
             font.underline: commitMouseArea.containsMouse && root.commitInfo
 
             MouseArea {
